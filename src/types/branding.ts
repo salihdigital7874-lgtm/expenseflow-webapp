@@ -1,3 +1,5 @@
+import defaultLogo from '../assets/app-icon.jpg';
+
 export interface AppBranding {
   appName: string;
   appSubtitle: string;
@@ -8,6 +10,7 @@ export interface AppBranding {
 export const DEFAULT_BRANDING: AppBranding = {
   appName: 'Salih Expense',
   appSubtitle: 'Business Portal',
-  appLogo: '/app-icon.jpg',
+  appLogo: defaultLogo,
   accentColor: 'indigo',
 };
+

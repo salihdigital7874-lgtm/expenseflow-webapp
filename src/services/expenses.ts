@@ -1,67 +1,114 @@
 import { supabase } from '../lib/supabase';
 import { Expense } from '../types/database';
+import {
+  getLocalExpenses,
+  createLocalExpense,
+  updateLocalExpense,
+  deleteLocalExpense,
+} from './localStorageFallback';
 
 export const getExpenses = async (userId: string, search?: string, category?: string): Promise<Expense[]> => {
-  let query = supabase
-    .from('expenses')
-    .select('*')
-    .eq('user_id', userId)
-    .order('date', { ascending: false });
-
-  if (category && category !== 'all') {
-    query = query.eq('category', category);
+  if (userId.startsWith('demo')) {
+    let list = getLocalExpenses(userId);
+    if (category && category !== 'all') {
+      list = list.filter((e) => e.category === category);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (e) =>
+          e.description?.toLowerCase().includes(q) ||
+          e.category.toLowerCase().includes(q) ||
+          e.notes?.toLowerCase().includes(q)
+      );
+    }
+    return list;
   }
 
-  if (search) {
-    query = query.or(`description.ilike.%${search}%,category.ilike.%${search}%,notes.ilike.%${search}%`);
-  }
+  try {
+    let query = supabase
+      .from('expenses')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
 
-  const { data, error } = await query;
-  if (error) {
-    console.error('Error fetching expenses:', error);
-    throw new Error(error.message);
+    if (category && category !== 'all') {
+      query = query.eq('category', category);
+    }
+
+    if (search) {
+      query = query.or(`description.ilike.%${search}%,category.ilike.%${search}%,notes.ilike.%${search}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data as Expense[];
+  } catch (err) {
+    console.warn('Supabase getExpenses failed, using local storage:', err);
+    let list = getLocalExpenses(userId);
+    if (category && category !== 'all') {
+      list = list.filter((e) => e.category === category);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (e) =>
+          e.description?.toLowerCase().includes(q) ||
+          e.category.toLowerCase().includes(q) ||
+          e.notes?.toLowerCase().includes(q)
+      );
+    }
+    return list;
   }
-  return data as Expense[];
 };
 
-export const createExpense = async (userId: string, expense: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Expense> => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .insert([
-      {
-        ...expense,
-        user_id: userId,
-      },
-    ])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating expense:', error);
-    throw new Error(error.message);
+export const createExpense = async (
+  userId: string,
+  expense: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>
+): Promise<Expense> => {
+  if (userId.startsWith('demo')) {
+    return createLocalExpense(userId, expense);
   }
-  return data as Expense;
+
+  try {
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert([{ ...expense, user_id: userId }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as Expense;
+  } catch (err) {
+    console.warn('Supabase createExpense failed, writing to local storage:', err);
+    return createLocalExpense(userId, expense);
+  }
 };
 
 export const updateExpense = async (expenseId: string, updates: Partial<Expense>): Promise<Expense> => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .update(updates)
-    .eq('id', expenseId)
-    .select()
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('expenses')
+      .update(updates)
+      .eq('id', expenseId)
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error updating expense:', error);
-    throw new Error(error.message);
+    if (error) throw error;
+    return data as Expense;
+  } catch (err) {
+    console.warn('Supabase updateExpense failed, updating local storage:', err);
+    return updateLocalExpense(expenseId, updates);
   }
-  return data as Expense;
 };
 
 export const deleteExpense = async (expenseId: string): Promise<void> => {
-  const { error } = await supabase.from('expenses').delete().eq('id', expenseId);
-  if (error) {
-    console.error('Error deleting expense:', error);
-    throw new Error(error.message);
+  try {
+    const { error } = await supabase.from('expenses').delete().eq('id', expenseId);
+    if (error) throw error;
+  } catch (err) {
+    console.warn('Supabase deleteExpense failed, deleting from local storage:', err);
+    deleteLocalExpense(expenseId);
   }
 };
+

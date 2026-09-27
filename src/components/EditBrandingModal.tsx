@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, RotateCcw, Check, Sparkles, Image as ImageIcon, Palette, Type } from 'lucide-react';
 import { useAppBrand } from '../context/BrandContext';
+import { DEFAULT_BRANDING } from '../types/branding';
+
 
 interface EditBrandingModalProps {
   isOpen: boolean;
@@ -77,7 +79,7 @@ export const EditBrandingModal: React.FC<EditBrandingModalProps> = ({
 
   const handleResetLogo = () => {
     resetLogo();
-    setAppLogo('/app-icon.jpg');
+    setAppLogo(DEFAULT_BRANDING.appLogo);
     if (showToast) showToast('Logo reset to default', 'info');
   };
 
@@ -85,10 +87,11 @@ export const EditBrandingModal: React.FC<EditBrandingModalProps> = ({
     resetBranding();
     setAppName('Salih Expense');
     setAppSubtitle('Business Portal');
-    setAppLogo('/app-icon.jpg');
+    setAppLogo(DEFAULT_BRANDING.appLogo);
     setAccentColor('indigo');
     if (showToast) showToast('All branding reset to default', 'info');
   };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">

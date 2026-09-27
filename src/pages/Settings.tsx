@@ -1,13 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Building, Save, ShieldCheck, Sparkles, Upload, RotateCcw, Palette, Image as ImageIcon, Type, Check } from 'lucide-react';
+import {
+  User,
+  Building,
+  Save,
+  ShieldCheck,
+  Sparkles,
+  Upload,
+  RotateCcw,
+  Palette,
+  Image as ImageIcon,
+  Type,
+  Check,
+  Trash2,
+  Lock,
+  AlertTriangle,
+  Receipt,
+  TrendingUp,
+  Users,
+  PieChart,
+} from 'lucide-react';
 import { Profile } from '../types/database';
 import { updateProfile } from '../services/profiles';
 import { useAppBrand } from '../context/BrandContext';
+import { ResetAuthModal } from '../components/ResetAuthModal';
 
 interface SettingsProps {
   userId: string;
+  userEmail?: string;
+  isDemoMode?: boolean;
   profile: Profile | null;
   onProfileUpdated: (updated: Profile) => void;
+  onResetDataWithAuth?: (
+    type: 'all' | 'expenses' | 'income' | 'clients' | 'budgets',
+    password: string
+  ) => Promise<void>;
+  onResetAllData?: () => void;
   showToast: (msg: string, type: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
@@ -22,11 +49,15 @@ const ACCENT_COLORS = [
 
 export const Settings: React.FC<SettingsProps> = ({
   userId,
+  userEmail,
+  isDemoMode = false,
   profile,
   onProfileUpdated,
+  onResetDataWithAuth,
+  onResetAllData,
   showToast,
 }) => {
-  const { branding, updateBranding, resetLogo, resetBranding } = useAppBrand();
+  const { branding, updateBranding, resetLogo } = useAppBrand();
 
   const [fullName, setFullName] = useState(profile?.full_name || '');
   const [companyName, setCompanyName] = useState(profile?.company_name || '');
@@ -42,6 +73,19 @@ export const Settings: React.FC<SettingsProps> = ({
 
   const [loading, setLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Data Reset Password Modal State
+  const [resetModalState, setResetModalState] = useState<{
+    isOpen: boolean;
+    type: 'all' | 'expenses' | 'income' | 'clients' | 'budgets';
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    type: 'all',
+    title: '',
+    message: '',
+  });
 
   useEffect(() => {
     if (profile) {
@@ -83,7 +127,6 @@ export const Settings: React.FC<SettingsProps> = ({
     setLoading(true);
 
     try {
-      // 1. Update branding context & localStorage
       updateBranding({
         appName: appName.trim() || 'Salih Expense',
         appSubtitle: appSubtitle.trim() || 'Business Portal',
@@ -91,7 +134,6 @@ export const Settings: React.FC<SettingsProps> = ({
         accentColor,
       });
 
-      // 2. Update Supabase Profile
       const updated = await updateProfile(userId, {
         full_name: fullName,
         company_name: companyName,
@@ -114,12 +156,34 @@ export const Settings: React.FC<SettingsProps> = ({
     showToast('App Logo reset to default', 'info');
   };
 
+  const triggerResetModal = (
+    type: 'all' | 'expenses' | 'income' | 'clients' | 'budgets',
+    title: string,
+    message: string
+  ) => {
+    setResetModalState({
+      isOpen: true,
+      type,
+      title,
+      message,
+    });
+  };
+
+  const handleConfirmResetWithPassword = async (password: string) => {
+    if (onResetDataWithAuth) {
+      await onResetDataWithAuth(resetModalState.type, password);
+    } else if (onResetAllData) {
+      onResetAllData();
+    }
+    setResetModalState((prev) => ({ ...prev, isOpen: false }));
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight">App Branding & Account Settings</h1>
         <p className="text-sm text-zinc-400 mt-1">
-          Customize your Application Name, Logo Icon, Tagline, Business Profile, and Currency format.
+          Customize your Application Name, Logo Icon, Tagline, Business Profile, Currency format, and Data Reset Management.
         </p>
       </div>
 
@@ -334,6 +398,138 @@ export const Settings: React.FC<SettingsProps> = ({
           </p>
         </div>
 
+        {/* Data Reset & Protection Management Section */}
+        <div className="bg-[#08090E] border border-rose-500/30 rounded-2xl p-6 space-y-5 relative overflow-hidden shadow-xl">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+              <h3 className="text-base font-bold text-rose-400 flex items-center gap-2">
+                <Lock className="w-5 h-5 text-rose-400" />
+                <span>Data Reset & Protection Management</span>
+              </h3>
+              <p className="text-xs text-zinc-400 mt-1">
+                Password authentication is required before wiping or resetting any stored transactions or ledgers.
+              </p>
+            </div>
+            <span className="text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 shrink-0">
+              Auth Protected
+            </span>
+          </div>
+
+          {/* Quick Individual Module Reset Controls */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+            {/* Reset Expenses */}
+            <button
+              type="button"
+              onClick={() =>
+                triggerResetModal(
+                  'expenses',
+                  'Reset Expenses Records',
+                  'Are you sure you want to delete all recorded expenses? Password authentication is required.'
+                )
+              }
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+            >
+              <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20 transition-all">
+                <Receipt className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold block text-white">Reset Expenses</span>
+                <span className="text-[10px] text-zinc-400">Clear expense log</span>
+              </div>
+            </button>
+
+            {/* Reset Income */}
+            <button
+              type="button"
+              onClick={() =>
+                triggerResetModal(
+                  'income',
+                  'Reset Income Records',
+                  'Are you sure you want to delete all recorded income revenue? Password authentication is required.'
+                )
+              }
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+            >
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 transition-all">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold block text-white">Reset Income</span>
+                <span className="text-[10px] text-zinc-400">Clear income log</span>
+              </div>
+            </button>
+
+            {/* Reset Client Ledgers */}
+            <button
+              type="button"
+              onClick={() =>
+                triggerResetModal(
+                  'clients',
+                  'Reset Client Ledgers',
+                  'Are you sure you want to delete all client directory and outstanding balances? Password authentication is required.'
+                )
+              }
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+            >
+              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 transition-all">
+                <Users className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold block text-white">Reset Clients</span>
+                <span className="text-[10px] text-zinc-400">Clear client list</span>
+              </div>
+            </button>
+
+            {/* Reset Budgets */}
+            <button
+              type="button"
+              onClick={() =>
+                triggerResetModal(
+                  'budgets',
+                  'Reset Budget Limits',
+                  'Are you sure you want to clear all budget allocation limits? Password authentication is required.'
+                )
+              }
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+            >
+              <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 transition-all">
+                <PieChart className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold block text-white">Reset Budgets</span>
+                <span className="text-[10px] text-zinc-400">Clear budget limits</span>
+              </div>
+            </button>
+          </div>
+
+          {/* Full Application Data Wipe */}
+          <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-3">
+            <div>
+              <h4 className="text-sm font-bold text-rose-300 flex items-center gap-2">
+                <Trash2 className="w-4 h-4 text-rose-400" />
+                <span>Complete Application Data Wipe</span>
+              </h4>
+              <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                Permanently erase all expenses, income, client ledgers, and budget allocations in one step. Requires password authorization.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                triggerResetModal(
+                  'all',
+                  'Password Authentication Required: Full Data Wipe',
+                  'This will permanently delete all application data including expenses, income, client balances, and budgets. Please enter your account password to authorize.'
+                )
+              }
+              className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Authenticate & Reset All Data</span>
+            </button>
+          </div>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -343,7 +539,17 @@ export const Settings: React.FC<SettingsProps> = ({
           <span>{loading ? 'Saving Changes...' : 'Save Settings & Branding'}</span>
         </button>
       </form>
+
+      {/* Reset Password Authentication Modal */}
+      <ResetAuthModal
+        isOpen={resetModalState.isOpen}
+        title={resetModalState.title}
+        message={resetModalState.message}
+        userEmail={userEmail}
+        isDemoMode={isDemoMode}
+        onConfirm={handleConfirmResetWithPassword}
+        onCancel={() => setResetModalState((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
-

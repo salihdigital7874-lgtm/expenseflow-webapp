@@ -18,6 +18,8 @@ import {
 import { Profile } from '../types/database';
 import { useAppBrand } from '../context/BrandContext';
 import { EditBrandingModal } from './EditBrandingModal';
+import { DEFAULT_BRANDING } from '../types/branding';
+
 
 export type TabType =
   | 'dashboard'
@@ -89,9 +91,12 @@ export const Layout: React.FC<LayoutProps> = ({
               alt={branding.appName}
               className="w-10 h-10 rounded-xl object-cover border border-indigo-500/40 shadow-lg shadow-indigo-600/30 shrink-0"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/app-icon.jpg';
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = DEFAULT_BRANDING.appLogo;
               }}
             />
+
             <div className="min-w-0 flex-1">
               <h1 className="font-bold text-base leading-snug tracking-tight text-white truncate group-hover:text-indigo-300 transition-colors">
                 {branding.appName}
@@ -196,7 +201,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
             <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
               <UserCheck className="w-3.5 h-3.5" />
-              <span>Supabase Connected</span>
+              <span>{localStorage.getItem('expenseflow_demo_mode') === 'true' ? 'Demo Local Storage' : 'Supabase Connected'}</span>
             </div>
           </div>
         </header>
@@ -223,9 +228,12 @@ export const Layout: React.FC<LayoutProps> = ({
                   alt={branding.appName}
                   className="w-8 h-8 rounded-lg object-cover border border-indigo-500/40"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/app-icon.jpg';
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = DEFAULT_BRANDING.appLogo;
                   }}
                 />
+
                 <div>
                   <span className="font-bold text-white text-sm block truncate">{branding.appName}</span>
                   <span className="text-[10px] text-indigo-400 font-medium block truncate">

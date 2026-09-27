@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { Sparkles, Mail, Lock, User, ArrowRight, ShieldAlert } from 'lucide-react';
 import { ToastType } from '../components/Toast';
 import { useAppBrand } from '../context/BrandContext';
+import { DEFAULT_BRANDING } from '../types/branding';
 
 interface AuthProps {
   onSuccess: () => void;
@@ -20,6 +21,12 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
   const { branding } = useAppBrand();
   const configured = isSupabaseConfigured();
 
+  const handleDemoLogin = () => {
+    localStorage.setItem('expenseflow_demo_mode', 'true');
+    showToast('Signed in to Demo Mode with sample financial records!', 'success');
+    onSuccess();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -28,7 +35,7 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
     }
 
     if (!configured) {
-      showToast('Supabase is not configured yet. Please update VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in .env file', 'error');
+      handleDemoLogin();
       return;
     }
 
@@ -59,10 +66,17 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
         onSuccess();
       }
     } catch (err: any) {
-      showToast(err.message || 'Authentication failed', 'error');
+      const msg = err?.message || '';
+      if (msg.includes('Load failed') || msg.includes('Failed to fetch') || msg.includes('fetch')) {
+        showToast('Supabase server unreachable. Switching to local Demo Mode...', 'info');
+        handleDemoLogin();
+      } else {
+        showToast(msg || 'Authentication failed', 'error');
+      }
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
@@ -79,7 +93,9 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
               alt={branding.appName}
               className="w-14 h-14 rounded-xl object-cover border border-indigo-400/50 shadow-md"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/app-icon.jpg';
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = DEFAULT_BRANDING.appLogo;
               }}
             />
           </div>
@@ -95,10 +111,9 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
           <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-3">
             <ShieldAlert className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
             <div>
-              <p className="font-semibold text-amber-200">Supabase Credentials Needed</p>
+              <p className="font-semibold text-amber-200">Supabase Connection Notice</p>
               <p className="mt-1 leading-relaxed">
-                Update <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">VITE_SUPABASE_URL</code> and{' '}
-                <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">VITE_SUPABASE_PUBLISHABLE_KEY</code> in your project's <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">.env</code> file or GitHub Secrets to connect to your Supabase PostgreSQL database.
+                Update <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">VITE_SUPABASE_URL</code> in <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">.env</code> to a valid Supabase project, or click <strong>Explore in Demo Mode</strong> below to run fully offline.
               </p>
             </div>
           </div>
@@ -170,16 +185,29 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/10 text-center">
+          <div className="mt-6 pt-5 border-t border-white/10 text-center space-y-4">
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-xs text-zinc-400 hover:text-white transition-colors"
+              className="text-xs text-zinc-400 hover:text-white transition-colors block w-full"
             >
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account yet? Create one"}
             </button>
+
+            <div className="pt-2 border-t border-white/5 flex flex-col items-center gap-2">
+              <span className="text-[11px] text-zinc-500 font-medium">Want to test without Supabase configuration?</span>
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-xs font-semibold text-indigo-300 hover:text-indigo-200 transition-all shadow-sm group"
+              >
+                <Sparkles className="w-4 h-4 text-indigo-400 group-hover:rotate-12 transition-transform" />
+                <span>Explore in Demo Mode (Local Storage)</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+

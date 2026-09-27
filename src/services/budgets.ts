@@ -1,61 +1,84 @@
 import { supabase } from '../lib/supabase';
 import { Budget } from '../types/database';
+import {
+  getLocalBudgets,
+  createLocalBudget,
+  updateLocalBudget,
+  deleteLocalBudget,
+} from './localStorageFallback';
 
 export const getBudgets = async (userId: string): Promise<Budget[]> => {
-  const { data, error } = await supabase
-    .from('budgets')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching budgets:', error);
-    throw new Error(error.message);
+  if (userId.startsWith('demo')) {
+    return getLocalBudgets(userId);
   }
-  return data as Budget[];
+
+  try {
+    const { data, error } = await supabase
+      .from('budgets')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data as Budget[];
+  } catch (err) {
+    console.warn('Supabase getBudgets failed, using local storage:', err);
+    return getLocalBudgets(userId);
+  }
 };
 
 export const createBudget = async (
   userId: string,
   budgetData: Omit<Budget, 'id' | 'user_id' | 'created_at' | 'updated_at'>
 ): Promise<Budget> => {
-  const { data, error } = await supabase
-    .from('budgets')
-    .insert([
-      {
-        ...budgetData,
-        user_id: userId,
-      },
-    ])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating budget:', error);
-    throw new Error(error.message);
+  if (userId.startsWith('demo')) {
+    return createLocalBudget(userId, budgetData);
   }
-  return data as Budget;
+
+  try {
+    const { data, error } = await supabase
+      .from('budgets')
+      .insert([
+        {
+          ...budgetData,
+          user_id: userId,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as Budget;
+  } catch (err) {
+    console.warn('Supabase createBudget failed, creating in local storage:', err);
+    return createLocalBudget(userId, budgetData);
+  }
 };
 
 export const updateBudget = async (budgetId: string, updates: Partial<Budget>): Promise<Budget> => {
-  const { data, error } = await supabase
-    .from('budgets')
-    .update(updates)
-    .eq('id', budgetId)
-    .select()
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('budgets')
+      .update(updates)
+      .eq('id', budgetId)
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error updating budget:', error);
-    throw new Error(error.message);
+    if (error) throw error;
+    return data as Budget;
+  } catch (err) {
+    console.warn('Supabase updateBudget failed, updating local storage:', err);
+    return updateLocalBudget(budgetId, updates);
   }
-  return data as Budget;
 };
 
 export const deleteBudget = async (budgetId: string): Promise<void> => {
-  const { error } = await supabase.from('budgets').delete().eq('id', budgetId);
-  if (error) {
-    console.error('Error deleting budget:', error);
-    throw new Error(error.message);
+  try {
+    const { error } = await supabase.from('budgets').delete().eq('id', budgetId);
+    if (error) throw error;
+  } catch (err) {
+    console.warn('Supabase deleteBudget failed, deleting from local storage:', err);
+    deleteLocalBudget(budgetId);
   }
 };
+

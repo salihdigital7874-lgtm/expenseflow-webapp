@@ -62,17 +62,42 @@ export const App: React.FC = () => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Auth state listener
+  // Auth state listener & Demo mode check
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    const isDemo = localStorage.getItem('expenseflow_demo_mode') === 'true';
+    if (isDemo) {
+      setUser({
+        id: 'demo-user-123',
+        email: 'adshopmarketing1@gmail.com',
+        app_metadata: {},
+        user_metadata: { full_name: 'Muhammed Salih' },
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as any);
       setAuthLoading(false);
-    });
+      return;
+    }
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (session?.user) {
+          setUser(session.user);
+        }
+        setAuthLoading(false);
+      })
+      .catch(() => {
+        setAuthLoading(false);
+      });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        setUser(session.user);
+      } else if (localStorage.getItem('expenseflow_demo_mode') !== 'true') {
+        setUser(null);
+      }
       setAuthLoading(false);
     });
 
@@ -116,9 +141,14 @@ export const App: React.FC = () => {
   }, [user]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('expenseflow_demo_mode');
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {}
+    setUser(null);
     showToast('Signed out of session', 'info');
   };
+
 
   // CRUD Handlers - Expenses
   const handleAddExpense = async (data: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
@@ -295,6 +325,121 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleResetDataWithAuth = async (
+    type: 'all' | 'expenses' | 'income' | 'clients' | 'budgets',
+    passwordInput: string
+  ) => {
+    if (!user) throw new Error('No active user session found.');
+
+    const isDemoMode = localStorage.getItem('expenseflow_demo_mode') === 'true';
+
+    // Verify Password Authentication
+    if (!isDemoMode && user.email) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordInput,
+      });
+      if (error) {
+        throw new Error('Invalid password authentication. Access denied.');
+      }
+    } else {
+      // In demo mode check password input is non-empty
+      if (!passwordInput || passwordInput.trim().length === 0) {
+        throw new Error('Please enter your account password to authorize data reset.');
+      }
+    }
+
+    // Execute resetting of selected records
+    try {
+      if (type === 'all' || type === 'expenses') {
+        localStorage.removeItem('expenseflow_local_expenses');
+        setExpenses([]);
+        if (!isDemoMode) {
+          await supabase.from('expenses').delete().eq('user_id', user.id);
+        }
+      }
+
+      if (type === 'all' || type === 'income') {
+        localStorage.removeItem('expenseflow_local_income');
+        setIncome([]);
+        if (!isDemoMode) {
+          await supabase.from('income').delete().eq('user_id', user.id);
+        }
+      }
+
+      if (type === 'all' || type === 'clients') {
+        localStorage.removeItem('expenseflow_local_clients');
+        setClients([]);
+        if (!isDemoMode) {
+          await supabase.from('clients').delete().eq('user_id', user.id);
+        }
+      }
+
+      if (type === 'all' || type === 'budgets') {
+        localStorage.removeItem('expenseflow_local_budgets');
+        setBudgets([]);
+        if (!isDemoMode) {
+          await supabase.from('budgets').delete().eq('user_id', user.id);
+        }
+      }
+
+      if (type === 'all') {
+        localStorage.removeItem('expenseflow_local_profile');
+      }
+
+      const label = type === 'all' ? 'all application data' : `${type} records`;
+
+      showToast(`Authentication verified. Successfully reset ${label}!`, 'success');
+    } catch (err: any) {
+      showToast('Error resetting data: ' + err.message, 'error');
+      throw err;
+    }
+  };
+
+  const handleResetAllData = async () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Reset All Application Data',
+      message:
+        'Are you sure you want to reset ALL data? This will permanently delete all recorded expenses, income, client balance ledgers, and budget allocations.',
+      onConfirm: async () => {
+        try {
+          // Clear LocalStorage keys
+          localStorage.removeItem('expenseflow_local_expenses');
+          localStorage.removeItem('expenseflow_local_income');
+          localStorage.removeItem('expenseflow_local_clients');
+          localStorage.removeItem('expenseflow_local_budgets');
+          localStorage.removeItem('expenseflow_local_profile');
+
+          // Reset local React state
+          setExpenses([]);
+          setIncome([]);
+          setClients([]);
+          setBudgets([]);
+          setProfile(null);
+
+          // Clear Supabase tables if authenticated user
+          if (user && !user.id.startsWith('demo')) {
+            try {
+              await supabase.from('expenses').delete().eq('user_id', user.id);
+              await supabase.from('income').delete().eq('user_id', user.id);
+              await supabase.from('clients').delete().eq('user_id', user.id);
+              await supabase.from('budgets').delete().eq('user_id', user.id);
+            } catch (e) {
+              console.warn('Could not reset Supabase tables:', e);
+            }
+          }
+
+          showToast('All application data has been completely reset to zero.', 'success');
+        } catch (err: any) {
+          showToast('Failed to reset data: ' + err.message, 'error');
+        } finally {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-indigo-400">
@@ -395,13 +540,18 @@ export const App: React.FC = () => {
           {currentTab === 'settings' && (
             <Settings
               userId={user.id}
+              userEmail={user.email}
+              isDemoMode={localStorage.getItem('expenseflow_demo_mode') === 'true'}
               profile={profile}
               onProfileUpdated={setProfile}
+              onResetDataWithAuth={handleResetDataWithAuth}
+              onResetAllData={handleResetAllData}
               showToast={showToast}
             />
           )}
         </>
       )}
+
 
       {/* Global Modals and Notifications */}
       <ConfirmModal
