@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      if (window.location.hostname.includes('github.io') && !window.location.pathname.includes('/docs/')) {
+        const path = window.location.pathname.endsWith('/') ? window.location.pathname + 'docs/' : window.location.pathname + '/docs/';
+        window.location.replace(path);
+      }
+    </script>
   </head>
   <body class="bg-black text-white antialiased min-h-screen">
     <div id="root"></div>
