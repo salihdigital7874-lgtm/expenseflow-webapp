@@ -106,18 +106,6 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
           </p>
         </div>
 
-        {/* Warning if Supabase URL / Key is placeholder */}
-        {!configured && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
-            <div>
-              <p className="font-semibold text-amber-200">Supabase Connection Notice</p>
-              <p className="mt-1 leading-relaxed">
-                Update <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">VITE_SUPABASE_URL</code> in <code className="bg-black/50 px-1 py-0.5 rounded text-amber-400">.env</code> to a valid Supabase project, or click <strong>Explore in Demo Mode</strong> below to run fully offline.
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Auth Box */}
         <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
@@ -185,25 +173,13 @@ export const Auth: React.FC<AuthProps> = ({ onSuccess, showToast }) => {
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-white/10 text-center space-y-4">
+          <div className="mt-6 pt-5 border-t border-white/10 text-center">
             <button
               onClick={() => setIsSignUp(!isSignUp)}
               className="text-xs text-zinc-400 hover:text-white transition-colors block w-full"
             >
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account yet? Create one"}
             </button>
-
-            <div className="pt-2 border-t border-white/5 flex flex-col items-center gap-2">
-              <span className="text-[11px] text-zinc-500 font-medium">Want to test without Supabase configuration?</span>
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-xs font-semibold text-indigo-300 hover:text-indigo-200 transition-all shadow-sm group"
-              >
-                <Sparkles className="w-4 h-4 text-indigo-400 group-hover:rotate-12 transition-transform" />
-                <span>Explore in Demo Mode (Local Storage)</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
