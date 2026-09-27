@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppBranding, DEFAULT_BRANDING } from '../types/branding';
-import { supabase } from '../lib/supabase';
+import { apiFetch, getToken } from '../lib/api';
 
 interface BrandContextType {
   branding: AppBranding;
@@ -43,30 +43,24 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [branding]);
 
-  // Try fetching saved profile branding from Supabase if logged in
+  // Try fetching saved profile branding from Phone Backend if logged in
   useEffect(() => {
     const syncProfileBranding = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('company_name, app_name, app_subtitle, app_logo, accent_color')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (data) {
+        if (getToken()) {
+          const profile = await apiFetch('/api/profile');
+          if (profile) {
             setBranding((prev) => ({
               ...prev,
-              appName: data.app_name || data.company_name || prev.appName,
-              appSubtitle: data.app_subtitle || prev.appSubtitle,
-              appLogo: data.app_logo || prev.appLogo,
-              accentColor: data.accent_color || prev.accentColor,
+              appName: profile.app_name || profile.company_name || prev.appName,
+              appSubtitle: profile.app_subtitle || prev.appSubtitle,
+              appLogo: profile.app_logo || prev.appLogo,
+              accentColor: profile.accent_color || prev.accentColor,
             }));
           }
         }
       } catch (e) {
-        console.error('Failed to sync profile branding from Supabase', e);
+        console.warn('Could not sync profile branding from backend', e);
       }
     };
     syncProfileBranding();
@@ -76,21 +70,21 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const nextBranding = { ...branding, ...updates };
     setBranding(nextBranding);
 
-    // Sync with Supabase if logged in
+    // Sync with backend if logged in
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await supabase.from('profiles').upsert({
-          id: session.user.id,
-          app_name: nextBranding.appName,
-          app_subtitle: nextBranding.appSubtitle,
-          app_logo: nextBranding.appLogo,
-          accent_color: nextBranding.accentColor,
-          updated_at: new Date().toISOString(),
+      if (getToken()) {
+        await apiFetch('/api/profile', {
+          method: 'PUT',
+          body: JSON.stringify({
+            app_name: nextBranding.appName,
+            app_subtitle: nextBranding.appSubtitle,
+            app_logo: nextBranding.appLogo,
+            accent_color: nextBranding.accentColor,
+          }),
         });
       }
     } catch (e) {
-      console.warn('Could not sync branding to Supabase profile:', e);
+      console.warn('Could not sync branding to backend profile:', e);
     }
   };
 
