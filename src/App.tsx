@@ -8,6 +8,7 @@ import { ConfirmModal } from './components/ConfirmModal';
 
 import { Auth } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
+import { HealthPage } from './pages/Health';
 import { Expenses } from './pages/Expenses';
 import { IncomePage } from './pages/Income';
 import { ClientBalances } from './pages/ClientBalances';
@@ -486,6 +487,10 @@ export const App: React.FC = () => {
               onNavigate={(tab) => setCurrentTab(tab)}
               onAddExpense={handleAddExpense}
             />
+          )}
+
+          {currentTab === 'health' && (
+            <HealthPage showToast={showToast} />
           )}
 
           {currentTab === 'expenses' && (

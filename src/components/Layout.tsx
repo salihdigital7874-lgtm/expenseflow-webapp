@@ -14,6 +14,7 @@ import {
   UserCheck,
   Pencil,
   Sparkles,
+  Heart,
 } from 'lucide-react';
 import { Profile } from '../types/database';
 import { useAppBrand } from '../context/BrandContext';
@@ -23,6 +24,7 @@ import { DEFAULT_BRANDING } from '../types/branding';
 
 export type TabType =
   | 'dashboard'
+  | 'health'
   | 'expenses'
   | 'income'
   | 'clients'
@@ -59,6 +61,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
   const navItems: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: 'health', label: 'Health Suite', icon: <Heart className="w-5 h-5 text-rose-400" /> },
     { id: 'expenses', label: 'My Expenses', icon: <Receipt className="w-5 h-5" /> },
     { id: 'income', label: 'Incoming Amount', icon: <TrendingUp className="w-5 h-5" /> },
     { id: 'clients', label: 'Client Amount Balance', icon: <Users className="w-5 h-5" /> },
