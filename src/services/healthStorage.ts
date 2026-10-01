@@ -293,6 +293,54 @@ export const INITIAL_HEALTH_DATA: HealthDataStore = {
       doctorNotes: 'Keep calorie intake around 2100 kcal, maintain 2.5L water intake and 8000 daily steps.',
     },
   ],
+
+  notificationSettings: {
+    enabled: true,
+    browserNotifications: true,
+    soundEnabled: true,
+    sleepEnabled: true,
+    bedtime: '22:30',
+    wakeTime: '06:30',
+    drinkEnabled: true,
+    drinkIntervalMinutes: 60,
+    drinkStartHour: '08:00',
+    drinkEndHour: '22:00',
+    medicineEnabled: true,
+    medicineTimes: {
+      morning: '08:00',
+      afternoon: '13:00',
+      evening: '18:00',
+      night: '21:30',
+    },
+    foodEnabled: true,
+    mealTimes: {
+      breakfast: '08:30',
+      lunch: '13:30',
+      snack: '17:00',
+      dinner: '20:30',
+    },
+  },
+
+  notificationLogs: [
+    {
+      id: 'notif-demo-1',
+      type: 'drink',
+      title: '🚰 Drink Water Reminder',
+      message: 'Time to drink a fresh glass of water! Track 250ml to stay on goal.',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      read: false,
+      actionType: 'water',
+    },
+    {
+      id: 'notif-demo-2',
+      type: 'medicine',
+      title: '💊 Medicine Time (Morning)',
+      message: 'Remember to take Multivitamin Complex (1 Tablet) after breakfast.',
+      timestamp: new Date(Date.now() - 7200000).toISOString(),
+      read: true,
+      actionType: 'medicine',
+    },
+  ],
 };
 
 export const loadHealthData = (): HealthDataStore => {
@@ -310,6 +358,19 @@ export const loadHealthData = (): HealthDataStore => {
         ...INITIAL_HEALTH_DATA.goals,
         ...(parsed.goals || {}),
       },
+      notificationSettings: {
+        ...INITIAL_HEALTH_DATA.notificationSettings,
+        ...(parsed.notificationSettings || {}),
+        medicineTimes: {
+          ...INITIAL_HEALTH_DATA.notificationSettings!.medicineTimes,
+          ...(parsed.notificationSettings?.medicineTimes || {}),
+        },
+        mealTimes: {
+          ...INITIAL_HEALTH_DATA.notificationSettings!.mealTimes,
+          ...(parsed.notificationSettings?.mealTimes || {}),
+        },
+      },
+      notificationLogs: parsed.notificationLogs || INITIAL_HEALTH_DATA.notificationLogs,
     };
   } catch (err) {
     console.error('Error loading health data from localStorage', err);

@@ -10,9 +10,11 @@ import {
   Pill,
   Calendar,
   FileText,
+  Bell,
 } from 'lucide-react';
-import { HealthDataStore, HealthSubTab, DailyHealthLog, WaterLog, SleepLog, ExerciseLog, WeightLog, MealItem, MedicineLog, HealthAppointment } from '../types/health';
+import { HealthDataStore, HealthSubTab, DailyHealthLog, WaterLog, SleepLog, ExerciseLog, WeightLog, MealItem, MedicineLog, HealthAppointment, HealthNotificationItem, HealthNotificationSettings } from '../types/health';
 import { loadHealthData, saveHealthData } from '../services/healthStorage';
+import { evaluateScheduledHealthNotifications } from '../services/healthNotifications';
 
 import { HealthGoalHeader } from '../components/health/HealthGoalHeader';
 import { HealthDashboardView } from '../components/health/HealthDashboardView';
@@ -25,6 +27,8 @@ import { MealsView } from '../components/health/MealsView';
 import { MedicinesView } from '../components/health/MedicinesView';
 import { AppointmentsView } from '../components/health/AppointmentsView';
 import { HealthReportsView } from '../components/health/HealthReportsView';
+import { HealthNotificationModal } from '../components/health/HealthNotificationModal';
+import { HealthNotificationBanner } from '../components/health/HealthNotificationBanner';
 
 interface HealthPageProps {
   showToast?: (msg: string, type: 'success' | 'error' | 'warning' | 'info') => void;
@@ -33,10 +37,31 @@ interface HealthPageProps {
 export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
   const [data, setData] = useState<HealthDataStore>(loadHealthData());
   const [activeSubTab, setActiveSubTab] = useState<HealthSubTab>('dashboard');
+  const [isNotifModalOpen, setIsNotifModalOpen] = useState(false);
+  const [activeBannerNotif, setActiveBannerNotif] = useState<HealthNotificationItem | null>(null);
+  const [lastMinuteEvaluated, setLastMinuteEvaluated] = useState('');
 
   useEffect(() => {
     saveHealthData(data);
   }, [data]);
+
+  // Background Health Notification Scheduler Check (every 15 seconds)
+  useEffect(() => {
+    const checkTimer = setInterval(() => {
+      const { newLogs, currentMinuteStr } = evaluateScheduledHealthNotifications(data, lastMinuteEvaluated);
+      if (newLogs.length > 0) {
+        setLastMinuteEvaluated(currentMinuteStr);
+        setData((prev) => ({
+          ...prev,
+          notificationLogs: [...newLogs, ...(prev.notificationLogs || [])],
+        }));
+        setActiveBannerNotif(newLogs[0]);
+      }
+    }, 15000);
+
+    return () => clearInterval(checkTimer);
+  }, [data, lastMinuteEvaluated]);
+
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -235,6 +260,40 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
     if (showToast) showToast('Deleted appointment.', 'info');
   };
 
+  // Notification Handlers
+  const handleUpdateNotificationSettings = (newSettings: HealthNotificationSettings) => {
+    setData((prev) => ({
+      ...prev,
+      notificationSettings: newSettings,
+    }));
+    if (showToast) showToast('Notification settings saved!', 'success');
+  };
+
+  const handleAddNotificationLog = (newLog: HealthNotificationItem) => {
+    setData((prev) => ({
+      ...prev,
+      notificationLogs: [newLog, ...(prev.notificationLogs || [])],
+    }));
+    setActiveBannerNotif(newLog);
+  };
+
+  const handleClearNotificationLogs = () => {
+    setData((prev) => ({
+      ...prev,
+      notificationLogs: [],
+    }));
+    if (showToast) showToast('Cleared notification history.', 'info');
+  };
+
+  const handleNotificationQuickAction = (actionType: 'water' | 'medicine' | 'meal' | 'sleep') => {
+    if (actionType === 'water') setActiveSubTab('water');
+    else if (actionType === 'medicine') setActiveSubTab('medicines');
+    else if (actionType === 'meal') setActiveSubTab('meals');
+    else if (actionType === 'sleep') setActiveSubTab('sleep');
+  };
+
+  const unreadNotifCount = (data.notificationLogs || []).filter((l) => !l.read).length;
+
   return (
     <div className="space-y-6 pb-12">
       {/* Top Banner Goal Component */}
@@ -246,25 +305,41 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
         onNavigateTab={(tab) => setActiveSubTab(tab)}
       />
 
-      {/* Sub-tab Navigation Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-white/10">
-        {subNavItems.map((item) => {
-          const isActive = activeSubTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveSubTab(item.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                isActive
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+      {/* Sub-tab Navigation Pills + Reminders Bell Button */}
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          {subNavItems.map((item) => {
+            const isActive = activeSubTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveSubTab(item.id)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                  isActive
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
+                    : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Notifications & Reminders Button */}
+        <button
+          onClick={() => setIsNotifModalOpen(true)}
+          className="relative flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold whitespace-nowrap transition-all shadow-md shrink-0"
+        >
+          <Bell className="w-4 h-4 text-cyan-400 animate-bounce" />
+          <span className="hidden sm:inline">Reminders & Alerts</span>
+          {unreadNotifCount > 0 && (
+            <span className="bg-cyan-500 text-black font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+              {unreadNotifCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Render Selected SubTab Module View */}
@@ -350,6 +425,43 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
       {activeSubTab === 'reports' && (
         <HealthReportsView data={data} />
       )}
+
+      {/* Health Notification Modal */}
+      <HealthNotificationModal
+        isOpen={isNotifModalOpen}
+        onClose={() => setIsNotifModalOpen(false)}
+        settings={
+          data.notificationSettings || {
+            enabled: true,
+            browserNotifications: true,
+            soundEnabled: true,
+            sleepEnabled: true,
+            bedtime: '22:30',
+            wakeTime: '06:30',
+            drinkEnabled: true,
+            drinkIntervalMinutes: 60,
+            drinkStartHour: '08:00',
+            drinkEndHour: '22:00',
+            medicineEnabled: true,
+            medicineTimes: { morning: '08:00', afternoon: '13:00', evening: '18:00', night: '21:30' },
+            foodEnabled: true,
+            mealTimes: { breakfast: '08:30', lunch: '13:30', snack: '17:00', dinner: '20:30' },
+          }
+        }
+        logs={data.notificationLogs || []}
+        onUpdateSettings={handleUpdateNotificationSettings}
+        onAddLog={handleAddNotificationLog}
+        onClearLogs={handleClearNotificationLogs}
+        onQuickAction={handleNotificationQuickAction}
+      />
+
+      {/* Health Notification Floating Banner Toast */}
+      <HealthNotificationBanner
+        notification={activeBannerNotif}
+        onDismiss={() => setActiveBannerNotif(null)}
+        onActionClick={handleNotificationQuickAction}
+      />
     </div>
   );
 };
+

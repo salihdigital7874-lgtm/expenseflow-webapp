@@ -112,6 +112,49 @@ export interface HealthAppointment {
   contactNumber?: string;
 }
 
+}
+
+export interface HealthNotificationSettings {
+  enabled: boolean;
+  browserNotifications: boolean;
+  soundEnabled: boolean;
+  // Sleep Reminders
+  sleepEnabled: boolean;
+  bedtime: string; // "22:30"
+  wakeTime: string; // "06:30"
+  // Drink Water Reminders
+  drinkEnabled: boolean;
+  drinkIntervalMinutes: number; // 60, 90, 120
+  drinkStartHour: string; // "08:00"
+  drinkEndHour: string; // "22:00"
+  // Medicine Reminders
+  medicineEnabled: boolean;
+  medicineTimes: {
+    morning: string; // "08:00"
+    afternoon: string; // "13:00"
+    evening: string; // "18:00"
+    night: string; // "21:30"
+  };
+  // Food / Meal Reminders
+  foodEnabled: boolean;
+  mealTimes: {
+    breakfast: string; // "08:30"
+    lunch: string; // "13:30"
+    snack: string; // "17:00"
+    dinner: string; // "20:30"
+  };
+}
+
+export interface HealthNotificationItem {
+  id: string;
+  type: 'sleep' | 'drink' | 'medicine' | 'food';
+  title: string;
+  message: string;
+  timestamp: string; // ISO string
+  read: boolean;
+  actionType?: 'water' | 'medicine' | 'meal' | 'sleep';
+}
+
 export interface HealthDataStore {
   goals: HealthGoals;
   dailyLogs: DailyHealthLog[];
@@ -122,4 +165,7 @@ export interface HealthDataStore {
   meals: MealItem[];
   medicines: MedicineLog[];
   appointments: HealthAppointment[];
+  notificationSettings?: HealthNotificationSettings;
+  notificationLogs?: HealthNotificationItem[];
 }
+
