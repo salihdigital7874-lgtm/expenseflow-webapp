@@ -1,0 +1,22 @@
+{
+  "name": "ExpenseFlow - Business Expense & Reimbursement Hub",
+  "short_name": "ExpenseFlow",
+  "description": "Smart Financial Management, Health Suite & Reimbursement Hub",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "icons": [
+    {
+      "src": "./app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./app-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
