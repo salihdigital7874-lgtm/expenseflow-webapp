@@ -150,8 +150,8 @@ export const Reports: React.FC<ReportsProps> = ({
       </div>
 
       <div id="report-container" className="space-y-4">
-        {/* Monthly Summary Card (Screen 7 centerpiece) */}
-        <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-4">
+        {/* Monthly Summary Card (Screen 7 centerpiece - STAGGER 1) */}
+        <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-4 stagger-1">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-slate-400">Monthly Summary</p>
@@ -165,7 +165,7 @@ export const Reports: React.FC<ReportsProps> = ({
             </div>
           </div>
 
-          {/* Bar Chart */}
+          {/* Bar Chart with Progressive Draw Animation */}
           <div className="h-44 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} barGap={4}>
@@ -182,8 +182,22 @@ export const Reports: React.FC<ReportsProps> = ({
                     boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
                   }}
                 />
-                <Bar dataKey="Income" fill="#3B82F6" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="Expenses" fill="#FB7185" radius={[6, 6, 0, 0]} />
+                <Bar
+                  dataKey="Income"
+                  fill="#3B82F6"
+                  radius={[6, 6, 0, 0]}
+                  isAnimationActive={true}
+                  animationDuration={1000}
+                  animationEasing="ease-out"
+                />
+                <Bar
+                  dataKey="Expenses"
+                  fill="#FB7185"
+                  radius={[6, 6, 0, 0]}
+                  isAnimationActive={true}
+                  animationDuration={1000}
+                  animationEasing="ease-out"
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -201,21 +215,21 @@ export const Reports: React.FC<ReportsProps> = ({
           </div>
         </div>
 
-        {/* 3 Metric Cards */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+        {/* 3 Metric Cards (STAGGER 2) */}
+        <div className="grid grid-cols-3 gap-3 stagger-2">
+          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 btn-press">
             <p className="text-[11px] font-bold text-slate-400">Total In</p>
             <p className="text-sm font-black text-blue-600 mt-1">
               {formatCurrency(totalIncome > 0 ? totalIncome : 35420, currency)}
             </p>
           </div>
-          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 btn-press">
             <p className="text-[11px] font-bold text-slate-400">Total Out</p>
             <p className="text-sm font-black text-rose-500 mt-1">
               {formatCurrency(totalExpense > 0 ? totalExpense : 12180, currency)}
             </p>
           </div>
-          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+          <div className="bg-white rounded-3xl p-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 btn-press">
             <p className="text-[11px] font-bold text-slate-400">Net Profit</p>
             <p className="text-sm font-black text-emerald-600 mt-1">
               {formatCurrency(totalIncome > 0 ? netSavings : 23240, currency)}
@@ -223,8 +237,8 @@ export const Reports: React.FC<ReportsProps> = ({
           </div>
         </div>
 
-        {/* Export Report Section */}
-        <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-3">
+        {/* Export Report Section (STAGGER 3) */}
+        <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-3 stagger-3">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-slate-900 text-sm">Download & Export Reports</h3>
             <span className="text-[11px] font-bold text-slate-400">PDF & Excel</span>
@@ -232,14 +246,14 @@ export const Reports: React.FC<ReportsProps> = ({
           <div className="grid grid-cols-2 gap-3 pt-1">
             <button
               onClick={handleExportPDF}
-              className="py-3 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+              className="py-3 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all btn-press"
             >
               <FileText className="w-4 h-4 text-rose-400" />
               <span>Download PDF</span>
             </button>
             <button
               onClick={handleExportExcel}
-              className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+              className="py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition-all btn-press"
             >
               <Download className="w-4 h-4 text-emerald-600" />
               <span>Export Excel</span>

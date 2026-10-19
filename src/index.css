@@ -23,17 +23,24 @@
   --accent-blue: #0284C7;
   --accent-purple: #8B5CF6;
 
+  /* Premium iOS Spring & Easing curves */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring-snappy: cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  --ease-ios-out: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
   /* Safe area for notch devices */
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-dark);
+  background-color: #FFFFFF;
   color: var(--text-main);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Custom Scrollbars */
@@ -42,40 +49,218 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-dim);
+  background: rgba(148, 163, 184, 0.6);
 }
 
 /* Hide scrollbar for mobile horizontal scrolls */
-.scrollbar-none::-webkit-scrollbar {
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.scrollbar-none {
+.scrollbar-none,
+.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.glass-panel {
-  background: rgba(8, 9, 14, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* =========================================
+   APP LAUNCH / SPLASH ANIMATIONS
+   ========================================= */
+
+@keyframes launchLogoFadeScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+    filter: blur(6px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes launchSlideUpOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px);
+    pointer-events: none;
+    visibility: hidden;
+  }
+}
+
+.animate-launch-logo {
+  animation: launchLogoFadeScale 0.75s var(--ease-spring) both;
+}
+
+.animate-launch-exit {
+  animation: launchSlideUpOut 0.45s var(--ease-spring) forwards;
+}
+
+/* =========================================
+   SCREEN / TAB HORIZONTAL SLIDE & FADE
+   ========================================= */
+
+@keyframes screenSlideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes screenSlideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes screenFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen-transition-right {
+  animation: screenSlideInRight 0.38s var(--ease-spring) both;
+}
+
+.screen-transition-left {
+  animation: screenSlideInLeft 0.38s var(--ease-spring) both;
+}
+
+.screen-transition-fade {
+  animation: screenFadeUp 0.35s var(--ease-spring) both;
+}
+
+/* =========================================
+   DASHBOARD CARD STAGGERED ENTRANCE
+   ========================================= */
+
+@keyframes cardEnterUp {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-1 { animation: cardEnterUp 0.42s var(--ease-spring) 0.04s both; }
+.stagger-2 { animation: cardEnterUp 0.42s var(--ease-spring) 0.10s both; }
+.stagger-3 { animation: cardEnterUp 0.42s var(--ease-spring) 0.16s both; }
+.stagger-4 { animation: cardEnterUp 0.42s var(--ease-spring) 0.22s both; }
+.stagger-5 { animation: cardEnterUp 0.42s var(--ease-spring) 0.28s both; }
+.stagger-6 { animation: cardEnterUp 0.42s var(--ease-spring) 0.34s both; }
+.stagger-7 { animation: cardEnterUp 0.42s var(--ease-spring) 0.40s both; }
+.stagger-8 { animation: cardEnterUp 0.42s var(--ease-spring) 0.46s both; }
+
+/* =========================================
+   PASTEL CARD & BUTTON MICRO-INTERACTIONS
+   ========================================= */
+
+.pastel-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease;
+}
+
+.pastel-card:hover {
+  box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.06);
+}
+
+/* Button iOS Tactile Press */
+.btn-press {
+  transition: transform 0.14s var(--ease-spring), opacity 0.14s ease, filter 0.14s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-press:active {
+  transform: scale(0.96);
+  filter: brightness(0.97);
+}
+
+/* Floating Action Button with Smooth Entrance & Gentle Glow */
+@keyframes fabEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fab-btn {
+  animation: fabEntrance 0.45s var(--ease-spring) 0.15s both;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
+}
+
+.fab-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.fab-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Smooth Progress Bar Fill */
+.progress-fill {
+  transition: width 0.9s var(--ease-spring);
 }
 
 /* =========================================
    MOBILE CLEAN FROSTED GLASS BOTTOM TAB BAR
    ========================================= */
 
+@keyframes bottomNavFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .mobile-bottom-bar {
   padding-bottom: calc(var(--safe-area-inset-bottom) + 12px);
   padding-left: 14px;
   padding-right: 14px;
+  animation: bottomNavFloat 0.5s var(--ease-spring) 0.1s both;
 }
 
 .mobile-tab-bar {
@@ -88,14 +273,13 @@ body {
   -webkit-backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow:
-    0 20px 45px -10px rgba(15, 23, 42, 0.16),
-    0 1px 3px rgba(15, 23, 42, 0.06),
+    0 20px 45px -10px rgba(15, 23, 42, 0.14),
+    0 1px 3px rgba(15, 23, 42, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 1);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s var(--ease-spring);
 }
 
-/* Subtle iridescent liquid top highlight */
 .mobile-tab-glass-shimmer {
   position: absolute;
   top: 0;
@@ -123,6 +307,21 @@ body {
   gap: 4px;
 }
 
+/* Sliding active pill indicator */
+.mobile-tab-sliding-pill {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  width: calc(20% - 6px);
+  background: rgba(2, 132, 199, 0.10);
+  border: 1px solid rgba(2, 132, 199, 0.18);
+  border-radius: 22px;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.12);
+  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .mobile-tab-item {
   display: flex;
   flex-direction: column;
@@ -131,7 +330,7 @@ body {
   gap: 3px;
   padding: 7px 10px 6px;
   border-radius: 22px;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.25s var(--ease-spring);
   position: relative;
   flex: 1;
   min-height: 52px;
@@ -139,28 +338,29 @@ body {
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   background: transparent;
+  z-index: 2;
 }
 
 .mobile-tab-item:active {
   transform: scale(0.92);
 }
 
-/* Glowing Active Pill */
-.mobile-tab-item--active {
-  background: rgba(2, 132, 199, 0.12);
-  border: 1px solid rgba(2, 132, 199, 0.2);
-  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.15);
-}
-
 .mobile-tab-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s var(--ease-spring), color 0.2s ease;
+}
+
+/* Active icon 1 -> 1.12 -> 1 scale */
+@keyframes tabIconPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.14) translateY(-1px); }
+  100% { transform: scale(1.08) translateY(-1px); }
 }
 
 .mobile-tab-icon--active {
-  transform: translateY(-1px) scale(1.08);
+  animation: tabIconPop 0.35s var(--ease-spring) both;
 }
 
 .mobile-tab-label {
@@ -168,7 +368,7 @@ body {
   font-weight: 500;
   color: #64748B;
   letter-spacing: 0.015em;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.2s ease, font-weight 0.2s ease;
   line-height: 1.2;
 }
 
@@ -188,64 +388,13 @@ body {
   animation: tabDotPulse 2s ease-in-out infinite;
 }
 
-/* Reusable Pastel Card */
-.pastel-card {
-  background: #FFFFFF;
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
-  transition: all 0.25s ease;
-}
-.pastel-card:hover {
-  box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.08);
-}
-
-.mobile-tab-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.mobile-tab-icon--active {
-  color: #FFFFFF !important;
-  filter: drop-shadow(0 0 10px rgba(165, 180, 252, 0.95));
-  transform: translateY(-1px) scale(1.08);
-}
-
-.mobile-tab-label {
-  font-size: 10px;
-  font-weight: 500;
-  color: #94A3B8;
-  letter-spacing: 0.015em;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  line-height: 1.2;
-}
-
-.mobile-tab-label--active {
-  color: #FFFFFF;
-  font-weight: 700;
-  text-shadow: 0 0 12px rgba(165, 180, 252, 0.7);
-}
-
-.mobile-tab-dot {
-  position: absolute;
-  bottom: 2px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #A5B4FC;
-  box-shadow: 0 0 8px #818CF8, 0 0 16px #6366F1;
-  animation: tabDotPulse 2s ease-in-out infinite;
-}
-
 @keyframes tabDotPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(1.4); }
+  50% { opacity: 0.55; transform: scale(1.3); }
 }
 
 /* =========================================
-   MOBILE "MORE" BOTTOM SHEET (LIQUID GLASS)
+   MOBILE "MORE" BOTTOM SHEET
    ========================================= */
 
 .mobile-more-sheet {
@@ -254,25 +403,17 @@ body {
   left: 0;
   right: 0;
   z-index: 45;
-  background: linear-gradient(
-    180deg,
-    rgba(22, 25, 42, 0.88) 0%,
-    rgba(10, 12, 22, 0.96) 100%
-  );
-  backdrop-filter: blur(36px) saturate(210%);
-  -webkit-backdrop-filter: blur(36px) saturate(210%);
-  border-top-left-radius: 30px;
-  border-top-right-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-top: 1px solid rgba(255, 255, 255, 0.36);
-  border-bottom: none;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(36px) saturate(200%);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-  max-height: 70vh;
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 75vh;
   overflow-y: auto;
-  box-shadow:
-    0 -25px 65px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: 0 -20px 50px rgba(15, 23, 42, 0.12);
 }
 
 .mobile-more-sheet--open {
@@ -289,91 +430,17 @@ body {
 }
 
 /* =========================================
-   MOBILE-SPECIFIC RESPONSIVE TWEAKS
+   PWA & TOUCH ADJUSTMENTS
    ========================================= */
 
-/* Cards stack nicely on small screens */
-@media (max-width: 639px) {
-
-  /* Make charts scrollable horizontally on small screens */
-  .recharts-responsive-container {
-    min-width: 300px;
-  }
-
-  /* Modal adjustments */
-  .fixed.inset-0 .max-w-md,
-  .fixed.inset-0 .max-w-lg,
-  .fixed.inset-0 .max-w-xl {
-    margin: 8px;
-    max-height: calc(100vh - 16px);
-    overflow-y: auto;
-  }
-
-  /* Health sub-tab pills: smaller on mobile */
-  .flex.items-center.gap-1\.5.overflow-x-auto button {
-    font-size: 11px;
-    padding: 8px 12px;
-  }
-}
-
-/* Tablet intermediate breakpoint */
-@media (min-width: 640px) and (max-width: 1023px) {
-  /* 2-column grids work well here by default via tailwind */
-}
-
-/* Touch feedback for mobile */
 @media (hover: none) and (pointer: coarse) {
   button, a, [role="button"] {
     -webkit-tap-highlight-color: transparent;
   }
-
-  /* Slightly larger touch targets */
-  .mobile-tab-item {
-    min-height: 48px;
-  }
 }
-
-/* =========================================
-   ANIMATION UTILITIES
-   ========================================= */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.35s ease-out both;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.25s ease-out both;
-}
-
-/* =========================================
-   PWA / STANDALONE MODE ADJUSTMENTS
-   ========================================= */
 
 @media all and (display-mode: standalone) {
   .mobile-tab-bar {
     padding-bottom: calc(var(--safe-area-inset-bottom) + 2px);
   }
 }
-

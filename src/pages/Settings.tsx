@@ -185,8 +185,8 @@ export const Settings: React.FC<SettingsProps> = ({
   return (
     <div className="space-y-4 pb-28">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Screen 10: Customize App White Pastel Card */}
-        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-5">
+        {/* Screen 10: Customize App White Pastel Card (STAGGER 1) */}
+        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-5 stagger-1">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black text-slate-900 tracking-tight">Customize App</h2>
             <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
@@ -242,14 +242,14 @@ export const Settings: React.FC<SettingsProps> = ({
                 <button
                   type="button"
                   onClick={() => logoInputRef.current?.click()}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all btn-press"
                 >
                   Change
                 </button>
                 <button
                   type="button"
                   onClick={handleResetLogo}
-                  className="px-3 py-2 rounded-xl text-slate-400 hover:text-slate-600 text-xs font-semibold"
+                  className="px-3 py-2 rounded-xl text-slate-400 hover:text-slate-600 text-xs font-semibold btn-press"
                 >
                   Reset
                 </button>
@@ -269,7 +269,7 @@ export const Settings: React.FC<SettingsProps> = ({
                     key={c.id}
                     type="button"
                     onClick={() => setAccentColor(c.id)}
-                    className={`w-9 h-9 rounded-full ${c.bg} flex items-center justify-center transition-transform cursor-pointer shrink-0 ${
+                    className={`w-9 h-9 rounded-full ${c.bg} flex items-center justify-center transition-transform cursor-pointer shrink-0 btn-press ${
                       isSelected ? 'ring-4 ring-offset-2 ring-blue-500 scale-110' : 'opacity-90 hover:opacity-100'
                     }`}
                   >
@@ -300,15 +300,15 @@ export const Settings: React.FC<SettingsProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer btn-press"
           >
             <Save className="w-4 h-4" />
             <span>{loading ? 'Saving Changes...' : 'Save Changes'}</span>
           </button>
         </div>
 
-        {/* Profile & Business Details */}
-        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-4">
+        {/* Profile & Business Details (STAGGER 2) */}
+        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-4 stagger-2">
           <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
             <User className="w-4 h-4 text-blue-600" />
             <span>Profile & Business Information</span>

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Expense, Income, Client, Budget } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { useAnimatedCounter } from '../hooks/useAnimatedCounter';
 import {
   BarChart,
   Bar,
@@ -314,17 +315,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 6);
 
+  const rawBalance = totalIncoming > 0 || totalExpenses > 0 ? (totalIncoming - totalExpenses) : 142850;
+  const animatedBalance = useAnimatedCounter(rawBalance, 850);
+
   return (
     <div className="space-y-5 pb-8">
-      {/* ── SCREEN 1: TOTAL BALANCE CARD ── */}
-      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden">
+      {/* ── SCREEN 1: TOTAL BALANCE CARD (STAGGER 1) ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden stagger-1">
         <div className="flex items-start justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Total Balance
             </span>
             <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">
-              {formatCurrency(totalIncoming > 0 || totalExpenses > 0 ? (totalIncoming - totalExpenses) : 142850, currency)}
+              {formatCurrency(animatedBalance, currency)}
             </div>
             <div className="flex items-center gap-2 mt-2">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -350,12 +354,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* ── SCREEN 1: 4 GRID CARDS ── */}
+      {/* ── SCREEN 1: 4 GRID CARDS (STAGGERS 2-5) ── */}
       <div className="grid grid-cols-2 gap-3.5">
         {/* Income Card */}
         <div 
           onClick={() => onNavigate('income')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group btn-press stagger-2"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -374,7 +378,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Expenses Card */}
         <div 
           onClick={() => onNavigate('expenses')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-rose-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-rose-200 transition-all cursor-pointer group btn-press stagger-3"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -393,7 +397,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Clients Due Card */}
         <div 
           onClick={() => onNavigate('clients')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-amber-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-amber-200 transition-all cursor-pointer group btn-press stagger-4"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -412,7 +416,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Savings Card */}
         <div 
           onClick={() => onNavigate('budgets')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-purple-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-purple-200 transition-all cursor-pointer group btn-press stagger-5"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -429,13 +433,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* ── SCREEN 1: RECENT TRANSACTIONS ── */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+      {/* ── SCREEN 1: RECENT TRANSACTIONS (STAGGER 6) ── */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 stagger-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-slate-900 tracking-tight">Recent Transactions</h3>
           <button
             onClick={() => onNavigate('expenses')}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors btn-press"
           >
             <span>See All</span>
             <ChevronRight className="w-3.5 h-3.5" />

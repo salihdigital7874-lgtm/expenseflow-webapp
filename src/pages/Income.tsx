@@ -119,7 +119,7 @@ export const IncomePage: React.FC<IncomeProps> = ({
       <div className="flex items-center gap-2">
         <button
           onClick={() => setPeriodFilter('this_month')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
             periodFilter === 'this_month'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
               : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
@@ -129,7 +129,7 @@ export const IncomePage: React.FC<IncomeProps> = ({
         </button>
         <button
           onClick={() => setPeriodFilter('last_month')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
             periodFilter === 'last_month'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
               : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
@@ -139,7 +139,7 @@ export const IncomePage: React.FC<IncomeProps> = ({
         </button>
         <button
           onClick={() => setPeriodFilter('custom')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
             periodFilter === 'custom'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
               : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
@@ -149,8 +149,8 @@ export const IncomePage: React.FC<IncomeProps> = ({
         </button>
       </div>
 
-      {/* ── SCREEN 4: TOTAL REVENUE CARD ── */}
-      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-emerald-100/70 relative overflow-hidden">
+      {/* ── SCREEN 4: TOTAL REVENUE CARD (STAGGER 1) ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-emerald-100/70 relative overflow-hidden stagger-1">
         <div className="flex items-start justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -172,8 +172,8 @@ export const IncomePage: React.FC<IncomeProps> = ({
         </div>
       </div>
 
-      {/* Search & Export */}
-      <div className="flex items-center justify-between gap-3 bg-white border border-emerald-100/60 p-3.5 rounded-2xl shadow-sm">
+      {/* Search & Export (STAGGER 2) */}
+      <div className="flex items-center justify-between gap-3 bg-white border border-emerald-100/60 p-3.5 rounded-2xl shadow-sm stagger-2">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -186,15 +186,15 @@ export const IncomePage: React.FC<IncomeProps> = ({
         </div>
         <button
           onClick={handleExport}
-          className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors shrink-0"
+          className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors shrink-0 btn-press"
           title="Export Excel"
         >
           <Download className="w-4 h-4" />
         </button>
       </div>
 
-      {/* ── SCREEN 4: RECENT INCOME LIST ── */}
-      <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-emerald-100/60">
+      {/* ── SCREEN 4: RECENT INCOME LIST (STAGGER 3) ── */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-emerald-100/60 stagger-3">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-slate-900 tracking-tight">Recent Income</h3>
           <span className="text-xs font-semibold text-slate-400">{filteredIncome.length} entries</span>
@@ -320,7 +320,7 @@ export const IncomePage: React.FC<IncomeProps> = ({
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-none">
         <button
           onClick={handleOpenAddModal}
-          className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 pointer-events-auto transition-all"
+          className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 pointer-events-auto fab-btn cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           <span>Add Income</span>

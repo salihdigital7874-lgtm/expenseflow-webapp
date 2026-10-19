@@ -18,6 +18,7 @@ import {
 import { HealthDataStore, HealthSubTab, DailyHealthLog, WaterLog, SleepLog, ExerciseLog, WeightLog, MealItem, MedicineLog, HealthAppointment, HealthNotificationItem, HealthNotificationSettings } from '../types/health';
 import { loadHealthData, saveHealthData } from '../services/healthStorage';
 import { evaluateScheduledHealthNotifications } from '../services/healthNotifications';
+import { useAnimatedCounter } from '../hooks/useAnimatedCounter';
 
 import { HealthGoalHeader } from '../components/health/HealthGoalHeader';
 import { HealthDashboardView } from '../components/health/HealthDashboardView';
@@ -305,10 +306,24 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
   const sleepGoal = data.goals.sleepGoalHours || 8;
   const sleepPct = Math.min(100, Math.round((todaySleepHrs / sleepGoal) * 100));
 
+  // Micro-interaction states for ring and bar entrance
+  const [ringProgress, setRingProgress] = useState(0);
+  const [barsLoaded, setBarsLoaded] = useState(false);
+  const animatedScore = useAnimatedCounter(84, 900);
+
+  useEffect(() => {
+    const ringTimer = setTimeout(() => setRingProgress(0.84), 80);
+    const barsTimer = setTimeout(() => setBarsLoaded(true), 120);
+    return () => {
+      clearTimeout(ringTimer);
+      clearTimeout(barsTimer);
+    };
+  }, []);
+
   return (
     <div className="space-y-5 pb-12">
-      {/* ── SCREEN 2: WELLNESS SCORE CIRCULAR GAUGE ── */}
-      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-rose-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden">
+      {/* ── SCREEN 2: WELLNESS SCORE CIRCULAR GAUGE (STAGGER 1) ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-rose-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden stagger-1">
         {/* Soft background ambient glow */}
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-rose-100/40 rounded-full blur-3xl pointer-events-none" />
 
@@ -331,10 +346,10 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
               stroke="url(#roseGradient)"
               strokeWidth="9"
               strokeDasharray="314.159"
-              strokeDashoffset={314.159 * (1 - 0.84)}
+              strokeDashoffset={314.159 * (1 - ringProgress)}
               strokeLinecap="round"
               fill="none"
-              className="transition-all duration-1000 ease-out"
+              style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
             />
             <defs>
               <linearGradient id="roseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -346,7 +361,7 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
 
           {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-4xl font-extrabold text-slate-900 tracking-tight">84</span>
+            <span className="text-4xl font-extrabold text-slate-900 tracking-tight">{animatedScore}</span>
             <span className="text-xs font-bold text-rose-500 mt-0.5">Excellent</span>
           </div>
         </div>
@@ -354,12 +369,12 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
         <p className="text-xs font-semibold text-slate-400 mt-3">Daily Wellness Score</p>
       </div>
 
-      {/* ── SCREEN 2: 4 VITALS METRIC CARDS ── */}
+      {/* ── SCREEN 2: 4 VITALS METRIC CARDS (STAGGERS 2-5) ── */}
       <div className="grid grid-cols-2 gap-3.5">
         {/* Water Card */}
         <div 
           onClick={() => { setActiveSubTab('water'); setShowDetails(true); }}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-blue-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-blue-200 transition-all cursor-pointer group btn-press stagger-2"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -371,14 +386,17 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
             {displayWaterLiters} / {waterGoal} L
           </p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
-            <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${waterPct}%` }} />
+            <div
+              className="bg-blue-500 h-full rounded-full progress-fill"
+              style={{ width: barsLoaded ? `${waterPct}%` : '0%' }}
+            />
           </div>
         </div>
 
         {/* Sleep Card */}
         <div 
           onClick={() => { setActiveSubTab('sleep'); setShowDetails(true); }}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-purple-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-purple-200 transition-all cursor-pointer group btn-press stagger-3"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -390,14 +408,17 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
             {Math.floor(todaySleepHrs)}h {Math.round((todaySleepHrs % 1) * 60)}m
           </p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
-            <div className="bg-purple-500 h-full rounded-full transition-all duration-500" style={{ width: `${sleepPct}%` }} />
+            <div
+              className="bg-purple-500 h-full rounded-full progress-fill"
+              style={{ width: barsLoaded ? `${sleepPct}%` : '0%' }}
+            />
           </div>
         </div>
 
         {/* Workout Card */}
         <div 
           onClick={() => { setActiveSubTab('exercise'); setShowDetails(true); }}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-orange-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-orange-200 transition-all cursor-pointer group btn-press stagger-4"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -409,14 +430,17 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
             {todaySteps > 0 ? `${Math.round(todaySteps / 100)} mins` : '45 mins'}
           </p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
-            <div className="bg-orange-500 h-full rounded-full transition-all duration-500" style={{ width: '75%' }} />
+            <div
+              className="bg-orange-500 h-full rounded-full progress-fill"
+              style={{ width: barsLoaded ? '75%' : '0%' }}
+            />
           </div>
         </div>
 
         {/* Calories Card */}
         <div 
           onClick={() => { setActiveSubTab('meals'); setShowDetails(true); }}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-emerald-200 transition-all cursor-pointer group"
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-emerald-200 transition-all cursor-pointer group btn-press stagger-5"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -428,7 +452,10 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
             1,840 kcal
           </p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
-            <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '82%' }} />
+            <div
+              className="bg-emerald-500 h-full rounded-full progress-fill"
+              style={{ width: barsLoaded ? '82%' : '0%' }}
+            />
           </div>
         </div>
       </div>
@@ -436,7 +463,7 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
       {/* ── SCREEN 2: VIEW FULL DETAILS CTA BUTTON ── */}
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-400 via-rose-500 to-pink-500 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-rose-400/25 flex items-center justify-center gap-2 transition-all transform active:scale-[0.99]"
+        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-400 via-rose-500 to-pink-500 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-rose-400/25 flex items-center justify-center gap-2 transition-all btn-press stagger-6"
       >
         <span>{showDetails ? 'Hide Detailed Trackers' : 'View Full Details'}</span>
         <ArrowRight className={`w-4 h-4 transition-transform ${showDetails ? 'rotate-90' : ''}`} />

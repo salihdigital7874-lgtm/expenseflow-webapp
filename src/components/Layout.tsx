@@ -110,6 +110,18 @@ const TAB_THEMES: Record<
   },
 };
 
+const TAB_ORDER: TabType[] = [
+  'dashboard',
+  'health',
+  'expenses',
+  'income',
+  'clients',
+  'budgets',
+  'reports',
+  'translator',
+  'settings',
+];
+
 export const Layout: React.FC<LayoutProps> = ({
   currentTab,
   onSelectTab,
@@ -124,6 +136,43 @@ export const Layout: React.FC<LayoutProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [brandingModalOpen, setBrandingModalOpen] = useState(false);
   const moreSheetRef = useRef<HTMLDivElement>(null);
+
+  // App Launch Splash Screen
+  const [showLaunchScreen, setShowLaunchScreen] = useState(() => {
+    return !sessionStorage.getItem('expenseflow_launched_session');
+  });
+  const [launchExiting, setLaunchExiting] = useState(false);
+
+  useEffect(() => {
+    if (showLaunchScreen) {
+      const exitTimer = setTimeout(() => {
+        setLaunchExiting(true);
+        const closeTimer = setTimeout(() => {
+          setShowLaunchScreen(false);
+          sessionStorage.setItem('expenseflow_launched_session', 'true');
+        }, 450);
+        return () => clearTimeout(closeTimer);
+      }, 1000);
+      return () => clearTimeout(exitTimer);
+    }
+  }, [showLaunchScreen]);
+
+  // Tab Transition Direction Handling
+  const [prevTab, setPrevTab] = useState<TabType>(currentTab);
+  const [transitionClass, setTransitionClass] = useState<string>('screen-transition-fade');
+
+  useEffect(() => {
+    if (currentTab !== prevTab) {
+      const prevIdx = TAB_ORDER.indexOf(prevTab);
+      const currIdx = TAB_ORDER.indexOf(currentTab);
+      if (currIdx > prevIdx) {
+        setTransitionClass('screen-transition-right');
+      } else {
+        setTransitionClass('screen-transition-left');
+      }
+      setPrevTab(currentTab);
+    }
+  }, [currentTab, prevTab]);
 
   const { branding } = useAppBrand();
 
@@ -159,6 +208,18 @@ export const Layout: React.FC<LayoutProps> = ({
   // Check if active tab is in "More" group
   const isActiveInMore = moreMenuTabs.some((item) => item.id === currentTab);
 
+  // Active Bottom Index for Sliding Indicator Pill (0 to 4)
+  const activeBottomIndex =
+    currentTab === 'dashboard'
+      ? 0
+      : currentTab === 'health'
+      ? 1
+      : currentTab === 'expenses'
+      ? 2
+      : currentTab === 'income'
+      ? 3
+      : 4;
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSearch && searchValue.trim()) {
@@ -180,6 +241,34 @@ export const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className={`min-h-screen flex ${currentTheme.bg} ${currentTheme.textColor} transition-colors duration-500`}>
+      {/* ====== APP LAUNCH / SPLASH OVERLAY ====== */}
+      {showLaunchScreen && (
+        <div
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-3xl transition-all ${
+            launchExiting ? 'animate-launch-exit' : ''
+          }`}
+        >
+          <div className="flex flex-col items-center gap-4 animate-launch-logo">
+            <img
+              src={branding.appLogo}
+              alt={branding.appName}
+              className="w-20 h-20 rounded-3xl object-cover shadow-2xl shadow-sky-500/25 border border-slate-100"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_BRANDING.appLogo;
+              }}
+            />
+            <div className="text-center">
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">{branding.appName}</h1>
+              <p className="text-xs text-sky-600 font-bold mt-0.5">{branding.appSubtitle}</p>
+            </div>
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+              <span className="text-[11px] font-semibold text-slate-400">Loading Executive Suite...</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex w-64 flex-col fixed top-0 bottom-0 left-0 bg-white/80 backdrop-blur-2xl border-r border-slate-200/80 z-40 shadow-sm">
         {/* Brand Header - Click to Edit */}
@@ -219,7 +308,7 @@ export const Layout: React.FC<LayoutProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 btn-press ${
                   isActive
                     ? 'bg-sky-500 text-white shadow-md shadow-sky-500/30'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
@@ -261,7 +350,7 @@ export const Layout: React.FC<LayoutProps> = ({
             <button
               onClick={onLogout}
               title="Sign Out"
-              className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+              className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors btn-press"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -278,14 +367,14 @@ export const Layout: React.FC<LayoutProps> = ({
             {currentTab === 'settings' ? (
               <button
                 onClick={() => onSelectTab('dashboard')}
-                className="flex items-center gap-2 text-slate-900 font-bold hover:text-sky-600 transition-colors"
+                className="flex items-center gap-2 text-slate-900 font-bold hover:text-sky-600 transition-colors btn-press"
               >
                 <ChevronLeft className="w-6 h-6 text-slate-700" />
                 <span className="text-lg font-bold">Customize App</span>
               </button>
             ) : currentTab === 'dashboard' ? (
               <div
-                className="flex items-center gap-2.5 cursor-pointer"
+                className="flex items-center gap-2.5 cursor-pointer btn-press"
                 onClick={() => setBrandingModalOpen(true)}
               >
                 <img
@@ -335,7 +424,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   const query = prompt('Search records:');
                   if (query && onSearch) onSearch(query);
                 }}
-                className="w-9 h-9 rounded-full bg-white/90 border border-slate-200/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-slate-900 transition-all"
+                className="w-9 h-9 rounded-full bg-white/90 border border-slate-200/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-slate-900 transition-all btn-press"
                 title="Search"
               >
                 <Search className="w-4 h-4" />
@@ -345,7 +434,7 @@ export const Layout: React.FC<LayoutProps> = ({
             {/* User Avatar Circle */}
             <div
               onClick={() => onSelectTab('settings')}
-              className="relative cursor-pointer group"
+              className="relative cursor-pointer group btn-press"
               title="Profile & Settings"
             >
               <img
@@ -358,9 +447,11 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
         </header>
 
-        {/* Page Content Area with Responsive Bottom Padding */}
+        {/* Page Content Area with Fluid Horizontal Slide + Fade Directional Transition */}
         <main className="flex-1 p-3.5 sm:p-6 lg:p-8 pb-28 lg:pb-8 max-w-7xl w-full mx-auto">
-          {children}
+          <div key={currentTab} className={transitionClass}>
+            {children}
+          </div>
         </main>
       </div>
 
@@ -369,7 +460,7 @@ export const Layout: React.FC<LayoutProps> = ({
         {/* "More" Bottom Sheet overlay */}
         {moreSheetOpen && (
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 mobile-sheet-overlay pointer-events-auto"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 mobile-sheet-overlay pointer-events-auto transition-opacity"
             onClick={() => setMoreSheetOpen(false)}
           />
         )}
@@ -390,7 +481,7 @@ export const Layout: React.FC<LayoutProps> = ({
               <img src={avatarUrl} alt="User" className="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-xs" />
               <button
                 onClick={() => setMoreSheetOpen(false)}
-                className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors ml-1"
+                className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors ml-1 btn-press"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -399,13 +490,13 @@ export const Layout: React.FC<LayoutProps> = ({
 
           {/* More Menu Items matching Screen 9 */}
           <nav className="p-4 space-y-2">
-            {moreMenuTabs.map((item) => {
+            {moreMenuTabs.map((item, idx) => {
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleMobileTabSelect(item.id)}
-                  className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold transition-all ${
+                  className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold transition-all btn-press stagger-${Math.min(8, idx + 1)} ${
                     isActive
                       ? 'bg-sky-50 text-sky-900 border border-sky-200/70 shadow-xs'
                       : 'text-slate-800 hover:bg-slate-50 bg-white border border-slate-100 shadow-2xs'
@@ -445,7 +536,7 @@ export const Layout: React.FC<LayoutProps> = ({
             })}
 
             {/* Help & Support */}
-            <div className="w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold text-slate-800 bg-white border border-slate-100 shadow-2xs cursor-pointer hover:bg-slate-50">
+            <div className="w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold text-slate-800 bg-white border border-slate-100 shadow-2xs cursor-pointer hover:bg-slate-50 btn-press">
               <div className="flex items-center gap-3.5">
                 <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 shadow-xs">
                   <HelpCircle className="w-5 h-5" />
@@ -461,7 +552,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 setMoreSheetOpen(false);
                 onLogout();
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/25 transition-all mt-4 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/25 transition-all mt-4 cursor-pointer btn-press"
             >
               <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
@@ -469,23 +560,39 @@ export const Layout: React.FC<LayoutProps> = ({
           </nav>
         </div>
 
-        {/* Floating Frosted Glass Bottom Navigation Bar */}
+        {/* Floating Frosted Glass Bottom Navigation Bar with Sliding Indicator */}
         <div className="mobile-tab-bar pointer-events-auto">
           <div className="mobile-tab-glass-shimmer" />
 
           <div className="mobile-tab-bar-inner">
+            {/* Sliding Pill Indicator that morphs across tabs */}
+            <div
+              className="mobile-tab-sliding-pill"
+              style={{
+                transform: `translateX(${activeBottomIndex * 100}%)`,
+              }}
+            />
+
             {mobileBottomTabs.map((item) => {
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleMobileTabSelect(item.id)}
-                  className={`mobile-tab-item ${isActive ? 'mobile-tab-item--active' : ''}`}
+                  className={`mobile-tab-item btn-press`}
                 >
-                  <span className={`mobile-tab-icon ${isActive ? 'mobile-tab-icon--active' : ''}`}>
+                  <span
+                    className={`mobile-tab-icon ${
+                      isActive ? 'mobile-tab-icon--active' : ''
+                    }`}
+                  >
                     {item.icon}
                   </span>
-                  <span className={`mobile-tab-label ${isActive ? 'mobile-tab-label--active' : ''}`}>
+                  <span
+                    className={`mobile-tab-label ${
+                      isActive ? 'mobile-tab-label--active' : ''
+                    }`}
+                  >
                     {item.shortLabel}
                   </span>
                   {isActive && <span className="mobile-tab-dot" />}
@@ -496,12 +603,24 @@ export const Layout: React.FC<LayoutProps> = ({
             {/* More Button */}
             <button
               onClick={() => setMoreSheetOpen(!moreSheetOpen)}
-              className={`mobile-tab-item ${isActiveInMore || moreSheetOpen ? 'mobile-tab-item--active' : ''}`}
+              className={`mobile-tab-item btn-press`}
             >
-              <span className={`mobile-tab-icon ${isActiveInMore || moreSheetOpen ? 'mobile-tab-icon--active' : ''}`}>
-                {moreSheetOpen ? <ChevronUp className="w-5 h-5 text-slate-700" /> : <MoreHorizontal className="w-5 h-5 text-slate-500" />}
+              <span
+                className={`mobile-tab-icon ${
+                  isActiveInMore || moreSheetOpen ? 'mobile-tab-icon--active' : ''
+                }`}
+              >
+                {moreSheetOpen ? (
+                  <ChevronUp className="w-5 h-5 text-slate-700" />
+                ) : (
+                  <MoreHorizontal className="w-5 h-5 text-slate-500" />
+                )}
               </span>
-              <span className={`mobile-tab-label ${isActiveInMore || moreSheetOpen ? 'mobile-tab-label--active' : ''}`}>
+              <span
+                className={`mobile-tab-label ${
+                  isActiveInMore || moreSheetOpen ? 'mobile-tab-label--active' : ''
+                }`}
+              >
                 More
               </span>
               {isActiveInMore && <span className="mobile-tab-dot" />}

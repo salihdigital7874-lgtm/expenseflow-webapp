@@ -158,7 +158,7 @@ export const Expenses: React.FC<ExpensesProps> = ({
       <div className="flex items-center gap-2">
         <button
           onClick={() => setPeriodFilter('this_month')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
             periodFilter === 'this_month'
               ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
               : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
@@ -168,7 +168,7 @@ export const Expenses: React.FC<ExpensesProps> = ({
         </button>
         <button
           onClick={() => setPeriodFilter('last_month')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
             periodFilter === 'last_month'
               ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
               : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
@@ -178,7 +178,7 @@ export const Expenses: React.FC<ExpensesProps> = ({
         </button>
         <button
           onClick={() => setPeriodFilter('custom')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
             periodFilter === 'custom'
               ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
               : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
@@ -188,8 +188,8 @@ export const Expenses: React.FC<ExpensesProps> = ({
         </button>
       </div>
 
-      {/* ── SCREEN 3: TOTAL EXPENSES CARD ── */}
-      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/70 relative overflow-hidden">
+      {/* ── SCREEN 3: TOTAL EXPENSES CARD (STAGGER 1) ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/70 relative overflow-hidden stagger-1">
         <div className="flex items-start justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -210,8 +210,8 @@ export const Expenses: React.FC<ExpensesProps> = ({
         </div>
       </div>
 
-      {/* ── SCREEN 3: BY CATEGORY BREAKDOWN ── */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/70 space-y-4">
+      {/* ── SCREEN 3: BY CATEGORY BREAKDOWN (STAGGER 2) ── */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/70 space-y-4 stagger-2">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 tracking-tight">By Category</h3>
           <span className="text-xs font-semibold text-purple-600">Breakdown</span>
@@ -229,7 +229,7 @@ export const Expenses: React.FC<ExpensesProps> = ({
                 </div>
                 <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                   <div
-                    className={`${barColor} h-full rounded-full transition-all duration-500`}
+                    className={`${barColor} h-full rounded-full progress-fill`}
                     style={{ width: `${item.pct}%` }}
                   />
                 </div>
@@ -336,7 +336,7 @@ export const Expenses: React.FC<ExpensesProps> = ({
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-none">
         <button
           onClick={handleOpenAddModal}
-          className="w-full py-4 px-6 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-sm shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2 pointer-events-auto transition-all"
+          className="w-full py-4 px-6 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2 pointer-events-auto fab-btn cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           <span>Add Expense</span>

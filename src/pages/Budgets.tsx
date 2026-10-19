@@ -193,7 +193,7 @@ export const Budgets: React.FC<BudgetsProps> = ({
           return (
             <div
               key={b.id}
-              className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-3 transition-all hover:shadow-md"
+              className={`bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-3 transition-all hover:shadow-md stagger-${Math.min(8, idx + 1)}`}
             >
               {/* Header row: Icon + Category + Percent badge */}
               <div className="flex items-center justify-between">
@@ -215,13 +215,13 @@ export const Budgets: React.FC<BudgetsProps> = ({
                     <div className="flex items-center">
                       <button
                         onClick={() => handleOpenEditModal(b as Budget)}
-                        className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+                        className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg btn-press"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onDelete(b.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg"
+                        className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg btn-press"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -233,7 +233,7 @@ export const Budgets: React.FC<BudgetsProps> = ({
               {/* Progress bar */}
               <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                  className={`h-full rounded-full progress-fill ${barColor}`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>
@@ -257,7 +257,7 @@ export const Budgets: React.FC<BudgetsProps> = ({
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 pointer-events-none z-30">
         <button
           onClick={handleOpenAddModal}
-          className="pointer-events-auto w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:to-orange-600 text-white font-bold text-sm shadow-xl shadow-rose-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer"
+          className="pointer-events-auto w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:to-orange-600 text-white font-bold text-sm shadow-xl shadow-rose-500/25 flex items-center justify-center gap-2 fab-btn cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Create Budget</span>

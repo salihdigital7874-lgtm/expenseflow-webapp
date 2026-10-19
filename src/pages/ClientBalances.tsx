@@ -201,7 +201,7 @@ export const ClientBalances: React.FC<ClientBalancesProps> = ({
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
         <button
           onClick={() => setStatusFilter('all')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all btn-press ${
             statusFilter === 'all'
               ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
               : 'bg-white/80 text-slate-700 border border-amber-200 hover:bg-white'
@@ -211,7 +211,7 @@ export const ClientBalances: React.FC<ClientBalancesProps> = ({
         </button>
         <button
           onClick={() => setStatusFilter('pending')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all btn-press ${
             statusFilter === 'pending'
               ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
               : 'bg-white/80 text-slate-700 border border-amber-200 hover:bg-white'
@@ -221,7 +221,7 @@ export const ClientBalances: React.FC<ClientBalancesProps> = ({
         </button>
         <button
           onClick={() => setStatusFilter('active')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all btn-press ${
             statusFilter === 'active'
               ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
               : 'bg-white/80 text-slate-700 border border-amber-200 hover:bg-white'
@@ -357,7 +357,7 @@ export const ClientBalances: React.FC<ClientBalancesProps> = ({
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-none">
         <button
           onClick={handleOpenAddModal}
-          className="w-full py-4 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-white font-bold text-sm shadow-xl shadow-amber-500/30 flex items-center justify-center gap-2 pointer-events-auto transition-all"
+          className="w-full py-4 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-xl shadow-amber-500/30 flex items-center justify-center gap-2 pointer-events-auto fab-btn cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           <span>Add Client</span>
