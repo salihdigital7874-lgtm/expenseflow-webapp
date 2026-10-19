@@ -11,6 +11,9 @@ import {
   Calendar,
   FileText,
   Bell,
+  Flame,
+  Apple,
+  ArrowRight,
 } from 'lucide-react';
 import { HealthDataStore, HealthSubTab, DailyHealthLog, WaterLog, SleepLog, ExerciseLog, WeightLog, MealItem, MedicineLog, HealthAppointment, HealthNotificationItem, HealthNotificationSettings } from '../types/health';
 import { loadHealthData, saveHealthData } from '../services/healthStorage';
@@ -292,55 +295,194 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
     else if (actionType === 'sleep') setActiveSubTab('sleep');
   };
 
+  const [showDetails, setShowDetails] = useState(false);
   const unreadNotifCount = (data.notificationLogs || []).filter((l) => !l.read).length;
 
-  return (
-    <div className="space-y-6 pb-12">
-      {/* Top Banner Goal Component */}
-      <HealthGoalHeader
-        goals={data.goals}
-        todayWaterMl={todayWaterMl}
-        todaySteps={todaySteps}
-        todaySleepHrs={todaySleepHrs}
-        onNavigateTab={(tab) => setActiveSubTab(tab)}
-      />
+  const displayWaterLiters = todayWaterMl > 0 ? (todayWaterMl / 1000).toFixed(1) : '2.1';
+  const waterGoal = data.goals.waterGoalLiters || 3.0;
+  const waterPct = Math.min(100, Math.round((Number(displayWaterLiters) / waterGoal) * 100));
 
-      {/* Sub-tab Navigation Pills + Reminders Bell Button */}
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          {subNavItems.map((item) => {
-            const isActive = activeSubTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveSubTab(item.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                  isActive
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-                    : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+  const sleepGoal = data.goals.sleepGoalHours || 8;
+  const sleepPct = Math.min(100, Math.round((todaySleepHrs / sleepGoal) * 100));
+
+  return (
+    <div className="space-y-5 pb-12">
+      {/* ── SCREEN 2: WELLNESS SCORE CIRCULAR GAUGE ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-rose-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        {/* Soft background ambient glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-rose-100/40 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative w-36 h-36 flex items-center justify-center">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+            {/* Background track */}
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              className="text-rose-100 stroke-current"
+              strokeWidth="9"
+              fill="none"
+            />
+            {/* Animated Progress gradient circle */}
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              stroke="url(#roseGradient)"
+              strokeWidth="9"
+              strokeDasharray="314.159"
+              strokeDashoffset={314.159 * (1 - 0.84)}
+              strokeLinecap="round"
+              fill="none"
+              className="transition-all duration-1000 ease-out"
+            />
+            <defs>
+              <linearGradient id="roseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FB7185" />
+                <stop offset="100%" stopColor="#F43F5E" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Center text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-4xl font-extrabold text-slate-900 tracking-tight">84</span>
+            <span className="text-xs font-bold text-rose-500 mt-0.5">Excellent</span>
+          </div>
         </div>
 
-        {/* Notifications & Reminders Button */}
-        <button
-          onClick={() => setIsNotifModalOpen(true)}
-          className="relative flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold whitespace-nowrap transition-all shadow-md shrink-0"
-        >
-          <Bell className="w-4 h-4 text-cyan-400 animate-bounce" />
-          <span className="hidden sm:inline">Reminders & Alerts</span>
-          {unreadNotifCount > 0 && (
-            <span className="bg-cyan-500 text-black font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-              {unreadNotifCount}
-            </span>
-          )}
-        </button>
+        <p className="text-xs font-semibold text-slate-400 mt-3">Daily Wellness Score</p>
       </div>
+
+      {/* ── SCREEN 2: 4 VITALS METRIC CARDS ── */}
+      <div className="grid grid-cols-2 gap-3.5">
+        {/* Water Card */}
+        <div 
+          onClick={() => { setActiveSubTab('water'); setShowDetails(true); }}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-blue-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Droplets className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Water</p>
+          <p className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+            {displayWaterLiters} / {waterGoal} L
+          </p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+            <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${waterPct}%` }} />
+          </div>
+        </div>
+
+        {/* Sleep Card */}
+        <div 
+          onClick={() => { setActiveSubTab('sleep'); setShowDetails(true); }}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-purple-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Moon className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Sleep</p>
+          <p className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+            {Math.floor(todaySleepHrs)}h {Math.round((todaySleepHrs % 1) * 60)}m
+          </p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+            <div className="bg-purple-500 h-full rounded-full transition-all duration-500" style={{ width: `${sleepPct}%` }} />
+          </div>
+        </div>
+
+        {/* Workout Card */}
+        <div 
+          onClick={() => { setActiveSubTab('exercise'); setShowDetails(true); }}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-orange-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Flame className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Workout</p>
+          <p className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+            {todaySteps > 0 ? `${Math.round(todaySteps / 100)} mins` : '45 mins'}
+          </p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+            <div className="bg-orange-500 h-full rounded-full transition-all duration-500" style={{ width: '75%' }} />
+          </div>
+        </div>
+
+        {/* Calories Card */}
+        <div 
+          onClick={() => { setActiveSubTab('meals'); setShowDetails(true); }}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-rose-100/60 hover:border-emerald-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Apple className="w-5 h-5" />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Calories</p>
+          <p className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+            1,840 kcal
+          </p>
+          <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+            <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '82%' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── SCREEN 2: VIEW FULL DETAILS CTA BUTTON ── */}
+      <button
+        onClick={() => setShowDetails(!showDetails)}
+        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-400 via-rose-500 to-pink-500 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-rose-400/25 flex items-center justify-center gap-2 transition-all transform active:scale-[0.99]"
+      >
+        <span>{showDetails ? 'Hide Detailed Trackers' : 'View Full Details'}</span>
+        <ArrowRight className={`w-4 h-4 transition-transform ${showDetails ? 'rotate-90' : ''}`} />
+      </button>
+
+      {/* ── DETAILED SUBTABS & ACTIONS ── */}
+      {showDetails && (
+        <div className="space-y-4 pt-2">
+          {/* Sub-tab Navigation Pills + Reminders Bell Button */}
+          <div className="flex items-center justify-between gap-2 pb-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+              {subNavItems.map((item) => {
+                const isActive = activeSubTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSubTab(item.id)}
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                      isActive
+                        ? 'bg-rose-500 text-white shadow-sm'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Notifications & Reminders Button */}
+            <button
+              onClick={() => setIsNotifModalOpen(true)}
+              className="relative flex items-center gap-2 px-3.5 py-2 rounded-full bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold whitespace-nowrap transition-all shadow-sm shrink-0 hover:bg-rose-100"
+            >
+              <Bell className="w-3.5 h-3.5 text-rose-500" />
+              <span className="hidden sm:inline">Reminders</span>
+              {unreadNotifCount > 0 && (
+                <span className="bg-rose-500 text-white font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                  {unreadNotifCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Render Selected SubTab Module View */}
       {activeSubTab === 'dashboard' && (

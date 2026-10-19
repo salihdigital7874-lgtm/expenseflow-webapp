@@ -13,7 +13,6 @@ import {
   Check,
   Trash2,
   Lock,
-  AlertTriangle,
   Receipt,
   TrendingUp,
   Users,
@@ -41,12 +40,14 @@ interface SettingsProps {
 }
 
 const ACCENT_COLORS = [
-  { id: 'indigo', name: 'Indigo Blue', bg: 'bg-indigo-600' },
-  { id: 'emerald', name: 'Emerald Green', bg: 'bg-emerald-600' },
-  { id: 'violet', name: 'Violet Purple', bg: 'bg-violet-600' },
-  { id: 'cyan', name: 'Cyan Tech', bg: 'bg-cyan-600' },
-  { id: 'rose', name: 'Rose Red', bg: 'bg-rose-600' },
-  { id: 'amber', name: 'Amber Gold', bg: 'bg-amber-600' },
+  { id: 'indigo', name: 'Blue', color: '#3b82f6', bg: 'bg-blue-500' },
+  { id: 'violet', name: 'Violet', color: '#8b5cf6', bg: 'bg-purple-500' },
+  { id: 'emerald', name: 'Emerald', color: '#10b981', bg: 'bg-emerald-500' },
+  { id: 'amber', name: 'Amber', color: '#f59e0b', bg: 'bg-amber-500' },
+  { id: 'rose', name: 'Rose', color: '#f43f5e', bg: 'bg-rose-500' },
+  { id: 'cyan', name: 'Cyan', color: '#06b6d4', bg: 'bg-cyan-500' },
+  { id: 'pink', name: 'Pink', color: '#ec4899', bg: 'bg-pink-500' },
+  { id: 'slate', name: 'Dark', color: '#0f172a', bg: 'bg-slate-900' },
 ];
 
 export const Settings: React.FC<SettingsProps> = ({
@@ -182,81 +183,55 @@ export const Settings: React.FC<SettingsProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">App Branding & Account Settings</h1>
-        <p className="text-sm text-zinc-400 mt-1">
-          Customize your Application Name, Logo Icon, Tagline, Business Profile, Currency format, and Data Reset Management.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* App Branding & Customization Box */}
-        <div className="bg-[#08090E] border border-indigo-500/30 rounded-2xl p-6 space-y-5 relative overflow-hidden shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
-              <span>App Identity & Custom Branding</span>
-            </h3>
-            <span className="text-xs text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full font-medium">
-              Live App Branding
+    <div className="space-y-4 pb-28">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Screen 10: Customize App White Pastel Card */}
+        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">Customize App</h2>
+            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              Screen 10
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* App Name */}
-            <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <Type className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Application Name</span>
-              </label>
-              <input
-                type="text"
-                value={appName}
-                onChange={(e) => setAppName(e.target.value)}
-                placeholder="e.g. Salih Expense, My Business App..."
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                required
-              />
-              <p className="text-[11px] text-zinc-400 mt-1">
-                App name displayed in sidebar, mobile header, and browser title.
-              </p>
-            </div>
-
-            {/* App Subtitle */}
-            <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Tagline / Subtitle
-              </label>
-              <input
-                type="text"
-                value={appSubtitle}
-                onChange={(e) => setAppSubtitle(e.target.value)}
-                placeholder="e.g. Business Portal, Financial Ledger..."
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
-              />
-              <p className="text-[11px] text-zinc-400 mt-1">Sub-heading shown under the main logo.</p>
-            </div>
+          {/* App Name */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-700">App Name</label>
+            <input
+              type="text"
+              value={appName}
+              onChange={(e) => setAppName(e.target.value)}
+              placeholder="Salih Expense"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
           </div>
 
-          {/* Logo Uploader */}
-          <div className="pt-2 border-t border-white/10 space-y-3">
-            <label className="block text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />
-              <span>App Logo Icon</span>
-            </label>
+          {/* Subtitle */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-700">Subtitle</label>
+            <input
+              type="text"
+              value={appSubtitle}
+              onChange={(e) => setAppSubtitle(e.target.value)}
+              placeholder="Business Portal"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
+          {/* App Logo */}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-700">App Logo</label>
             <div className="flex items-center gap-4">
               <img
                 src={appLogo}
                 alt="App Logo"
-                className="w-16 h-16 rounded-2xl object-cover border border-indigo-500/40 shadow-xl shrink-0"
+                className="w-14 h-14 rounded-2xl object-cover border border-slate-200 shadow-sm shrink-0"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/app-icon.jpg';
                 }}
               />
-
-              <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
                 <input
                   type="file"
                   ref={logoInputRef}
@@ -264,41 +239,29 @@ export const Settings: React.FC<SettingsProps> = ({
                   accept="image/png, image/jpeg, image/webp, image/svg+xml"
                   className="hidden"
                 />
-
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => logoInputRef.current?.click()}
-                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/30 text-xs font-semibold transition-all"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload Custom Logo</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleResetLogo}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:bg-white/10 text-xs font-medium transition-all"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Reset Logo</span>
-                  </button>
-                </div>
-                <p className="text-[11px] text-zinc-400">
-                  Upload custom PNG/JPG image or SVG file for your app logo.
-                </p>
-                {uploadError && <p className="text-xs text-rose-400 font-medium">{uploadError}</p>}
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all"
+                >
+                  Change
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetLogo}
+                  className="px-3 py-2 rounded-xl text-slate-400 hover:text-slate-600 text-xs font-semibold"
+                >
+                  Reset
+                </button>
               </div>
             </div>
+            {uploadError && <p className="text-xs text-rose-500 font-bold">{uploadError}</p>}
           </div>
 
-          {/* Accent Color */}
-          <div className="pt-2 border-t border-white/10 space-y-2">
-            <label className="block text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-              <Palette className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Theme Accent Color</span>
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {/* Accent Color: 8 Swatches */}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-700">Accent Color</label>
+            <div className="flex items-center gap-3 overflow-x-auto py-1">
               {ACCENT_COLORS.map((c) => {
                 const isSelected = accentColor === c.id;
                 return (
@@ -306,154 +269,123 @@ export const Settings: React.FC<SettingsProps> = ({
                     key={c.id}
                     type="button"
                     onClick={() => setAccentColor(c.id)}
-                    className={`flex items-center gap-2 p-2 rounded-xl border transition-all ${
-                      isSelected
-                        ? 'border-indigo-500 bg-white/10 text-white font-semibold'
-                        : 'border-white/10 hover:border-white/20 bg-[#0D0E16] text-zinc-400'
+                    className={`w-9 h-9 rounded-full ${c.bg} flex items-center justify-center transition-transform cursor-pointer shrink-0 ${
+                      isSelected ? 'ring-4 ring-offset-2 ring-blue-500 scale-110' : 'opacity-90 hover:opacity-100'
                     }`}
                   >
-                    <span className={`w-4 h-4 rounded-full ${c.bg} shrink-0`} />
-                    <span className="text-xs truncate">{c.name.split(' ')[0]}</span>
-                    {isSelected && <Check className="w-3 h-3 text-indigo-400 ml-auto" />}
+                    {isSelected && <Check className="w-4 h-4 text-white stroke-[3]" />}
                   </button>
                 );
               })}
             </div>
           </div>
+
+          {/* Currency */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-700">Currency</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="AED">AED (AED)</option>
+            </select>
+          </div>
+
+          {/* Save Changes button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span>{loading ? 'Saving Changes...' : 'Save Changes'}</span>
+          </button>
         </div>
 
-        {/* Profile Details Box */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 space-y-4">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <User className="w-5 h-5 text-indigo-400" />
-            <span>Personal Profile</span>
+        {/* Profile & Business Details */}
+        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-4">
+          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <User className="w-4 h-4 text-blue-600" />
+            <span>Profile & Business Information</span>
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Full Name</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Muhammed Salih"
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-semibold focus:outline-none"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Phone Number</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1">Phone Number</label>
               <input
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-semibold focus:outline-none"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Business Details Box */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 space-y-4">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Building className="w-5 h-5 text-indigo-400" />
-            <span>Business Entity & Currency</span>
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-            <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Company / Studio Name</label>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-600 mb-1">Company / Studio Name</label>
               <input
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="Acme Enterprises"
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+                placeholder="Acme Studio"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-semibold focus:outline-none"
               />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Default Currency</label>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
-              >
-                <option value="INR">INR (₹)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="AED">AED (AED)</option>
-              </select>
             </div>
           </div>
         </div>
 
-        {/* Voice Translator & Language Tools */}
+        {/* Voice Translator Shortcut */}
         {onNavigate && (
-          <div className="bg-[#08090E] border border-cyan-500/30 rounded-2xl p-6 relative overflow-hidden group hover:border-cyan-500/50 transition-all shadow-lg shadow-cyan-950/20">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3.5">
-                <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-lg shadow-cyan-500/10 shrink-0">
-                  <Languages className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-bold text-white tracking-tight">Voice Translator</h3>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                      മലയാളം · Manglish · English
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                    Live speech-to-text recognition, transliteration, and text-to-speech engine.
-                  </p>
-                </div>
+          <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                <Languages className="w-5 h-5" />
               </div>
-
-              <button
-                type="button"
-                onClick={() => onNavigate('translator')}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-cyan-600/25 transition-all shrink-0 cursor-pointer"
-              >
-                <Languages className="w-4 h-4" />
-                <span>Open Voice Translator</span>
-              </button>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">Voice Translator</h4>
+                <p className="text-xs text-slate-400 font-medium">Speech recognition & audio engine</p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('translator')}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+            >
+              Open
+            </button>
           </div>
         )}
 
-        {/* Security & Database Status Box */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 space-y-3">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <span>Database & Security Architecture</span>
-          </h3>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            All user data is stored securely in Supabase PostgreSQL and isolated with Row Level Security (RLS) policies.
-          </p>
-        </div>
-
         {/* Data Reset & Protection Management Section */}
-        <div className="bg-[#08090E] border border-rose-500/30 rounded-2xl p-6 space-y-5 relative overflow-hidden shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-rose-100 space-y-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-rose-400 flex items-center gap-2">
-                <Lock className="w-5 h-5 text-rose-400" />
-                <span>Data Reset & Protection Management</span>
+              <h3 className="font-bold text-rose-600 text-sm flex items-center gap-2">
+                <Lock className="w-4 h-4 text-rose-500" />
+                <span>Data Reset & Protection</span>
               </h3>
-              <p className="text-xs text-zinc-400 mt-1">
-                Password authentication is required before wiping or resetting any stored transactions or ledgers.
-              </p>
+              <p className="text-xs text-slate-400 mt-0.5">Password authentication required before wiping data.</p>
             </div>
-            <span className="text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 shrink-0">
-              Auth Protected
+            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-100">
+              Protected
             </span>
           </div>
 
-          {/* Quick Individual Module Reset Controls */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
-            {/* Reset Expenses */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <button
               type="button"
               onClick={() =>
@@ -463,18 +395,13 @@ export const Settings: React.FC<SettingsProps> = ({
                   'Are you sure you want to delete all recorded expenses? Password authentication is required.'
                 )
               }
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+              className="p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-rose-200 text-left transition-all group"
             >
-              <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20 transition-all">
-                <Receipt className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold block text-white">Reset Expenses</span>
-                <span className="text-[10px] text-zinc-400">Clear expense log</span>
-              </div>
+              <Receipt className="w-4 h-4 text-rose-500 mb-1" />
+              <span className="text-xs font-bold block text-slate-800">Expenses</span>
+              <span className="text-[10px] text-slate-400">Clear all</span>
             </button>
 
-            {/* Reset Income */}
             <button
               type="button"
               onClick={() =>
@@ -484,18 +411,13 @@ export const Settings: React.FC<SettingsProps> = ({
                   'Are you sure you want to delete all recorded income revenue? Password authentication is required.'
                 )
               }
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+              className="p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 text-left transition-all group"
             >
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20 transition-all">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold block text-white">Reset Income</span>
-                <span className="text-[10px] text-zinc-400">Clear income log</span>
-              </div>
+              <TrendingUp className="w-4 h-4 text-emerald-500 mb-1" />
+              <span className="text-xs font-bold block text-slate-800">Income</span>
+              <span className="text-[10px] text-slate-400">Clear all</span>
             </button>
 
-            {/* Reset Client Ledgers */}
             <button
               type="button"
               onClick={() =>
@@ -505,18 +427,13 @@ export const Settings: React.FC<SettingsProps> = ({
                   'Are you sure you want to delete all client directory and outstanding balances? Password authentication is required.'
                 )
               }
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+              className="p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-amber-200 text-left transition-all group"
             >
-              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 transition-all">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold block text-white">Reset Clients</span>
-                <span className="text-[10px] text-zinc-400">Clear client list</span>
-              </div>
+              <Users className="w-4 h-4 text-amber-500 mb-1" />
+              <span className="text-xs font-bold block text-slate-800">Clients</span>
+              <span className="text-[10px] text-slate-400">Clear all</span>
             </button>
 
-            {/* Reset Budgets */}
             <button
               type="button"
               onClick={() =>
@@ -526,29 +443,15 @@ export const Settings: React.FC<SettingsProps> = ({
                   'Are you sure you want to clear all budget allocation limits? Password authentication is required.'
                 )
               }
-              className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0D0E16] border border-white/10 hover:border-rose-500/40 text-zinc-300 hover:text-white transition-all text-left group"
+              className="p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-purple-200 text-left transition-all group"
             >
-              <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 transition-all">
-                <PieChart className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold block text-white">Reset Budgets</span>
-                <span className="text-[10px] text-zinc-400">Clear budget limits</span>
-              </div>
+              <PieChart className="w-4 h-4 text-purple-500 mb-1" />
+              <span className="text-xs font-bold block text-slate-800">Budgets</span>
+              <span className="text-[10px] text-slate-400">Clear all</span>
             </button>
           </div>
 
-          {/* Full Application Data Wipe */}
-          <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-3">
-            <div>
-              <h4 className="text-sm font-bold text-rose-300 flex items-center gap-2">
-                <Trash2 className="w-4 h-4 text-rose-400" />
-                <span>Complete Application Data Wipe</span>
-              </h4>
-              <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                Permanently erase all expenses, income, client ledgers, and budget allocations in one step. Requires password authorization.
-              </p>
-            </div>
+          <div className="pt-2">
             <button
               type="button"
               onClick={() =>
@@ -558,22 +461,13 @@ export const Settings: React.FC<SettingsProps> = ({
                   'This will permanently delete all application data including expenses, income, client balances, and budgets. Please enter your account password to authorize.'
                 )
               }
-              className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all"
+              className="w-full py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Authenticate & Reset All Data</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Full Application Data Wipe (Password Protected)</span>
             </button>
           </div>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50"
-        >
-          <Save className="w-4 h-4" />
-          <span>{loading ? 'Saving Changes...' : 'Save Settings & Branding'}</span>
-        </button>
       </form>
 
       {/* Reset Password Authentication Modal */}

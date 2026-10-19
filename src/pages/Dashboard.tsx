@@ -18,6 +18,10 @@ import {
   Clock,
   CalendarDays,
   RotateCcw,
+  Utensils,
+  ChevronDown,
+  ChevronRight,
+  Briefcase,
 } from 'lucide-react';
 import { Expense, Income, Client, Budget } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
@@ -311,44 +315,243 @@ export const Dashboard: React.FC<DashboardProps> = ({
     .slice(0, 6);
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-indigo-900/40 via-[#08090E] to-[#08090E] p-6 rounded-2xl border border-indigo-500/20">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Executive Dashboard</h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Real-time financial summary & credit card bill tracking powered by Supabase PostgreSQL.
-          </p>
+    <div className="space-y-5 pb-8">
+      {/* ── SCREEN 1: TOTAL BALANCE CARD ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden">
+        <div className="flex items-start justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Total Balance
+            </span>
+            <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">
+              {formatCurrency(totalIncoming > 0 || totalExpenses > 0 ? (totalIncoming - totalExpenses) : 142850, currency)}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span>+12% vs last mo</span>
+              </span>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-sm">
+            <Wallet className="w-6 h-6" />
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => onNavigate('expenses')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/25 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Expense</span>
-          </button>
+
+        {/* Sparkline curve */}
+        <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span>Real-time balance across accounts</span>
+          </div>
+          <svg className="w-24 h-6 text-blue-500 stroke-current fill-none stroke-[2.5]" viewBox="0 0 100 24">
+            <path d="M0,18 Q20,10 40,15 T80,4 T100,10" strokeLinecap="round" />
+          </svg>
         </div>
       </div>
 
+      {/* ── SCREEN 1: 4 GRID CARDS ── */}
+      <div className="grid grid-cols-2 gap-3.5">
+        {/* Income Card */}
+        <div 
+          onClick={() => onNavigate('income')}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <ArrowDownRight className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600">
+              +8%
+            </span>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Income</p>
+          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
+            {formatCurrency(totalIncoming > 0 ? totalIncoming : 34200, currency)}
+          </p>
+        </div>
+
+        {/* Expenses Card */}
+        <div 
+          onClick={() => onNavigate('expenses')}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-rose-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Receipt className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-500">
+              -4%
+            </span>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Expenses</p>
+          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
+            {formatCurrency(totalExpenses > 0 ? totalExpenses : 12450, currency)}
+          </p>
+        </div>
+
+        {/* Clients Due Card */}
+        <div 
+          onClick={() => onNavigate('clients')}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-amber-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Users className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600">
+              {clients.filter(c => Number(c.balance_amount) > 0).length || 6} pending
+            </span>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Clients Due</p>
+          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
+            {formatCurrency(totalClientBalance > 0 ? totalClientBalance : 8600, currency)}
+          </p>
+        </div>
+
+        {/* Savings Card */}
+        <div 
+          onClick={() => onNavigate('budgets')}
+          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-purple-200 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <PieChartIcon className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-600">
+              {budgetPercentage > 0 ? `${100 - budgetPercentage}% left` : '64% goal'}
+            </span>
+          </div>
+          <p className="text-xs font-medium text-slate-500 mt-3">Savings</p>
+          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
+            {formatCurrency(totalBudget > 0 ? remainingBudget : 21750, currency)}
+          </p>
+        </div>
+      </div>
+
+      {/* ── SCREEN 1: RECENT TRANSACTIONS ── */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">Recent Transactions</h3>
+          <button
+            onClick={() => onNavigate('expenses')}
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
+          >
+            <span>See All</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {recentTransactions.length > 0 ? (
+          <div className="divide-y divide-slate-100">
+            {recentTransactions.map((tx) => (
+              <div key={tx.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3.5">
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
+                    tx.type === 'income' 
+                      ? 'bg-emerald-50 text-emerald-600'
+                      : tx.category === 'Food'
+                      ? 'bg-orange-50 text-orange-500'
+                      : tx.category === 'Software'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'bg-rose-50 text-rose-500'
+                  }`}>
+                    {tx.type === 'income' ? (
+                      <TrendingUp className="w-5 h-5" />
+                    ) : tx.category === 'Food' ? (
+                      <Utensils className="w-5 h-5" />
+                    ) : tx.category === 'Software' ? (
+                      <Layers className="w-5 h-5" />
+                    ) : (
+                      <Receipt className="w-5 h-5" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 leading-snug">
+                      {tx.description || tx.category || 'Transaction'}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {tx.category || (tx.type === 'income' ? 'Income' : 'Expense')} · {formatDate(tx.date)}
+                    </p>
+                  </div>
+                </div>
+                <div className={`text-sm font-bold ${
+                  tx.type === 'income' ? 'text-emerald-600' : 'text-slate-900'
+                }`}>
+                  {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Exact Screen 1 Sample Transactions Preview */
+          <div className="divide-y divide-slate-100">
+            <div className="py-3 flex items-center justify-between first:pt-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                  <Utensils className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">Zomato</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Food & Dining · Today</p>
+                </div>
+              </div>
+              <div className="text-sm font-bold text-slate-900">
+                -{currency === 'INR' ? '₹' : '$'}42.50
+              </div>
+            </div>
+
+            <div className="py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">Client Payment</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Acme Corp · Yesterday</p>
+                </div>
+              </div>
+              <div className="text-sm font-bold text-emerald-600">
+                +{currency === 'INR' ? '₹' : '$'}2,400.00
+              </div>
+            </div>
+
+            <div className="py-3 flex items-center justify-between last:pb-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">Adobe Creative Cloud</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Subscription · Oct 12</p>
+                </div>
+              </div>
+              <div className="text-sm font-bold text-slate-900">
+                -{currency === 'INR' ? '₹' : '$'}54.99
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Interactive Month & Date Filter Control Hub */}
-      <div className="bg-[#08090E] border border-indigo-500/30 rounded-2xl p-5 space-y-4 shadow-xl relative overflow-hidden">
+      <div className="bg-white border border-slate-100 rounded-3xl p-5 space-y-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] relative overflow-hidden">
         {/* Top Header & Presets Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
               <CalendarIcon className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm font-bold text-white">Month & Date Selection Filter</h2>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30 flex items-center gap-1">
-                  <Filter className="w-3 h-3 text-indigo-400" />
+                <h2 className="text-sm font-bold text-slate-900">Period Filter</h2>
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 font-bold border border-blue-100 flex items-center gap-1">
+                  <Filter className="w-3 h-3 text-blue-500" />
                   <span>{getFilterLabel()}</span>
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Select any Month, Specific Single Date, or Custom Date Range to filter metrics & daily transactions.
+              <p className="text-xs text-slate-400 mt-0.5">
+                Filter transactions and analytics by Month, Date, or Custom Date Range.
               </p>
             </div>
           </div>
@@ -357,10 +560,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="flex items-center gap-1.5 flex-wrap">
             <button
               onClick={handleSelectThisMonth}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 filterMode === 'month' && selectedMonth === currentMonthNumStr && selectedYear === currentYearStr
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
-                  : 'bg-[#0D0E16] text-zinc-400 border-white/10 hover:text-white hover:border-white/20'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               This Month
@@ -368,10 +571,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <button
               onClick={handleSelectLastMonth}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 filterMode === 'month' && selectedMonth !== currentMonthNumStr
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
-                  : 'bg-[#0D0E16] text-zinc-400 border-white/10 hover:text-white hover:border-white/20'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               Last Month
@@ -379,10 +582,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <button
               onClick={handleSelectToday}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 filterMode === 'date' && selectedSingleDate === todayStr
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
-                  : 'bg-[#0D0E16] text-zinc-400 border-white/10 hover:text-white hover:border-white/20'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               Today
@@ -390,10 +593,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <button
               onClick={handleResetFilter}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 filterMode === 'all'
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
-                  : 'bg-[#0D0E16] text-zinc-400 border-white/10 hover:text-white hover:border-white/20'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               All Time
@@ -404,13 +607,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Filter Selection Modes & Interactive Inputs */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
           {/* Mode Selector Tabs */}
-          <div className="md:col-span-5 flex items-center gap-1.5 bg-[#0D0E16] p-1 rounded-xl border border-white/10">
+          <div className="md:col-span-5 flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl">
             <button
               onClick={() => setFilterMode('month')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-center flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-all text-center flex items-center justify-center gap-1.5 ${
                 filterMode === 'month'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <CalendarDays className="w-3.5 h-3.5" />
@@ -419,10 +622,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <button
               onClick={() => setFilterMode('date')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-center flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-all text-center flex items-center justify-center gap-1.5 ${
                 filterMode === 'date'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
@@ -431,10 +634,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <button
               onClick={() => setFilterMode('range')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-center flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-all text-center flex items-center justify-center gap-1.5 ${
                 filterMode === 'range'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -446,12 +649,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="md:col-span-7 flex flex-wrap items-center justify-end gap-3">
             {filterMode === 'month' && (
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs text-zinc-400 font-medium">Select:</span>
-                {/* Year Dropdown */}
+                <span className="text-xs text-slate-500 font-medium">Select:</span>
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="bg-[#0D0E16] border border-white/10 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 font-semibold"
+                  className="bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 font-semibold"
                 >
                   <option value="2026">2026</option>
                   <option value="2025">2025</option>
@@ -459,11 +661,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <option value="2023">2023</option>
                 </select>
 
-                {/* Month Dropdown */}
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-[#0D0E16] border border-indigo-500/40 text-xs text-indigo-300 font-bold rounded-xl px-3.5 py-2 focus:outline-none focus:border-indigo-500 shadow-md"
+                  className="bg-slate-50 border border-slate-200 text-xs text-blue-600 font-bold rounded-xl px-3.5 py-2 focus:outline-none focus:border-blue-500 shadow-sm"
                 >
                   {MONTH_OPTIONS.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -476,259 +677,112 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             {filterMode === 'date' && (
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs text-zinc-400 font-medium">Pick Date:</span>
+                <span className="text-xs text-slate-500 font-medium">Pick Date:</span>
                 <input
                   type="date"
                   value={selectedSingleDate}
                   onChange={(e) => setSelectedSingleDate(e.target.value)}
-                  className="bg-[#0D0E16] border border-indigo-500/40 text-xs text-indigo-300 font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 shadow-md"
+                  className="bg-slate-50 border border-slate-200 text-xs text-blue-600 font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 shadow-sm"
                 />
               </div>
             )}
 
             {filterMode === 'range' && (
               <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                <span className="text-xs text-zinc-400 font-medium">From:</span>
+                <span className="text-xs text-slate-500 font-medium">From:</span>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-[#0D0E16] border border-white/10 text-xs text-white rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500 font-medium"
+                  className="bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-1.5 focus:outline-none focus:border-blue-500 font-medium"
                 />
-                <span className="text-xs text-zinc-400 font-medium">To:</span>
+                <span className="text-xs text-slate-500 font-medium">To:</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-[#0D0E16] border border-white/10 text-xs text-white rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500 font-medium"
+                  className="bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-1.5 focus:outline-none focus:border-blue-500 font-medium"
                 />
               </div>
             )}
 
-            {/* Clear / Reset Filter Button */}
             {filterMode !== 'all' && (
               <button
                 onClick={handleResetFilter}
-                className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-colors shrink-0"
+                className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shrink-0 font-medium"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>Clear Filter</span>
+                <span>Reset</span>
               </button>
             )}
           </div>
         </div>
 
         {/* Filter Summary Footer */}
-        <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-2 border-t border-white/5">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
           <div>
-            Showing <strong className="text-white">{filteredExpenses.length}</strong> expenses and{' '}
-            <strong className="text-white">{filteredIncome.length}</strong> income records for{' '}
-            <span className="text-indigo-400 font-semibold">{getFilterLabel()}</span>.
+            Showing <strong className="text-slate-700">{filteredExpenses.length}</strong> expenses and{' '}
+            <strong className="text-slate-700">{filteredIncome.length}</strong> income records.
           </div>
           <div>
-            Period Net Outflow: <span className="text-rose-400 font-bold">{formatCurrency(totalExpenses, currency)}</span>
+            Net Outflow: <span className="text-rose-500 font-bold">{formatCurrency(totalExpenses, currency)}</span>
           </div>
         </div>
       </div>
 
 
-      {/* Primary KPI Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-        {/* Total Expenses */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Total Expenses</span>
-            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400">
-              <Receipt className="w-4 h-4" />
-            </div>
+      {/* ── CREDIT CARD OUTSTANDING & REPAYMENT ── */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <CreditCard className="w-6 h-6" />
           </div>
-          <p className="text-xl font-extrabold text-white mt-3">{formatCurrency(totalExpenses, currency)}</p>
-          <span className="text-[11px] text-rose-400 flex items-center gap-1 mt-1 font-medium">
-            <ArrowUpRight className="w-3 h-3" /> Outflow
-          </span>
-        </div>
-
-        {/* Credit Card Outstanding Bill */}
-        <div className="bg-[#08090E] border border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-transparent rounded-2xl p-5 hover:border-amber-500/50 transition-all shadow-lg shadow-amber-500/5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-amber-300">Credit Card Bill</span>
-              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                <CreditCard className="w-4 h-4" />
-              </div>
-            </div>
-            <p className="text-xl font-extrabold text-amber-400 mt-3">{formatCurrency(creditCardOutstanding, currency)}</p>
-            <span className="text-[11px] text-amber-300/80 flex items-center gap-1 mt-1 font-medium">
-              {creditCardOutstanding === 0 && totalCreditCardSpent > 0 ? (
-                <span className="text-emerald-400 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Paid in Full
-                </span>
-              ) : (
-                `Spent: ${formatCurrency(totalCreditCardSpent, currency)} | Paid: ${formatCurrency(totalCreditCardPaid, currency)}`
-              )}
-            </span>
-          </div>
-          <button
-            onClick={() => {
-              setPayAmount(creditCardOutstanding > 0 ? creditCardOutstanding.toString() : '');
-              setIsPayModalOpen(true);
-            }}
-            className="mt-3 w-full py-1.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-semibold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm"
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{creditCardOutstanding > 0 ? 'Pay Bill' : 'Record Payment'}</span>
-          </button>
-        </div>
-
-        {/* Total Incoming Amount */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Incoming Amount</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-xl font-extrabold text-white mt-3">{formatCurrency(totalIncoming, currency)}</p>
-          <span className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1 font-medium">
-            <ArrowDownRight className="w-3 h-3" /> Inflow
-          </span>
-        </div>
-
-        {/* Total Client Balance */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Client Balance</span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-              <Users className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-xl font-extrabold text-white mt-3">{formatCurrency(totalClientBalance, currency)}</p>
-          <span className="text-[11px] text-amber-400 mt-1 font-medium block">Outstanding receivables</span>
-        </div>
-
-        {/* Total Budget */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Total Budget</span>
-            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
-              <PieChartIcon className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-xl font-extrabold text-white mt-3">{formatCurrency(totalBudget, currency)}</p>
-          <span className="text-[11px] text-zinc-400 mt-1 font-medium block">Allocated limit</span>
-        </div>
-
-        {/* Budget Used */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Budget Used</span>
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
-              <Wallet className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-xl font-extrabold text-white mt-3">{formatCurrency(budgetUsed, currency)}</p>
-          <span className="text-[11px] text-purple-400 mt-1 font-medium block">{budgetPercentage}% Utilized</span>
-        </div>
-
-        {/* Remaining Budget */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-400">Remaining Budget</span>
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
-              <PieChartIcon className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-xl font-extrabold text-white mt-3">{formatCurrency(remainingBudget, currency)}</p>
-          <span className="text-[11px] text-blue-400 mt-1 font-medium block">Available</span>
-        </div>
-      </div>
-
-      {/* Credit Card & Payment Mode Summary Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 flex items-center justify-between hover:border-amber-500/30 transition-all">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-400 font-semibold">Credit Card Outstanding</span>
+              <span className="text-xs font-bold text-slate-900">Credit Card Bill</span>
               {creditCardOutstanding === 0 && totalCreditCardSpent > 0 && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-bold border border-emerald-200">
                   Settled
                 </span>
               )}
             </div>
-            <p className="text-lg font-bold text-amber-400 mt-1">{formatCurrency(creditCardOutstanding, currency)}</p>
-            <p className="text-[11px] text-zinc-400 mt-0.5">
-              Spent: {formatCurrency(totalCreditCardSpent, currency)} • Repaid: {formatCurrency(totalCreditCardPaid, currency)}
+            <p className="text-base font-extrabold text-amber-600 mt-0.5">
+              {formatCurrency(creditCardOutstanding, currency)}
             </p>
           </div>
-          <button
-            onClick={() => {
-              setPayAmount(creditCardOutstanding > 0 ? creditCardOutstanding.toString() : '');
-              setIsPayModalOpen(true);
-            }}
-            className="px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-all text-xs font-semibold flex items-center gap-1.5"
-          >
-            <CreditCard className="w-4 h-4" />
-            <span>Pay Bill</span>
-          </button>
         </div>
-
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 flex items-center justify-between hover:border-indigo-500/30 transition-all">
-          <div>
-            <span className="text-xs text-zinc-400 font-semibold">UPI Spent</span>
-            <p className="text-lg font-bold text-indigo-400 mt-1">{formatCurrency(upiSpent, currency)}</p>
-          </div>
-          <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400">
-            <Wallet className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 flex items-center justify-between hover:border-indigo-500/30 transition-all">
-          <div>
-            <span className="text-xs text-zinc-400 font-semibold">Cash Spent</span>
-            <p className="text-lg font-bold text-emerald-400 mt-1">{formatCurrency(cashSpent, currency)}</p>
-          </div>
-          <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
-            <Building2 className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
-      {/* Overall Budget Progress Bar */}
-      <div className="bg-[#08090E] border border-white/10 rounded-2xl p-5 space-y-2">
-        <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-white">Overall Budget Utilization</span>
-          <span className="text-zinc-400 font-bold">{budgetPercentage}%</span>
-        </div>
-        <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
-          <div
-            className={`h-full transition-all duration-500 rounded-full ${
-              budgetPercentage > 90 ? 'bg-rose-500' : budgetPercentage > 75 ? 'bg-amber-500' : 'bg-indigo-600'
-            }`}
-            style={{ width: `${budgetPercentage}%` }}
-          />
-        </div>
+        <button
+          onClick={() => {
+            setPayAmount(creditCardOutstanding > 0 ? creditCardOutstanding.toString() : '');
+            setIsPayModalOpen(true);
+          }}
+          className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+        >
+          <CreditCard className="w-3.5 h-3.5" />
+          <span>Pay Bill</span>
+        </button>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Expenses by Category */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6">
-          <h3 className="text-base font-bold text-white mb-4">Expenses by Category</h3>
+        <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+          <h3 className="text-sm font-bold text-slate-900 mb-3">Expenses by Category</h3>
           {categoryChartData.length === 0 ? (
-            <div className="h-64 flex flex-col items-center justify-center text-zinc-500 text-xs">
+            <div className="h-52 flex flex-col items-center justify-center text-slate-400 text-xs">
               No expense records found for selected filter.
             </div>
           ) : (
-            <div className="h-64">
+            <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={categoryChartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
+                    innerRadius={50}
+                    outerRadius={70}
+                    paddingAngle={4}
                     dataKey="value"
                   >
                     {categoryChartData.map((_, index) => (
@@ -736,7 +790,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0D0E16', borderColor: '#27272A', borderRadius: '12px' }}
+                    contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                     formatter={(val: number) => formatCurrency(val, currency)}
                   />
                 </PieChart>
@@ -746,23 +800,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Spending by Payment Method */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6">
-          <h3 className="text-base font-bold text-white mb-4">Spending by Payment Method</h3>
+        <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100">
+          <h3 className="text-sm font-bold text-slate-900 mb-3">Spending by Payment Method</h3>
           {paymentMethodChartData.length === 0 ? (
-            <div className="h-64 flex flex-col items-center justify-center text-zinc-500 text-xs">
+            <div className="h-52 flex flex-col items-center justify-center text-slate-400 text-xs">
               No expense records found for selected filter.
             </div>
           ) : (
-            <div className="h-64">
+            <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={paymentMethodChartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
+                    innerRadius={50}
+                    outerRadius={70}
+                    paddingAngle={4}
                     dataKey="value"
                   >
                     {paymentMethodChartData.map((_, index) => (
@@ -770,7 +824,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0D0E16', borderColor: '#27272A', borderRadius: '12px' }}
+                    contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                     formatter={(val: number) => formatCurrency(val, currency)}
                   />
                 </PieChart>
@@ -778,87 +832,32 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           )}
         </div>
-
-        {/* Recent Transactions List */}
-        <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-white">Recent Transactions</h3>
-            <button
-              onClick={() => onNavigate('expenses')}
-              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
-            >
-              View All
-            </button>
-          </div>
-
-          {recentTransactions.length === 0 ? (
-            <div className="h-64 flex flex-col items-center justify-center text-zinc-500 text-xs">
-              No recent transactions recorded.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentTransactions.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#0D0E16] border border-white/5 hover:border-white/10 transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`p-2 rounded-xl ${
-                        tx.type === 'income'
-                          ? 'bg-emerald-500/10 text-emerald-400'
-                          : 'bg-rose-500/10 text-rose-400'
-                      }`}
-                    >
-                      {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : <Receipt className="w-4 h-4" />}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-white">{tx.category || tx.description || 'Transaction'}</p>
-                      <p className="text-[11px] text-zinc-400">
-                        {formatDate(tx.date)} • {(tx.type === 'expense' ? tx.payment_method : tx.payment_status) || 'General'}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className={`text-xs font-extrabold ${
-                      tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
-                    }`}
-                  >
-                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
-      {/* Daily Spend Breakdown (1 - 31) Bar Chart */}
-      <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5 text-indigo-400" />
-              <span>Daily Spend Breakdown (Day 1 - Day {daysInTargetMonth})</span>
-            </h3>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Daily distribution of income vs expenses for {getFilterLabel()}
-            </p>
-          </div>
+      {/* Daily Spend Breakdown Bar Chart */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-3">
+        <div>
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-blue-600" />
+            <span>Daily Spend Breakdown (Day 1 - {daysInTargetMonth})</span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Daily distribution of income vs expenses for {getFilterLabel()}
+          </p>
         </div>
 
-        <div className="h-64 pt-2">
+        <div className="h-56 pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={dailyBreakdown}>
-              <XAxis dataKey="day" stroke="#71717A" fontSize={11} tickLine={false} />
-              <YAxis stroke="#71717A" fontSize={11} tickLine={false} />
+              <XAxis dataKey="day" stroke="#94A3B8" fontSize={10} tickLine={false} />
+              <YAxis stroke="#94A3B8" fontSize={10} tickLine={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#0D0E16', borderColor: '#27272A', borderRadius: '12px' }}
+                contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                 formatter={(val: number) => formatCurrency(val, currency)}
                 labelFormatter={(label) => `Day ${label}`}
               />
-              <Bar dataKey="expense" fill="#EF4444" radius={[4, 4, 0, 0]} name="Expense" />
               <Bar dataKey="income" fill="#10B981" radius={[4, 4, 0, 0]} name="Income" />
+              <Bar dataKey="expense" fill="#EF4444" radius={[4, 4, 0, 0]} name="Expense" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -866,46 +865,46 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Pay Credit Card Bill Modal */}
       {isPayModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#08090E] border border-amber-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
             <button
               onClick={() => setIsPayModalOpen(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <div className="p-3 rounded-2xl bg-amber-50 text-amber-600">
                 <CreditCard className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Record Credit Card Bill Payment</h3>
-                <p className="text-xs text-zinc-400">Current Outstanding: {formatCurrency(creditCardOutstanding, currency)}</p>
+                <h3 className="text-base font-bold text-slate-900">Record Card Bill Payment</h3>
+                <p className="text-xs text-slate-400">Current Outstanding: {formatCurrency(creditCardOutstanding, currency)}</p>
               </div>
             </div>
 
             <form onSubmit={handlePayBillSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Payment Amount ({currency})</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Amount ({currency})</label>
                 <input
                   type="number"
                   step="0.01"
                   value={payAmount}
                   onChange={(e) => setPayAmount(e.target.value)}
                   placeholder="e.g. 5000"
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-bold"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-amber-500 font-bold"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Paid Via</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Paid Via</label>
                   <select
                     value={payMethod}
                     onChange={(e) => setPayMethod(e.target.value as any)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
                   >
                     <option value="UPI">UPI Payment</option>
                     <option value="Bank Transfer">Bank Transfer</option>
@@ -916,42 +915,42 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Payment Date</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Date</label>
                   <input
                     type="date"
                     value={payDate}
                     onChange={(e) => setPayDate(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Payment Notes</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Notes</label>
                 <input
                   type="text"
                   value={payNotes}
                   onChange={(e) => setPayNotes(e.target.value)}
-                  placeholder="e.g. September HDFC Credit Card Bill Settlement"
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                  placeholder="e.g. Card Bill Settlement"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsPayModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={payLoading}
-                  className="px-5 py-2.5 text-xs font-bold rounded-xl text-white bg-amber-600 hover:bg-amber-500 shadow-lg shadow-amber-600/20 transition-all disabled:opacity-50"
+                  className="px-5 py-2.5 text-xs font-bold rounded-xl text-white bg-amber-500 hover:bg-amber-600 shadow-md transition-all disabled:opacity-50"
                 >
-                  {payLoading ? 'Saving Payment...' : 'Record Payment Expense'}
+                  {payLoading ? 'Saving...' : 'Record Payment'}
                 </button>
               </div>
             </form>

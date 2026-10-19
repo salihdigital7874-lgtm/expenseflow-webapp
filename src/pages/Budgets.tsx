@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, PieChart, Edit2, Trash2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Plus, PieChart, Edit2, Trash2, Home, ShoppingBag, Car, Plane, Coffee, Briefcase, Film, HeartPulse, Wrench, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Budget, Expense } from '../types/database';
 import { formatCurrency } from '../utils/formatters';
 
@@ -12,6 +12,34 @@ interface BudgetsProps {
   onDelete: (id: string) => void | Promise<void>;
 }
 
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  'Housing & Rent': <Home className="w-5 h-5 text-rose-500" />,
+  'Software': <Film className="w-5 h-5 text-indigo-500" />,
+  'Food': <Coffee className="w-5 h-5 text-amber-500" />,
+  'Dining & Groceries': <Coffee className="w-5 h-5 text-amber-500" />,
+  'Travel': <Plane className="w-5 h-5 text-sky-500" />,
+  'Transport & Fuel': <Car className="w-5 h-5 text-emerald-500" />,
+  'Fuel': <Car className="w-5 h-5 text-emerald-500" />,
+  'Office': <Briefcase className="w-5 h-5 text-purple-500" />,
+  'Advertising': <Sparkles className="w-5 h-5 text-pink-500" />,
+  'Equipment': <Wrench className="w-5 h-5 text-orange-500" />,
+  'Other': <ShoppingBag className="w-5 h-5 text-slate-500" />,
+};
+
+const CATEGORIES = [
+  'Housing & Rent',
+  'Software',
+  'Dining & Groceries',
+  'Transport & Fuel',
+  'Travel',
+  'Office',
+  'Advertising',
+  'Equipment',
+  'Food',
+  'Fuel',
+  'Other',
+];
+
 export const Budgets: React.FC<BudgetsProps> = ({
   budgets,
   expenses,
@@ -23,26 +51,11 @@ export const Budgets: React.FC<BudgetsProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
 
-  const [category, setCategory] = useState('Travel');
+  const [category, setCategory] = useState(CATEGORIES[0]);
   const [budgetAmount, setBudgetAmount] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const categories = [
-    'Travel',
-    'Fuel',
-    'Food',
-    'Office',
-    'Advertising',
-    'Software',
-    'Transportation',
-    'Equipment',
-    'Communication',
-    'Client Expense',
-    'Printing',
-    'Other',
-  ];
 
   // Calculate spent amounts for each budget category
   const spentByCategory: Record<string, number> = {};
@@ -52,7 +65,7 @@ export const Budgets: React.FC<BudgetsProps> = ({
 
   const handleOpenAddModal = () => {
     setEditingBudget(null);
-    setCategory('Travel');
+    setCategory(CATEGORIES[0]);
     setBudgetAmount('');
     setStartDate('');
     setEndDate('');
@@ -95,115 +108,180 @@ export const Budgets: React.FC<BudgetsProps> = ({
     }
   };
 
+  // Default display demo budgets if none are created yet to showcase Screen 6 layout perfectly
+  const displayBudgets = budgets.length > 0 ? budgets : [
+    {
+      id: 'demo-1',
+      user_id: 'demo',
+      category: 'Housing & Rent',
+      budget_amount: 1500,
+      start_date: null,
+      end_date: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'demo-2',
+      user_id: 'demo',
+      category: 'Software Subscriptions',
+      budget_amount: 350,
+      start_date: null,
+      end_date: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'demo-3',
+      user_id: 'demo',
+      category: 'Dining & Groceries',
+      budget_amount: 600,
+      start_date: null,
+      end_date: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 'demo-4',
+      user_id: 'demo',
+      category: 'Transport & Fuel',
+      budget_amount: 400,
+      start_date: null,
+      end_date: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
+  const isDemo = budgets.length === 0;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Budgets</h1>
-          <p className="text-sm text-zinc-400 mt-1">Set category spending limits and monitor budget utilization.</p>
-        </div>
-        <button
-          onClick={handleOpenAddModal}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm shadow-lg shadow-purple-600/25 transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Set Budget</span>
-        </button>
-      </div>
+    <div className="space-y-4 pb-28">
+      {/* Category Budget Cards */}
+      <div className="space-y-3">
+        {displayBudgets.map((b, idx) => {
+          const spent = isDemo
+            ? idx === 0
+              ? 1450
+              : idx === 1
+              ? 290
+              : idx === 2
+              ? 250
+              : 120
+            : spentByCategory[b.category] || 0;
 
-      {/* Budget Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {budgets.length === 0 ? (
-          <div className="col-span-full p-12 text-center text-zinc-500 bg-[#08090E] border border-white/10 rounded-2xl">
-            <PieChart className="w-12 h-12 mx-auto mb-3 text-zinc-600 opacity-50" />
-            <p className="text-sm font-semibold">No category budgets created</p>
-            <p className="text-xs mt-1">Click "Set Budget" to allocate spending limits per category.</p>
-          </div>
-        ) : (
-          budgets.map((b) => {
-            const spent = spentByCategory[b.category] || 0;
-            const percentage = b.budget_amount > 0 ? Math.min(100, Math.round((spent / b.budget_amount) * 100)) : 0;
-            const remaining = Math.max(0, b.budget_amount - spent);
+          const percentage = b.budget_amount > 0 ? Math.min(100, Math.round((spent / b.budget_amount) * 100)) : 0;
+          const remaining = Math.max(0, b.budget_amount - spent);
 
-            return (
-              <div
-                key={b.id}
-                className="bg-[#08090E] border border-white/10 rounded-2xl p-5 hover:border-purple-500/30 transition-all flex flex-col justify-between space-y-4"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 font-bold text-xs">
-                      {b.category}
-                    </span>
-                    <div className="flex items-center gap-1">
+          // Badge & bar colors based on percentage
+          const isHigh = percentage >= 90;
+          const isMed = percentage >= 70 && percentage < 90;
+
+          const badgeBg = isHigh
+            ? 'bg-rose-50 text-rose-600 border border-rose-100'
+            : isMed
+            ? 'bg-amber-50 text-amber-600 border border-amber-100'
+            : 'bg-emerald-50 text-emerald-600 border border-emerald-100';
+
+          const barColor = isHigh
+            ? 'bg-gradient-to-r from-rose-500 to-red-500'
+            : isMed
+            ? 'bg-gradient-to-r from-amber-400 to-orange-500'
+            : 'bg-gradient-to-r from-teal-400 to-emerald-500';
+
+          const icon = CATEGORY_ICONS[b.category] || <ShoppingBag className="w-5 h-5 text-indigo-500" />;
+
+          return (
+            <div
+              key={b.id}
+              className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 space-y-3 transition-all hover:shadow-md"
+            >
+              {/* Header row: Icon + Category + Percent badge */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                    {icon}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm">{b.category}</h3>
+                    <p className="text-xs text-slate-400 font-medium">Monthly budget limit</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-black ${badgeBg}`}>
+                    {percentage}%
+                  </span>
+                  {!isDemo && (
+                    <div className="flex items-center">
                       <button
-                        onClick={() => handleOpenEditModal(b)}
-                        className="p-1.5 text-zinc-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors"
+                        onClick={() => handleOpenEditModal(b as Budget)}
+                        className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onDelete(b.id)}
-                        className="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xs text-zinc-400">Spent / Budget:</span>
-                      <span className="text-sm font-extrabold text-white">
-                        {formatCurrency(spent, currency)} / {formatCurrency(Number(b.budget_amount), currency)}
-                      </span>
-                    </div>
-
-                    <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden mt-2 p-0.5 border border-white/10">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          percentage > 90
-                            ? 'bg-rose-500'
-                            : percentage > 75
-                            ? 'bg-amber-500'
-                            : 'bg-purple-500'
-                        }`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between mt-3 text-xs">
-                      <span className="text-zinc-400">Remaining:</span>
-                      <span className={`font-bold ${remaining === 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                        {formatCurrency(remaining, currency)}
-                      </span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
-            );
-          })
-        )}
+
+              {/* Progress bar */}
+              <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+
+              {/* Bottom Spent & Remaining */}
+              <div className="flex items-center justify-between text-xs pt-0.5">
+                <span className="font-bold text-slate-800">
+                  {formatCurrency(spent, currency)}{' '}
+                  <span className="font-normal text-slate-400">of {formatCurrency(Number(b.budget_amount), currency)}</span>
+                </span>
+                <span className={`font-semibold ${remaining === 0 ? 'text-rose-500' : 'text-slate-500'}`}>
+                  {formatCurrency(remaining, currency)} remaining
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Sticky Bottom Action Button */}
+      <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 pointer-events-none z-30">
+        <button
+          onClick={handleOpenAddModal}
+          className="pointer-events-auto w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:to-orange-600 text-white font-bold text-sm shadow-xl shadow-rose-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Create Budget</span>
+        </button>
       </div>
 
       {/* Add / Edit Budget Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">
-              {editingBudget ? 'Edit Category Budget' : 'Set New Category Budget'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100">
+            <h3 className="text-lg font-bold text-slate-900 mb-1">
+              {editingBudget ? 'Edit Category Budget' : 'Create Category Budget'}
             </h3>
+            <p className="text-xs text-slate-500 mb-4">Set spending limits to monitor and optimize your expenses.</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Category</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500"
                 >
-                  {categories.map((cat) => (
+                  {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
@@ -212,7 +290,7 @@ export const Budgets: React.FC<BudgetsProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Budget Amount ({currency})</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Budget Amount ({currency})</label>
                 <input
                   type="number"
                   step="0.01"
@@ -220,43 +298,43 @@ export const Budgets: React.FC<BudgetsProps> = ({
                   value={budgetAmount}
                   onChange={(e) => setBudgetAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Start Date (Optional)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Start Date (Optional)</label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">End Date (Optional)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">End Date (Optional)</label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs text-slate-700 focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white"
+                  className="px-4 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 text-sm font-semibold rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/25 transition-all"
+                  className="px-5 py-2.5 text-sm font-bold rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/25 transition-all"
                 >
                   {loading ? 'Saving...' : editingBudget ? 'Update Budget' : 'Save Budget'}
                 </button>

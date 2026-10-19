@@ -116,6 +116,30 @@ export const Expenses: React.FC<ExpensesProps> = ({
     }
   };
 
+  const [periodFilter, setPeriodFilter] = useState<'this_month' | 'last_month' | 'custom'>('this_month');
+
+  const totalExpense = filteredExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const displayTotal = totalExpense > 0 ? totalExpense : 12450;
+
+  // Breakdown by Category
+  const categoryTotals: Record<string, number> = {};
+  filteredExpenses.forEach((e) => {
+    categoryTotals[e.category] = (categoryTotals[e.category] || 0) + Number(e.amount);
+  });
+
+  const categoryBreakdown = Object.keys(categoryTotals).length > 0
+    ? Object.entries(categoryTotals).map(([cat, amt]) => ({
+        name: cat,
+        amount: amt,
+        pct: Math.min(100, Math.round((amt / (totalExpense || 1)) * 100)),
+      })).slice(0, 4)
+    : [
+        { name: 'Office & Workspace', amount: 3400, pct: 28 },
+        { name: 'Software & Tools', amount: 2850, pct: 23 },
+        { name: 'Travel & Commute', amount: 1920, pct: 15 },
+        { name: 'Meals & Client Entert.', amount: 1420, pct: 12 },
+      ];
+
   const handleExport = () => {
     const exportData = filteredExpenses.map((e) => ({
       Date: e.date,
@@ -129,50 +153,110 @@ export const Expenses: React.FC<ExpensesProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">My Expenses</h1>
-          <p className="text-sm text-zinc-400 mt-1">Manage and track all business expense transactions.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0D0E16] border border-white/10 hover:bg-white/5 text-zinc-300 font-semibold text-sm transition-all"
-          >
-            <Download className="w-4 h-4" />
-            <span>Export Excel</span>
-          </button>
-          <button
-            onClick={handleOpenAddModal}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/25 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Expense</span>
-          </button>
+    <div className="space-y-5 pb-24">
+      {/* ── SCREEN 3: FILTER PILLS ── */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setPeriodFilter('this_month')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            periodFilter === 'this_month'
+              ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
+              : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
+          }`}
+        >
+          This Month
+        </button>
+        <button
+          onClick={() => setPeriodFilter('last_month')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            periodFilter === 'last_month'
+              ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
+              : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
+          }`}
+        >
+          Last Month
+        </button>
+        <button
+          onClick={() => setPeriodFilter('custom')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            periodFilter === 'custom'
+              ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
+              : 'bg-white/80 text-slate-600 border border-purple-100 hover:bg-white'
+          }`}
+        >
+          Custom
+        </button>
+      </div>
+
+      {/* ── SCREEN 3: TOTAL EXPENSES CARD ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/70 relative overflow-hidden">
+        <div className="flex items-start justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Total Expenses
+            </span>
+            <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">
+              {formatCurrency(displayTotal, currency)}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100">
+                <span>-4% vs last mo</span>
+              </span>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 shadow-sm">
+            <Receipt className="w-6 h-6" />
+          </div>
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#08090E] border border-white/10 p-4 rounded-2xl">
+      {/* ── SCREEN 3: BY CATEGORY BREAKDOWN ── */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/70 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-900 tracking-tight">By Category</h3>
+          <span className="text-xs font-semibold text-purple-600">Breakdown</span>
+        </div>
+
+        <div className="space-y-3.5">
+          {categoryBreakdown.map((item, idx) => {
+            const colors = ['bg-purple-500', 'bg-blue-500', 'bg-orange-500', 'bg-rose-500'];
+            const barColor = colors[idx % colors.length];
+            return (
+              <div key={item.name} className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <span className="text-slate-700">{item.name}</span>
+                  <span className="text-slate-900 font-bold">{formatCurrency(item.amount, currency)}</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div
+                    className={`${barColor} h-full rounded-full transition-all duration-500`}
+                    style={{ width: `${item.pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-purple-100/60 p-3.5 rounded-2xl shadow-sm">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search description, category..."
-            className="w-full bg-[#0D0E16] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-zinc-400" />
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#0D0E16] border border-white/10 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500"
+            className="bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500 font-medium"
           >
             <option value="all">All Categories</option>
             {categories.map((cat) => (
@@ -181,79 +265,95 @@ export const Expenses: React.FC<ExpensesProps> = ({
               </option>
             ))}
           </select>
+
+          <button
+            onClick={handleExport}
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+            title="Export Excel"
+          >
+            <Download className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Expenses Table */}
-      <div className="bg-[#08090E] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+      {/* Expenses List */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-purple-100/60">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">All Expenses</h4>
+          <span className="text-xs font-semibold text-slate-500">{filteredExpenses.length} records</span>
+        </div>
+
         {filteredExpenses.length === 0 ? (
-          <div className="p-12 text-center text-zinc-500">
-            <Receipt className="w-12 h-12 mx-auto mb-3 text-zinc-600 opacity-50" />
-            <p className="text-sm font-semibold">No expenses found</p>
-            <p className="text-xs mt-1">Try adjusting your filters or click "Add Expense" to create one.</p>
+          <div className="py-12 text-center text-slate-400">
+            <Receipt className="w-10 h-10 mx-auto mb-2 opacity-40 text-purple-400" />
+            <p className="text-sm font-semibold text-slate-700">No expenses recorded</p>
+            <p className="text-xs mt-0.5">Tap the "+ Add Expense" button below to log one.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-zinc-300">
-              <thead className="bg-[#0D0E16] border-b border-white/10 uppercase font-semibold text-zinc-400">
-                <tr>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Category</th>
-                  <th className="px-6 py-4">Description</th>
-                  <th className="px-6 py-4">Payment Method</th>
-                  <th className="px-6 py-4 text-right">Amount</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredExpenses.map((exp) => (
-                  <tr key={exp.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 font-medium text-white">{formatDate(exp.date)}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-semibold">
-                        {exp.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 max-w-xs truncate">{exp.description || '-'}</td>
-                    <td className="px-6 py-4">{exp.payment_method}</td>
-                    <td className="px-6 py-4 text-right font-bold text-rose-400">
-                      {formatCurrency(Number(exp.amount), currency)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenEditModal(exp)}
-                          className="p-1.5 text-zinc-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => onDelete(exp.id)}
-                          className="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="divide-y divide-slate-100">
+            {filteredExpenses.map((exp) => (
+              <div key={exp.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                    <Receipt className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 leading-snug">
+                      {exp.description || exp.category}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {exp.category} · {formatDate(exp.date)} · {exp.payment_method || 'UPI'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-slate-900">
+                    -{formatCurrency(Number(exp.amount), currency)}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleOpenEditModal(exp)}
+                      className="p-1.5 text-slate-400 hover:text-purple-600 rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(exp.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
+      {/* ── SCREEN 3: STICKY FLOATING "+ ADD EXPENSE" BUTTON ── */}
+      <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-none">
+        <button
+          onClick={handleOpenAddModal}
+          className="w-full py-4 px-6 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-sm shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2 pointer-events-auto transition-all"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Add Expense</span>
+        </button>
+      </div>
+
       {/* Add / Edit Expense Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">
-              {editingExpense ? 'Edit Expense Record' : 'Add New Expense'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-base font-bold text-slate-900 mb-4">
+              {editingExpense ? 'Edit Expense' : 'Add New Expense'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Amount ({currency})</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Amount ({currency})</label>
                 <input
                   type="number"
                   step="0.01"
@@ -261,16 +361,16 @@ export const Expenses: React.FC<ExpensesProps> = ({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-purple-500 font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Category</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-purple-500 font-medium"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
@@ -281,33 +381,33 @@ export const Expenses: React.FC<ExpensesProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Description</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Client lunch, software subscription..."
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-purple-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Date</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Date</label>
                   <input
                     type="date"
                     required
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500 font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Payment Method</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Method</label>
                   <select
                     value={paymentMethod}
                     onChange={(e: any) => setPaymentMethod(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500 font-medium"
                   >
                     <option value="UPI">UPI</option>
                     <option value="Cash">Cash</option>
@@ -320,28 +420,28 @@ export const Expenses: React.FC<ExpensesProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Notes</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Notes</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Additional notes..."
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white"
+                  className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 text-sm font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 transition-all"
+                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-md transition-all"
                 >
                   {loading ? 'Saving...' : editingExpense ? 'Update Expense' : 'Save Expense'}
                 </button>

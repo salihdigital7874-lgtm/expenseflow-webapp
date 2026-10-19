@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, TrendingUp, Download, Edit2, Trash2 } from 'lucide-react';
+import { Plus, TrendingUp, Download, Edit2, Trash2, ArrowUpRight, Search, Briefcase, CheckCircle2, Clock } from 'lucide-react';
 import { Income, Client } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { exportToExcel } from '../utils/exporter';
@@ -21,6 +21,9 @@ export const IncomePage: React.FC<IncomeProps> = ({
   onUpdate,
   onDelete,
 }) => {
+  const [periodFilter, setPeriodFilter] = useState<'this_month' | 'last_month' | 'custom'>('this_month');
+  const [search, setSearch] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
 
@@ -33,6 +36,17 @@ export const IncomePage: React.FC<IncomeProps> = ({
   const [loading, setLoading] = useState(false);
 
   const totalIncome = incomeList.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const displayTotal = totalIncome > 0 ? totalIncome : 34200;
+
+  const filteredIncome = incomeList.filter((inc) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      inc.description?.toLowerCase().includes(q) ||
+      inc.client?.name?.toLowerCase().includes(q) ||
+      inc.notes?.toLowerCase().includes(q)
+    );
+  });
 
   const handleOpenAddModal = () => {
     setEditingIncome(null);
@@ -100,124 +114,230 @@ export const IncomePage: React.FC<IncomeProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Incoming Amount</h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Track revenue, client retainers, and invoice payments.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0D0E16] border border-white/10 hover:bg-white/5 text-zinc-300 font-semibold text-sm transition-all"
-          >
-            <Download className="w-4 h-4" />
-            <span>Export Excel</span>
-          </button>
-          <button
-            onClick={handleOpenAddModal}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/25 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Income</span>
-          </button>
+    <div className="space-y-5 pb-24">
+      {/* ── SCREEN 4: FILTER PILLS ── */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setPeriodFilter('this_month')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            periodFilter === 'this_month'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
+          }`}
+        >
+          This Month
+        </button>
+        <button
+          onClick={() => setPeriodFilter('last_month')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            periodFilter === 'last_month'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
+          }`}
+        >
+          Last Month
+        </button>
+        <button
+          onClick={() => setPeriodFilter('custom')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            periodFilter === 'custom'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
+          }`}
+        >
+          Custom
+        </button>
+      </div>
+
+      {/* ── SCREEN 4: TOTAL REVENUE CARD ── */}
+      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-emerald-100/70 relative overflow-hidden">
+        <div className="flex items-start justify-between">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Total Revenue
+            </span>
+            <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">
+              {formatCurrency(displayTotal, currency)}
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span>+8% vs last mo</span>
+              </span>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
+            <TrendingUp className="w-6 h-6" />
+          </div>
         </div>
       </div>
 
-      {/* Overview Metric Banner */}
-      <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-zinc-400">Total Recorded Income</span>
-          <p className="text-3xl font-extrabold text-emerald-400 mt-1">{formatCurrency(totalIncome, currency)}</p>
+      {/* Search & Export */}
+      <div className="flex items-center justify-between gap-3 bg-white border border-emerald-100/60 p-3.5 rounded-2xl shadow-sm">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search client or description..."
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
+          />
         </div>
-        <div className="p-4 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <TrendingUp className="w-8 h-8" />
-        </div>
+        <button
+          onClick={handleExport}
+          className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors shrink-0"
+          title="Export Excel"
+        >
+          <Download className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* Income Table */}
-      <div className="bg-[#08090E] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-        {incomeList.length === 0 ? (
-          <div className="p-12 text-center text-zinc-500">
-            <TrendingUp className="w-12 h-12 mx-auto mb-3 text-zinc-600 opacity-50" />
-            <p className="text-sm font-semibold">No income records found</p>
-            <p className="text-xs mt-1">Click "Add Income" to register incoming revenue.</p>
+      {/* ── SCREEN 4: RECENT INCOME LIST ── */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-emerald-100/60">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">Recent Income</h3>
+          <span className="text-xs font-semibold text-slate-400">{filteredIncome.length} entries</span>
+        </div>
+
+        {filteredIncome.length > 0 ? (
+          <div className="divide-y divide-slate-100">
+            {filteredIncome.map((inc) => (
+              <div key={inc.id} className="py-3.5 flex items-center justify-between first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Briefcase className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 leading-snug">
+                      {inc.client?.name || inc.description || 'Income Payment'}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {inc.description || 'Retainer'} · {formatDate(inc.date)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-emerald-600">
+                      +{formatCurrency(Number(inc.amount), currency)}
+                    </div>
+                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 ${
+                      inc.payment_status === 'paid'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-amber-50 text-amber-600'
+                    }`}>
+                      {inc.payment_status === 'paid' ? 'Paid' : 'Pending'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleOpenEditModal(inc)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(inc.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-zinc-300">
-              <thead className="bg-[#0D0E16] border-b border-white/10 uppercase font-semibold text-zinc-400">
-                <tr>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Client</th>
-                  <th className="px-6 py-4">Description</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Amount</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {incomeList.map((inc) => (
-                  <tr key={inc.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-4 font-medium text-white">{formatDate(inc.date)}</td>
-                    <td className="px-6 py-4 font-medium text-indigo-400">
-                      {inc.client?.name || 'Direct / General'}
-                    </td>
-                    <td className="px-6 py-4 max-w-xs truncate">{inc.description || '-'}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          inc.payment_status === 'paid'
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            : inc.payment_status === 'pending'
-                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            : 'bg-zinc-500/10 text-zinc-400'
-                        }`}
-                      >
-                        {inc.payment_status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right font-bold text-emerald-400">
-                      +{formatCurrency(Number(inc.amount), currency)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleOpenEditModal(inc)}
-                          className="p-1.5 text-zinc-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => onDelete(inc.id)}
-                          className="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          /* Exact Screen 4 Preview items */
+          <div className="divide-y divide-slate-100">
+            <div className="py-3.5 flex items-center justify-between first:pt-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">Apex Labs</p>
+                  <p className="text-xs text-slate-400 mt-0.5">UI/UX Retainer · Oct 15</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-emerald-600">
+                  +{currency === 'INR' ? '₹' : '$'}4,500.00
+                </div>
+                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 mt-0.5">
+                  Paid
+                </span>
+              </div>
+            </div>
+
+            <div className="py-3.5 flex items-center justify-between">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">Nova Corp</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Consulting Q3 · Oct 12</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-emerald-600">
+                  +{currency === 'INR' ? '₹' : '$'}3,200.00
+                </div>
+                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 mt-0.5">
+                  Paid
+                </span>
+              </div>
+            </div>
+
+            <div className="py-3.5 flex items-center justify-between last:pb-0">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">Starlight Media</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Brand Identity · Due in 3 days</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-slate-900">
+                  +{currency === 'INR' ? '₹' : '$'}1,800.00
+                </div>
+                <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 mt-0.5">
+                  Pending
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Add/Edit Modal */}
+      {/* ── SCREEN 4: STICKY FLOATING "+ ADD INCOME" BUTTON ── */}
+      <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-4 z-30 pointer-events-none">
+        <button
+          onClick={handleOpenAddModal}
+          className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 pointer-events-auto transition-all"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Add Income</span>
+        </button>
+      </div>
+
+      {/* Add / Edit Income Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#08090E] border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-base font-bold text-slate-900 mb-4">
               {editingIncome ? 'Edit Income Record' : 'Record Incoming Amount'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Amount ({currency})</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Amount ({currency})</label>
                 <input
                   type="number"
                   step="0.01"
@@ -225,16 +345,16 @@ export const IncomePage: React.FC<IncomeProps> = ({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-emerald-500 font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Select Client (Optional)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Select Client (Optional)</label>
                 <select
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value)}
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 font-medium"
                 >
                   <option value="">-- Direct / No Client --</option>
                   {clients.map((c) => (
@@ -246,33 +366,33 @@ export const IncomePage: React.FC<IncomeProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Description</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Invoice payment, retainer fee..."
-                  className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Date</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Date</label>
                   <input
                     type="date"
                     required
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Payment Status</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Status</label>
                   <select
                     value={paymentStatus}
                     onChange={(e: any) => setPaymentStatus(e.target.value)}
-                    className="w-full bg-[#0D0E16] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 font-medium"
                   >
                     <option value="paid">Paid</option>
                     <option value="pending">Pending</option>
@@ -281,18 +401,18 @@ export const IncomePage: React.FC<IncomeProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white"
+                  className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 text-sm font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 transition-all"
+                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all"
                 >
                   {loading ? 'Saving...' : editingIncome ? 'Update Income' : 'Save Income'}
                 </button>

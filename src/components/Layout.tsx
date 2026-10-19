@@ -6,24 +6,23 @@ import {
   Users,
   PieChart,
   BarChart3,
-  Settings,
+  Settings as SettingsIcon,
   LogOut,
-  Menu,
   X,
   Search,
-  UserCheck,
-  Pencil,
   Sparkles,
   Heart,
   Languages,
   MoreHorizontal,
   ChevronUp,
+  ChevronRight,
+  HelpCircle,
+  ChevronLeft,
 } from 'lucide-react';
 import { Profile } from '../types/database';
 import { useAppBrand } from '../context/BrandContext';
 import { EditBrandingModal } from './EditBrandingModal';
 import { DEFAULT_BRANDING } from '../types/branding';
-
 
 export type TabType =
   | 'dashboard'
@@ -47,6 +46,70 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+// Tab Pastel Background Themes matching the 10 mobile screens
+const TAB_THEMES: Record<
+  TabType,
+  {
+    bg: string;
+    textColor: string;
+    headerTitle: string;
+    showSearchOnMobile?: boolean;
+    headerIcon?: React.ReactNode;
+  }
+> = {
+  dashboard: {
+    bg: 'bg-gradient-to-b from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'ExpenseFlow',
+  },
+  health: {
+    bg: 'bg-gradient-to-b from-[#FFE4E6] via-[#FFF1F2] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Health Suite',
+    headerIcon: <Heart className="w-6 h-6 text-rose-500 fill-rose-500" />,
+  },
+  expenses: {
+    bg: 'bg-gradient-to-b from-[#F3E8FF] via-[#FAF5FF] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Expenses',
+    showSearchOnMobile: true,
+  },
+  income: {
+    bg: 'bg-gradient-to-b from-[#DCFCE7] via-[#F0FDF4] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Income',
+    showSearchOnMobile: true,
+  },
+  clients: {
+    bg: 'bg-gradient-to-b from-[#FEF3C7] via-[#FFFBEB] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Clients',
+    showSearchOnMobile: true,
+  },
+  budgets: {
+    bg: 'bg-gradient-to-b from-[#FFEDD5] via-[#FFF7ED] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Budgets',
+    headerIcon: <PieChart className="w-6 h-6 text-rose-500" />,
+  },
+  reports: {
+    bg: 'bg-gradient-to-b from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Reports',
+    headerIcon: <BarChart3 className="w-6 h-6 text-sky-600" />,
+  },
+  translator: {
+    bg: 'bg-gradient-to-b from-[#7C3AED] via-[#5B21B6] to-[#2E1065]',
+    textColor: 'text-white',
+    headerTitle: 'AI Voice Translator',
+  },
+  settings: {
+    bg: 'bg-gradient-to-b from-[#F8FAFC] via-[#FFFFFF] to-[#F1F5F9]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Customize App',
+  },
+};
+
 export const Layout: React.FC<LayoutProps> = ({
   currentTab,
   onSelectTab,
@@ -57,7 +120,6 @@ export const Layout: React.FC<LayoutProps> = ({
   showToast,
   children,
 }) => {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [brandingModalOpen, setBrandingModalOpen] = useState(false);
@@ -78,16 +140,16 @@ export const Layout: React.FC<LayoutProps> = ({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [moreSheetOpen]);
 
-  const navItems: { id: TabType; label: string; shortLabel: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <LayoutDashboard className="w-5 h-5 text-indigo-400" /> },
-    { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-400" /> },
-    { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-amber-400" /> },
-    { id: 'income', label: 'Incoming Amount', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5 text-emerald-400" /> },
-    { id: 'translator', label: 'Voice Translator', shortLabel: 'Translate', icon: <Languages className="w-5 h-5 text-cyan-400" /> },
-    { id: 'clients', label: 'Client Amount Balance', shortLabel: 'Clients', icon: <Users className="w-5 h-5" /> },
-    { id: 'budgets', label: 'Budgets', shortLabel: 'Budgets', icon: <PieChart className="w-5 h-5" /> },
-    { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: <BarChart3 className="w-5 h-5" /> },
-    { id: 'settings', label: 'Settings & Branding', shortLabel: 'Settings', icon: <Settings className="w-5 h-5" /> },
+  const navItems: { id: TabType; label: string; shortLabel: string; icon: React.ReactNode; color: string }[] = [
+    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <LayoutDashboard className="w-5 h-5 text-sky-600" />, color: '#0284C7' },
+    { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
+    { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-amber-500" />, color: '#F59E0B' },
+    { id: 'income', label: 'Incoming Amount', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5 text-emerald-500" />, color: '#10B981' },
+    { id: 'translator', label: 'Voice Translator', shortLabel: 'Translate', icon: <Languages className="w-5 h-5 text-purple-600" />, color: '#9333EA' },
+    { id: 'clients', label: 'Client Balances', shortLabel: 'Clients', icon: <Users className="w-5 h-5 text-emerald-600" />, color: '#059669' },
+    { id: 'budgets', label: 'Budgets', shortLabel: 'Budgets', icon: <PieChart className="w-5 h-5 text-orange-500" />, color: '#EA580C' },
+    { id: 'reports', label: 'Reports & Exports', shortLabel: 'Reports', icon: <BarChart3 className="w-5 h-5 text-indigo-600" />, color: '#4F46E5' },
+    { id: 'settings', label: 'Settings & Branding', shortLabel: 'Settings', icon: <SettingsIcon className="w-5 h-5 text-slate-600" />, color: '#475569' },
   ];
 
   // Mobile bottom bar: show first 4 tabs + "More"
@@ -110,21 +172,27 @@ export const Layout: React.FC<LayoutProps> = ({
     setMoreSheetOpen(false);
   };
 
+  const currentTheme = TAB_THEMES[currentTab] || TAB_THEMES.dashboard;
+  const isTranslatorTab = currentTab === 'translator';
+
+  // Avatar URL (or fallback)
+  const avatarUrl = profile?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=140&auto=format&fit=crop&q=80';
+
   return (
-    <div className="min-h-screen flex bg-black text-white selection:bg-indigo-500 selection:text-white">
+    <div className={`min-h-screen flex ${currentTheme.bg} ${currentTheme.textColor} transition-colors duration-500`}>
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex w-64 flex-col fixed top-0 bottom-0 left-0 bg-[#08090E] border-r border-white/10 z-40">
+      <aside className="hidden lg:flex w-64 flex-col fixed top-0 bottom-0 left-0 bg-white/80 backdrop-blur-2xl border-r border-slate-200/80 z-40 shadow-sm">
         {/* Brand Header - Click to Edit */}
         <div
           onClick={() => setBrandingModalOpen(true)}
-          className="p-5 border-b border-white/10 flex items-center justify-between cursor-pointer group hover:bg-white/[0.03] transition-colors"
+          className="p-5 border-b border-slate-100 flex items-center justify-between cursor-pointer group hover:bg-slate-50/70 transition-colors"
           title="Click to edit App Name & Logo"
         >
           <div className="flex items-center gap-3 min-w-0">
             <img
               src={branding.appLogo}
               alt={branding.appName}
-              className="w-10 h-10 rounded-xl object-cover border border-indigo-500/40 shadow-lg shadow-indigo-600/30 shrink-0"
+              className="w-10 h-10 rounded-2xl object-cover border border-sky-400/40 shadow-md shadow-sky-500/20 shrink-0"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null;
@@ -133,59 +201,67 @@ export const Layout: React.FC<LayoutProps> = ({
             />
 
             <div className="min-w-0 flex-1">
-              <h1 className="font-bold text-base leading-snug tracking-tight text-white truncate group-hover:text-indigo-300 transition-colors">
+              <h1 className="font-extrabold text-base leading-snug tracking-tight text-slate-900 truncate">
                 {branding.appName}
               </h1>
-              <span className="text-xs text-indigo-400 font-medium truncate block">
+              <span className="text-xs text-sky-600 font-semibold truncate block">
                 {branding.appSubtitle}
               </span>
             </div>
           </div>
-
-          <div className="p-1.5 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-white transition-opacity shrink-0">
-            <Pencil className="w-3.5 h-3.5" />
-          </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 p-3.5 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = currentTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 font-semibold'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-sky-500 text-white shadow-md shadow-sky-500/30'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                {item.icon}
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+                {item.id === 'translator' && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'}`}>
+                    AI
+                  </span>
+                )}
               </button>
             );
           })}
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-white/10 bg-[#0D0E16]/50">
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">
-                {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : userEmail?.charAt(0).toUpperCase() || 'U'}
-              </div>
+            <div
+              className="flex items-center gap-3 min-w-0 cursor-pointer"
+              onClick={() => onSelectTab('settings')}
+            >
+              <img
+                src={avatarUrl}
+                alt="User"
+                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+              />
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-white truncate">
-                  {profile?.full_name || 'Active User'}
+                <p className="text-xs font-bold text-slate-900 truncate">
+                  {profile?.full_name || 'Salih Digital'}
                 </p>
-                <p className="text-[11px] text-zinc-400 truncate">{userEmail || 'user@app.com'}</p>
+                <p className="text-[11px] text-slate-500 truncate">{userEmail || 'active@expenseflow.app'}</p>
               </div>
             </div>
             <button
               onClick={onLogout}
               title="Sign Out"
-              className="p-2 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+              className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -195,142 +271,208 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Main Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
-        {/* Top Navbar */}
-        <header className="h-14 lg:h-16 border-b border-white/10 bg-[#08090E]/90 backdrop-blur-xl sticky top-0 z-30 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
-          {/* Mobile: App logo + page title */}
+        {/* Top Navbar matching the 10 Mobile Screens */}
+        <header className={`h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 ${isTranslatorTab ? 'bg-purple-950/40 backdrop-blur-xl border-b border-purple-500/20' : 'bg-white/70 backdrop-blur-xl border-b border-slate-100/80 shadow-xs'}`}>
+          {/* Left Side: Brand Logo or Page Title */}
           <div className="flex items-center gap-2.5 min-w-0">
-            {/* Mobile brand icon */}
-            <div
-              className="lg:hidden flex items-center gap-2 cursor-pointer shrink-0"
-              onClick={() => setBrandingModalOpen(true)}
-            >
-              <img
-                src={branding.appLogo}
-                alt={branding.appName}
-                className="w-8 h-8 rounded-xl object-cover border border-indigo-500/40 shadow-md shadow-indigo-600/20"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = DEFAULT_BRANDING.appLogo;
-                }}
-              />
-            </div>
-            <h2 className="text-sm sm:text-lg font-semibold text-white capitalize truncate">
-              {navItems.find((n) => n.id === currentTab)?.label}
-            </h2>
+            {currentTab === 'settings' ? (
+              <button
+                onClick={() => onSelectTab('dashboard')}
+                className="flex items-center gap-2 text-slate-900 font-bold hover:text-sky-600 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6 text-slate-700" />
+                <span className="text-lg font-bold">Customize App</span>
+              </button>
+            ) : currentTab === 'dashboard' ? (
+              <div
+                className="flex items-center gap-2.5 cursor-pointer"
+                onClick={() => setBrandingModalOpen(true)}
+              >
+                <img
+                  src={branding.appLogo}
+                  alt={branding.appName}
+                  className="w-8 h-8 rounded-xl object-cover border border-sky-400/40 shadow-sm"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = DEFAULT_BRANDING.appLogo;
+                  }}
+                />
+                <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                  {branding.appName}
+                </h1>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                {currentTheme.headerIcon}
+                <h1 className={`text-lg font-bold tracking-tight ${isTranslatorTab ? 'text-white' : 'text-slate-900'}`}>
+                  {currentTheme.headerTitle}
+                </h1>
+              </div>
+            )}
           </div>
 
-          {/* Search bar */}
-          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-md mx-1 sm:mx-2">
-            <div className="relative">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          {/* Desktop Search bar */}
+          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-sm mx-4">
+            <div className="relative w-full">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search..."
-                className="w-full bg-[#0D0E16] border border-white/10 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                placeholder="Search transactions, clients..."
+                className="w-full bg-white/80 border border-slate-200/80 rounded-2xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-xs"
               />
             </div>
           </form>
 
-          {/* Quick Branding Edit Button & User Status */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <button
-              onClick={() => setBrandingModalOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-300 hover:bg-indigo-600/20 text-xs font-semibold transition-all"
-              title="Edit App Name, Subtitle & Logo"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline">Customize App</span>
-            </button>
+          {/* Right Side: Quick Action & Avatar */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Search Icon on mobile for searchable tabs */}
+            {currentTheme.showSearchOnMobile && (
+              <button
+                onClick={() => {
+                  const query = prompt('Search records:');
+                  if (query && onSearch) onSearch(query);
+                }}
+                className="w-9 h-9 rounded-full bg-white/90 border border-slate-200/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-slate-900 transition-all"
+                title="Search"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            )}
 
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>{localStorage.getItem('expenseflow_demo_mode') === 'true' ? 'Demo Local Storage' : 'Supabase Connected'}</span>
+            {/* User Avatar Circle */}
+            <div
+              onClick={() => onSelectTab('settings')}
+              className="relative cursor-pointer group"
+              title="Profile & Settings"
+            >
+              <img
+                src={avatarUrl}
+                alt="User Profile"
+                className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm ring-1 ring-slate-200/80 group-hover:scale-105 transition-transform"
+              />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
             </div>
           </div>
         </header>
 
-        {/* Page Content Area — extra bottom padding on mobile for bottom nav */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">{children}</main>
+        {/* Page Content Area with Responsive Bottom Padding */}
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 pb-28 lg:pb-8 max-w-7xl w-full mx-auto">
+          {children}
+        </main>
       </div>
 
-      {/* ====== MOBILE FLOATING LIQUID GLASS BOTTOM TAB BAR ====== */}
+      {/* ====== MOBILE FLOATING CLEAN GLASS BOTTOM TAB BAR ====== */}
       <div className="mobile-bottom-bar lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
         {/* "More" Bottom Sheet overlay */}
         {moreSheetOpen && (
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-md z-40 mobile-sheet-overlay pointer-events-auto"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 mobile-sheet-overlay pointer-events-auto"
             onClick={() => setMoreSheetOpen(false)}
           />
         )}
 
-        {/* "More" Bottom Sheet */}
+        {/* "More" Bottom Sheet (Screen 9) */}
         <div
           ref={moreSheetRef}
-          className={`mobile-more-sheet ${moreSheetOpen ? 'mobile-more-sheet--open' : ''} pointer-events-auto`}
+          className={`mobile-more-sheet ${moreSheetOpen ? 'mobile-more-sheet--open' : ''} pointer-events-auto bg-white/95 backdrop-blur-2xl text-slate-900 border-t border-slate-200/80`}
         >
           {/* Sheet handle */}
           <div className="flex justify-center pt-3 pb-2">
-            <div className="w-10 h-1 rounded-full bg-white/20" />
-          </div>
-          <div className="px-4 pb-2 flex items-center justify-between">
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">More Options</span>
-            <button
-              onClick={() => setMoreSheetOpen(false)}
-              className="p-1.5 rounded-lg bg-white/5 text-zinc-400 hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="w-10 h-1.5 rounded-full bg-slate-300" />
           </div>
 
-          <nav className="px-3 pb-6 space-y-1">
+          <div className="px-5 pb-3 flex items-center justify-between border-b border-slate-100">
+            <span className="text-base font-extrabold text-slate-900">More</span>
+            <div className="flex items-center gap-2">
+              <img src={avatarUrl} alt="User" className="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-xs" />
+              <button
+                onClick={() => setMoreSheetOpen(false)}
+                className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors ml-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* More Menu Items matching Screen 9 */}
+          <nav className="p-4 space-y-2">
             {moreMenuTabs.map((item) => {
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleMobileTabSelect(item.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200 ${
+                  className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold transition-all ${
                     isActive
-                      ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 font-semibold'
-                      : 'text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08]'
+                      ? 'bg-sky-50 text-sky-900 border border-sky-200/70 shadow-xs'
+                      : 'text-slate-800 hover:bg-slate-50 bg-white border border-slate-100 shadow-2xs'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={isActive ? 'text-white' : item.id === 'translator' ? 'text-cyan-400' : 'text-zinc-400'}>{item.icon}</span>
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                      style={{
+                        background:
+                          item.id === 'translator'
+                            ? '#F3E8FF'
+                            : item.id === 'clients'
+                            ? '#DCFCE7'
+                            : item.id === 'budgets'
+                            ? '#FFEDD5'
+                            : item.id === 'reports'
+                            ? '#E0F2FE'
+                            : '#F1F5F9',
+                      }}
+                    >
+                      {item.icon}
+                    </div>
                     <span>{item.label}</span>
                   </div>
-                  {item.id === 'translator' && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                      Voice AI
-                    </span>
-                  )}
+
+                  <div className="flex items-center gap-2">
+                    {item.id === 'translator' && (
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                        AI
+                      </span>
+                    )}
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </div>
                 </button>
               );
             })}
 
-            {/* Sign Out in More */}
+            {/* Help & Support */}
+            <div className="w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold text-slate-800 bg-white border border-slate-100 shadow-2xs cursor-pointer hover:bg-slate-50">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 shadow-xs">
+                  <HelpCircle className="w-5 h-5" />
+                </div>
+                <span>Help & Support</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+
+            {/* Sign Out Button */}
             <button
               onClick={() => {
                 setMoreSheetOpen(false);
                 onLogout();
               }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium text-rose-400 bg-rose-500/[0.08] hover:bg-rose-500/[0.15] border border-rose-500/20 transition-all mt-2"
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/25 transition-all mt-4 cursor-pointer"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
             </button>
           </nav>
         </div>
 
-        {/* Floating Liquid Glass Bottom Tab Bar */}
+        {/* Floating Frosted Glass Bottom Navigation Bar */}
         <div className="mobile-tab-bar pointer-events-auto">
-          {/* Liquid Glass top specular reflection */}
           <div className="mobile-tab-glass-shimmer" />
 
-          {/* Pill-shaped bar inner */}
           <div className="mobile-tab-bar-inner">
             {mobileBottomTabs.map((item) => {
               const isActive = currentTab === item.id;
@@ -357,7 +499,7 @@ export const Layout: React.FC<LayoutProps> = ({
               className={`mobile-tab-item ${isActiveInMore || moreSheetOpen ? 'mobile-tab-item--active' : ''}`}
             >
               <span className={`mobile-tab-icon ${isActiveInMore || moreSheetOpen ? 'mobile-tab-icon--active' : ''}`}>
-                {moreSheetOpen ? <ChevronUp className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
+                {moreSheetOpen ? <ChevronUp className="w-5 h-5 text-slate-700" /> : <MoreHorizontal className="w-5 h-5 text-slate-500" />}
               </span>
               <span className={`mobile-tab-label ${isActiveInMore || moreSheetOpen ? 'mobile-tab-label--active' : ''}`}>
                 More
@@ -368,77 +510,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </div>
 
-      {/* Legacy Mobile Drawer — kept for lg:hidden fallback if needed but hidden since we now use bottom bar */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="relative flex-1 max-w-xs w-full bg-[#08090E] border-r border-white/10 flex flex-col p-4 z-50">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-              <div
-                onClick={() => {
-                  setMobileOpen(false);
-                  setBrandingModalOpen(true);
-                }}
-                className="flex items-center gap-2.5 cursor-pointer"
-              >
-                <img
-                  src={branding.appLogo}
-                  alt={branding.appName}
-                  className="w-8 h-8 rounded-lg object-cover border border-indigo-500/40"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null;
-                    target.src = DEFAULT_BRANDING.appLogo;
-                  }}
-                />
-
-                <div>
-                  <span className="font-bold text-white text-sm block truncate">{branding.appName}</span>
-                  <span className="text-[10px] text-indigo-400 font-medium block truncate">
-                    {branding.appSubtitle}
-                  </span>
-                </div>
-              </div>
-              <button onClick={() => setMobileOpen(false)} className="text-zinc-400 hover:text-white">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <nav className="flex-1 space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    onSelectTab(item.id);
-                    setMobileOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium ${
-                    currentTab === item.id
-                      ? 'bg-indigo-600 text-white font-semibold'
-                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </nav>
-            <div className="pt-4 border-t border-white/10 mt-auto">
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  onLogout();
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/10 text-rose-400 font-semibold text-sm hover:bg-rose-500/20 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Branding Quick Modal */}
+      {/* Edit Branding Modal */}
       <EditBrandingModal
         isOpen={brandingModalOpen}
         onClose={() => setBrandingModalOpen(false)}
@@ -448,3 +520,4 @@ export const Layout: React.FC<LayoutProps> = ({
   );
 };
 
+export default Layout;
