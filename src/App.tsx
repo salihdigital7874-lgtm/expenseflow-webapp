@@ -15,7 +15,6 @@ import { ClientBalances } from './pages/ClientBalances';
 import { Budgets } from './pages/Budgets';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
-import { VoiceTranslator } from './pages/VoiceTranslator';
 
 import { getProfile } from './services/profiles';
 import { getExpenses, createExpense, updateExpense, deleteExpense } from './services/expenses';
@@ -492,10 +491,6 @@ export const App: React.FC = () => {
 
           {currentTab === 'health' && (
             <HealthPage showToast={showToast} />
-          )}
-
-          {currentTab === 'translator' && (
-            <VoiceTranslator showToast={showToast} />
           )}
 
           {currentTab === 'expenses' && (

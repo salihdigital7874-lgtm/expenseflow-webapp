@@ -12,7 +12,6 @@ import {
   Search,
   Sparkles,
   Heart,
-  Languages,
   MoreHorizontal,
   ChevronUp,
   ChevronRight,
@@ -27,7 +26,6 @@ import { DEFAULT_BRANDING } from '../types/branding';
 export type TabType =
   | 'dashboard'
   | 'health'
-  | 'translator'
   | 'expenses'
   | 'income'
   | 'clients'
@@ -98,11 +96,6 @@ const TAB_THEMES: Record<
     headerTitle: 'Reports',
     headerIcon: <BarChart3 className="w-6 h-6 text-sky-600" />,
   },
-  translator: {
-    bg: 'bg-gradient-to-b from-[#7C3AED] via-[#5B21B6] to-[#2E1065]',
-    textColor: 'text-white',
-    headerTitle: 'AI Voice Translator',
-  },
   settings: {
     bg: 'bg-gradient-to-b from-[#F8FAFC] via-[#FFFFFF] to-[#F1F5F9]',
     textColor: 'text-slate-900',
@@ -118,7 +111,6 @@ const TAB_ORDER: TabType[] = [
   'clients',
   'budgets',
   'reports',
-  'translator',
   'settings',
 ];
 
@@ -194,7 +186,6 @@ export const Layout: React.FC<LayoutProps> = ({
     { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
     { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-amber-500" />, color: '#F59E0B' },
     { id: 'income', label: 'Incoming Amount', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5 text-emerald-500" />, color: '#10B981' },
-    { id: 'translator', label: 'Voice Translator', shortLabel: 'Translate', icon: <Languages className="w-5 h-5 text-purple-600" />, color: '#9333EA' },
     { id: 'clients', label: 'Client Balances', shortLabel: 'Clients', icon: <Users className="w-5 h-5 text-emerald-600" />, color: '#059669' },
     { id: 'budgets', label: 'Budgets', shortLabel: 'Budgets', icon: <PieChart className="w-5 h-5 text-orange-500" />, color: '#EA580C' },
     { id: 'reports', label: 'Reports & Exports', shortLabel: 'Reports', icon: <BarChart3 className="w-5 h-5 text-indigo-600" />, color: '#4F46E5' },
@@ -234,7 +225,6 @@ export const Layout: React.FC<LayoutProps> = ({
   };
 
   const currentTheme = TAB_THEMES[currentTab] || TAB_THEMES.dashboard;
-  const isTranslatorTab = currentTab === 'translator';
 
   // Avatar URL (or fallback)
   const avatarUrl = profile?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=140&auto=format&fit=crop&q=80';
@@ -318,11 +308,6 @@ export const Layout: React.FC<LayoutProps> = ({
                   <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
                   <span>{item.label}</span>
                 </div>
-                {item.id === 'translator' && (
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'}`}>
-                    AI
-                  </span>
-                )}
               </button>
             );
           })}
@@ -361,7 +346,7 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Main Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
         {/* Top Navbar matching the 10 Mobile Screens */}
-        <header className={`h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 ${isTranslatorTab ? 'bg-purple-950/40 backdrop-blur-xl border-b border-purple-500/20' : 'bg-white/70 backdrop-blur-xl border-b border-slate-100/80 shadow-xs'}`}>
+        <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white/70 backdrop-blur-xl border-b border-slate-100/80 shadow-xs">
           {/* Left Side: Brand Logo or Page Title */}
           <div className="flex items-center gap-2.5 min-w-0">
             {currentTab === 'settings' ? (
@@ -394,7 +379,7 @@ export const Layout: React.FC<LayoutProps> = ({
             ) : (
               <div className="flex items-center gap-2">
                 {currentTheme.headerIcon}
-                <h1 className={`text-lg font-bold tracking-tight ${isTranslatorTab ? 'text-white' : 'text-slate-900'}`}>
+                <h1 className="text-lg font-bold tracking-tight text-slate-900">
                   {currentTheme.headerTitle}
                 </h1>
               </div>
@@ -507,9 +492,7 @@ export const Layout: React.FC<LayoutProps> = ({
                       className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
                       style={{
                         background:
-                          item.id === 'translator'
-                            ? '#F3E8FF'
-                            : item.id === 'clients'
+                          item.id === 'clients'
                             ? '#DCFCE7'
                             : item.id === 'budgets'
                             ? '#FFEDD5'
@@ -524,11 +507,6 @@ export const Layout: React.FC<LayoutProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {item.id === 'translator' && (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                        AI
-                      </span>
-                    )}
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </div>
                 </button>

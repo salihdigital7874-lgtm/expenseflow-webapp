@@ -9,7 +9,6 @@ import {
   TrendingUp,
   Users,
   PieChart,
-  Languages,
   DollarSign,
 } from 'lucide-react';
 import { Profile } from '../types/database';
@@ -192,29 +191,7 @@ export const Settings: React.FC<SettingsProps> = ({
           </div>
         </div>
 
-        {/* Voice Translator Shortcut (STAGGER 2) */}
-        {onNavigate && (
-          <div className="bg-white rounded-3xl p-5 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 flex items-center justify-between stagger-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
-                <Languages className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">Voice Translator</h4>
-                <p className="text-xs text-slate-400 font-medium">Speech recognition & audio engine</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigate('translator')}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all cursor-pointer btn-press"
-            >
-              Open
-            </button>
-          </div>
-        )}
-
-        {/* Data Reset & Protection Management Section (STAGGER 3) */}
+        {/* Data Reset & Protection Management Section (STAGGER 2) */}
         <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-rose-100 space-y-4 stagger-3">
           <div className="flex items-center justify-between">
             <div>
