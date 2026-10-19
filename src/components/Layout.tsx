@@ -79,7 +79,7 @@ export const Layout: React.FC<LayoutProps> = ({
   }, [moreSheetOpen]);
 
   const navItems: { id: TabType; label: string; shortLabel: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <LayoutDashboard className="w-5 h-5 text-indigo-400" /> },
     { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-400" /> },
     { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-amber-400" /> },
     { id: 'income', label: 'Incoming Amount', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5 text-emerald-400" /> },
@@ -256,12 +256,12 @@ export const Layout: React.FC<LayoutProps> = ({
         <main className="flex-1 p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
 
-      {/* ====== MOBILE BOTTOM TAB BAR ====== */}
-      <div className="mobile-bottom-bar lg:hidden fixed bottom-0 left-0 right-0 z-50">
+      {/* ====== MOBILE FLOATING LIQUID GLASS BOTTOM TAB BAR ====== */}
+      <div className="mobile-bottom-bar lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
         {/* "More" Bottom Sheet overlay */}
         {moreSheetOpen && (
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 mobile-sheet-overlay"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-40 mobile-sheet-overlay pointer-events-auto"
             onClick={() => setMoreSheetOpen(false)}
           />
         )}
@@ -269,7 +269,7 @@ export const Layout: React.FC<LayoutProps> = ({
         {/* "More" Bottom Sheet */}
         <div
           ref={moreSheetRef}
-          className={`mobile-more-sheet ${moreSheetOpen ? 'mobile-more-sheet--open' : ''}`}
+          className={`mobile-more-sheet ${moreSheetOpen ? 'mobile-more-sheet--open' : ''} pointer-events-auto`}
         >
           {/* Sheet handle */}
           <div className="flex justify-center pt-3 pb-2">
@@ -285,7 +285,7 @@ export const Layout: React.FC<LayoutProps> = ({
             </button>
           </div>
 
-          <nav className="px-3 pb-4 space-y-1">
+          <nav className="px-3 pb-6 space-y-1">
             {moreMenuTabs.map((item) => {
               const isActive = currentTab === item.id;
               return (
@@ -294,7 +294,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   onClick={() => handleMobileTabSelect(item.id)}
                   className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 font-semibold'
+                      ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-600/30 font-semibold'
                       : 'text-zinc-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08]'
                   }`}
                 >
@@ -317,7 +317,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 setMoreSheetOpen(false);
                 onLogout();
               }}
-              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium text-rose-400 bg-rose-500/[0.06] hover:bg-rose-500/[0.12] transition-all mt-2"
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium text-rose-400 bg-rose-500/[0.08] hover:bg-rose-500/[0.15] border border-rose-500/20 transition-all mt-2"
             >
               <LogOut className="w-5 h-5" />
               <span>Sign Out</span>
@@ -325,9 +325,12 @@ export const Layout: React.FC<LayoutProps> = ({
           </nav>
         </div>
 
-        {/* Bottom Tab Bar */}
-        <div className="mobile-tab-bar">
-          {/* Pill-shaped bar */}
+        {/* Floating Liquid Glass Bottom Tab Bar */}
+        <div className="mobile-tab-bar pointer-events-auto">
+          {/* Liquid Glass top specular reflection */}
+          <div className="mobile-tab-glass-shimmer" />
+
+          {/* Pill-shaped bar inner */}
           <div className="mobile-tab-bar-inner">
             {mobileBottomTabs.map((item) => {
               const isActive = currentTab === item.id;
@@ -351,21 +354,16 @@ export const Layout: React.FC<LayoutProps> = ({
             {/* More Button */}
             <button
               onClick={() => setMoreSheetOpen(!moreSheetOpen)}
-              className={`mobile-tab-item ${isActiveInMore ? 'mobile-tab-item--active' : ''}`}
+              className={`mobile-tab-item ${isActiveInMore || moreSheetOpen ? 'mobile-tab-item--active' : ''}`}
             >
               <span className={`mobile-tab-icon ${isActiveInMore || moreSheetOpen ? 'mobile-tab-icon--active' : ''}`}>
                 {moreSheetOpen ? <ChevronUp className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}
               </span>
-              <span className={`mobile-tab-label ${isActiveInMore ? 'mobile-tab-label--active' : ''}`}>
+              <span className={`mobile-tab-label ${isActiveInMore || moreSheetOpen ? 'mobile-tab-label--active' : ''}`}>
                 More
               </span>
               {isActiveInMore && <span className="mobile-tab-dot" />}
             </button>
-          </div>
-
-          {/* Home Indicator line (iOS style) */}
-          <div className="flex justify-center pb-1 pt-1.5">
-            <div className="w-32 h-1 rounded-full bg-white/15" />
           </div>
         </div>
       </div>
