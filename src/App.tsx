@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { Expense, Income, Client, Budget, Profile } from './types/database';
@@ -51,14 +51,14 @@ export const App: React.FC = () => {
     onConfirm: () => {},
   });
 
-  const showToast = (message: string, type: ToastType) => {
+  const showToast = useCallback((message: string, type: ToastType) => {
     const newToast: ToastMessage = {
       id: Date.now().toString() + Math.random().toString(),
       type,
       message,
     };
     setToasts((prev) => [...prev, newToast]);
-  };
+  }, []);
 
   const handleDismissToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -557,6 +557,7 @@ export const App: React.FC = () => {
               onResetDataWithAuth={handleResetDataWithAuth}
               onResetAllData={handleResetAllData}
               showToast={showToast}
+              onNavigate={(tab) => setCurrentTab(tab)}
             />
           )}
         </>

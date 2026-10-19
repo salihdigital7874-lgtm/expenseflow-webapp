@@ -112,8 +112,6 @@ export interface HealthAppointment {
   contactNumber?: string;
 }
 
-}
-
 export interface HealthNotificationSettings {
   enabled: boolean;
   browserNotifications: boolean;
