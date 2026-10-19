@@ -106,7 +106,7 @@ const TAB_THEMES: Record<
   settings: {
     bg: 'bg-gradient-to-b from-[#F8FAFC] via-[#FFFFFF] to-[#F1F5F9]',
     textColor: 'text-slate-900',
-    headerTitle: 'Customize App',
+    headerTitle: 'Settings',
   },
 };
 
@@ -370,7 +370,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 className="flex items-center gap-2 text-slate-900 font-bold hover:text-sky-600 transition-colors btn-press"
               >
                 <ChevronLeft className="w-6 h-6 text-slate-700" />
-                <span className="text-lg font-bold">Customize App</span>
+                <span className="text-lg font-bold">Settings</span>
               </button>
             ) : currentTab === 'dashboard' ? (
               <div
