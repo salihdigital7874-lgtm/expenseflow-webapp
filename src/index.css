@@ -263,19 +263,30 @@ body {
   animation: bottomNavFloat 0.5s var(--ease-spring) 0.1s both;
 }
 
+.mobile-liquid-glass {
+  background: rgba(18, 19, 24, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.65),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.45),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+}
+
 .mobile-tab-bar {
   position: relative;
   max-width: 440px;
   margin: 0 auto;
   border-radius: 36px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: rgba(18, 19, 24, 0.82);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 20px 45px -10px rgba(15, 23, 42, 0.14),
-    0 1px 3px rgba(15, 23, 42, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.45),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   transition: all 0.3s var(--ease-spring);
 }

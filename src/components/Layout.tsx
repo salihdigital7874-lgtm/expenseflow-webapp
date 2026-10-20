@@ -345,157 +345,169 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Main Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
-        {/* Top Navbar */}
-        <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs flex items-center justify-between gap-4">
-          {/* Desktop Top Header Layout (hidden on mobile) */}
-          <div className="hidden lg:flex items-center justify-between w-full">
-            {/* Page Title */}
-            <div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                {currentTheme.headerTitle}
-              </h2>
-            </div>
-
-            {/* Right Group: Search + Bell + Avatar Profile */}
-            <div className="flex items-center gap-3.5">
-              <form onSubmit={handleSearchSubmit} className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="Search anything..."
-                  className="w-64 bg-slate-50/80 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all shadow-2xs font-medium"
-                />
-              </form>
-
-              {/* Notification Bell */}
-              <button
-                onClick={() => {
-                  if (showToast) showToast('All notifications are up to date!', 'info');
-                }}
-                className="relative w-9 h-9 rounded-full bg-slate-50 border border-slate-200/80 shadow-2xs flex items-center justify-center text-slate-700 hover:text-purple-600 hover:bg-white transition-all btn-press"
-                title="Notifications"
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
-              </button>
-
-              {/* User Profile Pill */}
-              <div
-                onClick={() => onSelectTab('settings')}
-                className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full bg-slate-50 hover:bg-white border border-slate-200/80 cursor-pointer shadow-2xs transition-all btn-press"
-                title="Profile & Settings"
-              >
-                <div className="relative">
-                  <img
-                    src={avatarUrl}
-                    alt="Salih"
-                    className="w-7 h-7 rounded-full object-cover border border-white shadow-xs"
-                  />
-                  <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white rounded-full" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">
-                  {profile?.full_name?.split(' ')[0] || 'Salih'}
-                </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 -ml-0.5" />
-              </div>
-            </div>
+        {/* Top Navbar: Desktop sticky navbar (hidden on mobile) */}
+        <header className="hidden lg:flex h-16 sticky top-0 z-30 px-6 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs items-center justify-between gap-4">
+          {/* Page Title */}
+          <div>
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">
+              {currentTheme.headerTitle}
+            </h2>
           </div>
 
-          {/* Mobile Top Header Layout (flex on mobile, hidden on lg) */}
-          <div className="flex lg:hidden items-center justify-between w-full">
-            <div className="flex items-center gap-2.5 min-w-[70px]">
-              {currentTab !== 'dashboard' ? (
-                <button
-                  onClick={() => onSelectTab('dashboard')}
-                  className="flex items-center gap-1.5 text-slate-800 hover:text-purple-600 font-bold transition-colors btn-press px-2 py-1.5 rounded-xl hover:bg-white/80"
-                >
-                  <ChevronLeft className="w-5 h-5 text-slate-700" />
-                  <span className="text-sm font-bold hidden sm:inline">{currentTheme.headerTitle}</span>
-                </button>
-              ) : (
-                <div className="w-[70px]" />
-              )}
-            </div>
+          {/* Right Group: Search + Bell + Avatar Profile */}
+          <div className="flex items-center gap-3.5">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search anything..."
+                className="w-64 bg-slate-50/80 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all shadow-2xs font-medium"
+              />
+            </form>
 
-            <div className="flex flex-col items-center justify-center text-center flex-1 min-w-0">
-              <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center justify-center gap-0.5 truncate">
-                <span>{branding.appName}</span>
-              </h1>
-              <p className="text-[10px] sm:text-xs font-bold text-purple-600/90 tracking-wide -mt-0.5 truncate">
-                {branding.appSubtitle}
-              </p>
-            </div>
+            {/* Notification Bell */}
+            <button
+              onClick={() => {
+                if (showToast) showToast('All notifications are up to date!', 'info');
+              }}
+              className="relative w-9 h-9 rounded-full bg-slate-50 border border-slate-200/80 shadow-2xs flex items-center justify-center text-slate-700 hover:text-purple-600 hover:bg-white transition-all btn-press"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+            </button>
 
-            <div className="flex items-center gap-2 shrink-0 min-w-[70px] justify-end">
-              <button
-                onClick={() => {
-                  if (showToast) showToast('All notifications are up to date!', 'info');
-                }}
-                className="relative w-9 h-9 rounded-full bg-white/90 border border-purple-100/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-purple-600 transition-all btn-press"
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
-              </button>
-
-              <div
-                onClick={() => onSelectTab('settings')}
-                className="relative cursor-pointer group btn-press"
-              >
+            {/* User Profile Pill */}
+            <div
+              onClick={() => onSelectTab('settings')}
+              className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full bg-slate-50 hover:bg-white border border-slate-200/80 cursor-pointer shadow-2xs transition-all btn-press"
+              title="Profile & Settings"
+            >
+              <div className="relative">
                 <img
                   src={avatarUrl}
-                  alt="Profile"
-                  className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-xs ring-1 ring-purple-100"
+                  alt="Salih"
+                  className="w-7 h-7 rounded-full object-cover border border-white shadow-xs"
                 />
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs" />
+                <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white rounded-full" />
               </div>
+              <span className="text-xs font-bold text-slate-800">
+                {profile?.full_name?.split(' ')[0] || 'Salih'}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 -ml-0.5" />
             </div>
           </div>
         </header>
 
+        {/* Mobile Floating Dark Liquid Glass Header Capsule (Mockup Screen 1) */}
+        <div className="lg:hidden fixed top-3 left-3 right-3 z-40 max-w-md mx-auto pointer-events-none">
+          <div className="pointer-events-auto rounded-full px-3.5 py-2 flex items-center justify-between gap-2 mobile-liquid-glass">
+            {/* Left: Back button or brand badge */}
+            <div className="flex items-center min-w-[36px]">
+              {currentTab !== 'dashboard' ? (
+                <button
+                  onClick={() => onSelectTab('dashboard')}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-all btn-press shadow-xs"
+                  title="Back to Home"
+                >
+                  <ChevronLeft className="w-4 h-4 text-white" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setBrandingModalOpen(true)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white font-black text-xs transition-all btn-press shadow-xs"
+                  title="Customize Branding"
+                >
+                  <span className="text-[11px] font-extrabold bg-gradient-to-r from-purple-300 to-indigo-200 bg-clip-text text-transparent">
+                    {branding.appName?.charAt(0) || 'S'}
+                  </span>
+                </button>
+              )}
+            </div>
+
+            {/* Center: App Name & Subtitle */}
+            <div className="flex flex-col items-center justify-center text-center flex-1 min-w-0 px-2">
+              <h1 className="text-sm font-extrabold tracking-tight text-white flex items-center justify-center gap-1 truncate drop-shadow-sm">
+                <span>{branding.appName}</span>
+              </h1>
+              <p className="text-[10px] font-semibold text-slate-300 tracking-wide truncate">
+                {branding.appSubtitle}
+              </p>
+            </div>
+
+            {/* Right: Dark Frosted Glass Bell + Profile Avatar */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => {
+                  if (showToast) showToast('All notifications are up to date!', 'info');
+                }}
+                className="relative w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-all btn-press shadow-xs"
+                title="Notifications"
+              >
+                <Bell className="w-3.5 h-3.5 text-white/90" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-black/80" />
+              </button>
+
+              <div
+                onClick={() => onSelectTab('settings')}
+                className="relative cursor-pointer btn-press"
+                title="Profile & Settings"
+              >
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white/90 shadow-sm"
+                />
+                <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-black/80 rounded-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Page Content Area with Fluid Horizontal Slide + Fade Directional Transition */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 pb-28 lg:pb-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 pt-16 sm:pt-20 lg:pt-8 pb-28 lg:pb-8 max-w-7xl w-full mx-auto">
           <div key={currentTab} className={transitionClass}>
             {children}
           </div>
         </main>
       </div>
 
-      {/* ====== MOBILE FLOATING CLEAN GLASS BOTTOM TAB BAR ====== */}
+      {/* ====== MOBILE FLOATING LIQUID DARK GLASS BOTTOM TAB BAR ====== */}
       <div className="mobile-bottom-bar lg:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
         {/* "More" Bottom Sheet overlay */}
         {moreSheetOpen && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 mobile-sheet-overlay pointer-events-auto transition-opacity"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 mobile-sheet-overlay pointer-events-auto transition-opacity"
             onClick={() => setMoreSheetOpen(false)}
           />
         )}
 
-        {/* "More" Bottom Sheet (Screen 9) */}
+        {/* "More" Bottom Sheet */}
         <div
           ref={moreSheetRef}
-          className={`mobile-more-sheet ${moreSheetOpen ? 'mobile-more-sheet--open' : ''} pointer-events-auto bg-white/95 backdrop-blur-2xl text-slate-900 border-t border-slate-200/80`}
+          className={`mobile-more-sheet ${moreSheetOpen ? 'mobile-more-sheet--open' : ''} pointer-events-auto bg-[#121318]/95 backdrop-blur-2xl text-white border-t border-white/15 shadow-2xl`}
         >
           {/* Sheet handle */}
           <div className="flex justify-center pt-3 pb-2">
-            <div className="w-10 h-1.5 rounded-full bg-slate-300" />
+            <div className="w-10 h-1.5 rounded-full bg-white/20" />
           </div>
 
-          <div className="px-5 pb-3 flex items-center justify-between border-b border-slate-100">
-            <span className="text-base font-extrabold text-slate-900">More</span>
+          <div className="px-5 pb-3 flex items-center justify-between border-b border-white/10">
+            <span className="text-base font-extrabold text-white">More Modules</span>
             <div className="flex items-center gap-2">
-              <img src={avatarUrl} alt="User" className="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-xs" />
+              <img src={avatarUrl} alt="User" className="w-8 h-8 rounded-full object-cover border border-white/40 shadow-xs" />
               <button
                 onClick={() => setMoreSheetOpen(false)}
-                className="p-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors ml-1 btn-press"
+                className="p-1.5 rounded-xl bg-white/10 text-white/70 hover:text-white transition-colors ml-1 btn-press"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* More Menu Items matching Screen 9 */}
+          {/* More Menu Items */}
           <nav className="p-4 space-y-2">
             {moreMenuTabs.map((item, idx) => {
               const isActive = currentTab === item.id;
@@ -505,45 +517,33 @@ export const Layout: React.FC<LayoutProps> = ({
                   onClick={() => handleMobileTabSelect(item.id)}
                   className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold transition-all btn-press stagger-${Math.min(8, idx + 1)} ${
                     isActive
-                      ? 'bg-sky-50 text-sky-900 border border-sky-200/70 shadow-xs'
-                      : 'text-slate-800 hover:bg-slate-50 bg-white border border-slate-100 shadow-2xs'
+                      ? 'bg-white/20 text-white border border-white/30 shadow-xs'
+                      : 'text-slate-200 hover:bg-white/10 bg-white/5 border border-white/10 shadow-2xs'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
-                      style={{
-                        background:
-                          item.id === 'clients'
-                            ? '#DCFCE7'
-                            : item.id === 'budgets'
-                            ? '#FFEDD5'
-                            : item.id === 'reports'
-                            ? '#E0F2FE'
-                            : '#F1F5F9',
-                      }}
-                    >
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white shrink-0 shadow-xs">
                       {item.icon}
                     </div>
                     <span>{item.label}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                    <ChevronRight className="w-4 h-4 text-white/40" />
                   </div>
                 </button>
               );
             })}
 
             {/* Help & Support */}
-            <div className="w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold text-slate-800 bg-white border border-slate-100 shadow-2xs cursor-pointer hover:bg-slate-50 btn-press">
+            <div className="w-full flex items-center justify-between p-3.5 rounded-2xl text-sm font-bold text-slate-200 bg-white/5 border border-white/10 shadow-2xs cursor-pointer hover:bg-white/10 btn-press">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 shadow-xs">
                   <HelpCircle className="w-5 h-5" />
                 </div>
                 <span>Help & Support</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-white/40" />
             </div>
 
             {/* Sign Out Button */}
@@ -552,7 +552,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 setMoreSheetOpen(false);
                 onLogout();
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/25 transition-all mt-4 cursor-pointer btn-press"
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white bg-rose-500/90 hover:bg-rose-500 border border-rose-400/30 shadow-lg shadow-rose-500/25 transition-all mt-4 cursor-pointer btn-press"
             >
               <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
@@ -560,8 +560,8 @@ export const Layout: React.FC<LayoutProps> = ({
           </nav>
         </div>
 
-        {/* Floating Frosted Glass Bottom Navigation Bar with 5 slots matching Mockup */}
-        <div className="mobile-tab-bar pointer-events-auto shadow-2xl shadow-purple-950/15 border border-white/90 bg-white/95 backdrop-blur-2xl rounded-[36px] max-w-[420px] mx-auto px-3 py-2">
+        {/* Floating Liquid Dark Glass Bottom Navigation Capsule (Mockup Screen 2) */}
+        <div className="mobile-tab-bar pointer-events-auto rounded-[34px] max-w-[420px] mx-auto px-3 py-2 mobile-liquid-glass">
           <div className="flex items-center justify-between relative">
             {/* 1. Home */}
             <button
@@ -569,10 +569,10 @@ export const Layout: React.FC<LayoutProps> = ({
               className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
               <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${
                   currentTab === 'dashboard'
-                    ? 'bg-[#7C3AED] text-white shadow-md shadow-purple-500/30'
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'bg-white/20 border border-white/35 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.3)] text-white'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
                 <Home
@@ -582,10 +582,10 @@ export const Layout: React.FC<LayoutProps> = ({
                 />
               </div>
               <span
-                className={`text-[11px] mt-0.5 ${
+                className={`text-[10px] mt-0.5 tracking-wide ${
                   currentTab === 'dashboard'
-                    ? 'font-bold text-purple-700'
-                    : 'font-medium text-slate-400'
+                    ? 'font-bold text-white'
+                    : 'font-medium text-white/50'
                 }`}
               >
                 Home
@@ -598,37 +598,37 @@ export const Layout: React.FC<LayoutProps> = ({
               className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
               <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${
                   currentTab === 'expenses'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'bg-white/20 border border-white/35 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.3)] text-white'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
                 <Receipt
                   className={`w-5 h-5 ${
-                    currentTab === 'expenses' ? 'stroke-[2.2]' : 'stroke-[1.8]'
+                    currentTab === 'expenses' ? 'stroke-[2.2] text-white' : 'stroke-[1.8]'
                   }`}
                 />
               </div>
               <span
-                className={`text-[11px] mt-0.5 ${
+                className={`text-[10px] mt-0.5 tracking-wide ${
                   currentTab === 'expenses'
-                    ? 'font-bold text-rose-600'
-                    : 'font-medium text-slate-400'
+                    ? 'font-bold text-white'
+                    : 'font-medium text-white/50'
                 }`}
               >
                 Expenses
               </span>
             </button>
 
-            {/* 3. Center Elevated Floating Quick Add (+) Button */}
-            <div className="flex-1 flex items-center justify-center -mt-6">
+            {/* 3. Center Elevated Floating Liquid Glass Quick Add (+) Orb */}
+            <div className="flex-1 flex items-center justify-center -mt-5">
               <button
                 onClick={() => setQuickAddOpen(true)}
-                className="w-13 h-13 rounded-full bg-gradient-to-tr from-[#7C3AED] via-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-600/40 border-[3.5px] border-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all btn-press group"
+                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.25),inset_0_1.5px_2px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(0,0,0,0.4)] flex items-center justify-center text-white backdrop-blur-md hover:scale-105 active:scale-95 transition-all btn-press group"
                 title="Quick Add Transaction"
               >
-                <Plus className="w-6 h-6 stroke-[2.8]" />
+                <Plus className="w-6 h-6 stroke-[2.8] text-white" />
               </button>
             </div>
 
@@ -638,23 +638,23 @@ export const Layout: React.FC<LayoutProps> = ({
               className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
               <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${
                   currentTab === 'income'
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'bg-white/20 border border-white/35 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.3)] text-white'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
                 <BarChart3
                   className={`w-5 h-5 ${
-                    currentTab === 'income' ? 'stroke-[2.2]' : 'stroke-[1.8]'
+                    currentTab === 'income' ? 'stroke-[2.2] text-white' : 'stroke-[1.8]'
                   }`}
                 />
               </div>
               <span
-                className={`text-[11px] mt-0.5 ${
+                className={`text-[10px] mt-0.5 tracking-wide ${
                   currentTab === 'income'
-                    ? 'font-bold text-emerald-600'
-                    : 'font-medium text-slate-400'
+                    ? 'font-bold text-white'
+                    : 'font-medium text-white/50'
                 }`}
               >
                 Income
@@ -667,23 +667,23 @@ export const Layout: React.FC<LayoutProps> = ({
               className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
               <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${
                   isActiveInMore || moreSheetOpen
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'bg-white/20 border border-white/35 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.3)] text-white'
+                    : 'text-white/50 hover:text-white'
                 }`}
               >
                 <MoreHorizontal
                   className={`w-5 h-5 ${
-                    isActiveInMore || moreSheetOpen ? 'stroke-[2.2]' : 'stroke-[1.8]'
+                    isActiveInMore || moreSheetOpen ? 'stroke-[2.2] text-white' : 'stroke-[1.8]'
                   }`}
                 />
               </div>
               <span
-                className={`text-[11px] mt-0.5 ${
+                className={`text-[10px] mt-0.5 tracking-wide ${
                   isActiveInMore || moreSheetOpen
-                    ? 'font-bold text-purple-700'
-                    : 'font-medium text-slate-400'
+                    ? 'font-bold text-white'
+                    : 'font-medium text-white/50'
                 }`}
               >
                 More
