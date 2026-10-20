@@ -305,7 +305,7 @@ export const Layout: React.FC<LayoutProps> = ({
         {/* Top Navbar matching the LifeSync Mobile UI Mockup */}
         <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs">
           {/* Left Side: Empty spacer on dashboard for perfect center alignment, back button on other tabs */}
-          <div className="flex items-center gap-2.5 min-w-[110px]">
+          <div className="flex items-center gap-2.5 min-w-[70px]">
             {currentTab !== 'dashboard' ? (
               <button
                 onClick={() => onSelectTab('dashboard')}
@@ -315,7 +315,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 <span className="text-sm font-bold hidden sm:inline">{currentTheme.headerTitle}</span>
               </button>
             ) : (
-              <div className="w-[110px]" />
+              <div className="w-[70px]" />
             )}
           </div>
 
@@ -343,17 +343,8 @@ export const Layout: React.FC<LayoutProps> = ({
             </div>
           </form>
 
-          {/* Right Side: Quick Add (+) + Notification Bell + Avatar */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 min-w-[110px] justify-end">
-            {/* Quick Add (+) Button for adding Income / Expense */}
-            <button
-              onClick={() => setQuickAddOpen(true)}
-              className="relative w-9 h-9 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#6366F1] text-white shadow-md shadow-purple-600/25 flex items-center justify-center hover:scale-105 active:scale-95 transition-all btn-press group"
-              title="Add New Income / Expense"
-            >
-              <Plus className="w-4 h-4 stroke-[2.8] group-hover:rotate-90 transition-transform duration-200" />
-            </button>
-
+          {/* Right Side: Notification Bell + Avatar */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 min-w-[70px] justify-end">
             {/* Bell Icon with Red Unread Dot (Mockup) */}
             <button
               onClick={() => {
