@@ -14,7 +14,18 @@ import {
   Flame,
   Apple,
   ArrowRight,
+  Plus,
+  ChevronDown,
 } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+} from 'recharts';
 import { HealthDataStore, HealthSubTab, DailyHealthLog, WaterLog, SleepLog, ExerciseLog, WeightLog, MealItem, MedicineLog, HealthAppointment, HealthNotificationItem, HealthNotificationSettings } from '../types/health';
 import { loadHealthData, saveHealthData } from '../services/healthStorage';
 import { evaluateScheduledHealthNotifications } from '../services/healthNotifications';
@@ -320,8 +331,240 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
     };
   }, []);
 
+  // Mon to Sun steps data for Screen 5
+  const stepsWeeklyData = [
+    { day: 'Mon', steps: 6500 },
+    { day: 'Tue', steps: 8200 },
+    { day: 'Wed', steps: 7850 },
+    { day: 'Thu', steps: 9100 },
+    { day: 'Fri', steps: 7400 },
+    { day: 'Sat', steps: 10500 },
+    { day: 'Sun', steps: 8900 },
+  ];
+
   return (
-    <div className="space-y-5 pb-12">
+    <div className="space-y-6 pb-12">
+      {/* ── DESKTOP VIEW (lg:) SCREEN 5 (HEALTH) ── */}
+      <div className="hidden lg:block space-y-6">
+        {/* Top Filter and Action Bar */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {(['Today', 'This Week', 'This Month'] as const).map((pill) => (
+              <button
+                key={pill}
+                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all btn-press ${
+                  pill === 'Today'
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
+                    : 'bg-white/80 hover:bg-white text-slate-600 border border-slate-200/80 shadow-2xs'
+                }`}
+              >
+                {pill}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setActiveSubTab('exercise')}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-purple-600/30 transition-all btn-press shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Log Activity</span>
+          </button>
+        </div>
+
+        {/* 4 Top Metric Cards (Mockup Screen 5) */}
+        <div className="grid grid-cols-4 gap-4">
+          {/* Card 1: Circular Progress Gauge (78%) */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs flex items-center gap-4">
+            <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-slate-100"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className="text-purple-600"
+                  strokeDasharray="78, 100"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <span className="absolute text-xs font-black text-slate-900">78%</span>
+            </div>
+            <div>
+              <p className="text-xl font-black text-slate-900">7,850</p>
+              <p className="text-xs text-slate-400 font-semibold">Steps</p>
+              <p className="text-[10px] text-purple-600 font-bold mt-0.5">Goal: 10,000</p>
+            </div>
+          </div>
+
+          {/* Card 2: Calories */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 shadow-2xs">
+              <Flame className="w-6 h-6 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-xl font-black text-slate-900">420 kcal</p>
+              <p className="text-xs text-slate-400 font-semibold">Calories</p>
+              <p className="text-[10px] text-amber-500 font-bold mt-0.5">Burned today</p>
+            </div>
+          </div>
+
+          {/* Card 3: Sleep */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0 shadow-2xs">
+              <Moon className="w-6 h-6 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-xl font-black text-slate-900">7h 30m</p>
+              <p className="text-xs text-slate-400 font-semibold">Sleep</p>
+              <p className="text-[10px] text-indigo-500 font-bold mt-0.5">Optimal rest</p>
+            </div>
+          </div>
+
+          {/* Card 4: Water */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center shrink-0 shadow-2xs">
+              <Droplets className="w-6 h-6 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-xl font-black text-slate-900">2.5 L</p>
+              <p className="text-xs text-slate-400 font-semibold">Water</p>
+              <p className="text-[10px] text-sky-500 font-bold mt-0.5">Target: 3.0 L</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 2-Column Section: Steps Overview + Health Stats */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Steps Overview (7 cols) */}
+          <div className="col-span-7 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div>
+                <h4 className="text-base font-black text-slate-900">Steps Overview</h4>
+                <p className="text-xs text-slate-400 font-medium">Weekly physical activity</p>
+              </div>
+              <span className="text-xs font-bold text-slate-600 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-1.5 cursor-pointer">
+                This Week <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </span>
+            </div>
+
+            <div className="h-64 mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stepsWeeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    formatter={(val: number) => [`${val.toLocaleString()} steps`, 'Activity']}
+                    contentStyle={{ borderRadius: 16, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="steps" fill="#8B5CF6" radius={[6, 6, 0, 0]} barSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Health Stats (5 cols) */}
+          <div className="col-span-5 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex flex-col justify-between">
+            <div className="pb-4 border-b border-slate-100">
+              <h4 className="text-base font-black text-slate-900">Health Stats</h4>
+              <p className="text-xs text-slate-400 font-medium">Daily targets achievement</p>
+            </div>
+
+            <div className="space-y-4 my-auto py-2">
+              {/* Steps */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-700 flex items-center gap-1.5">
+                    <Footprints className="w-3.5 h-3.5 text-blue-500" /> Steps
+                  </span>
+                  <span className="text-slate-900">7,850 / 10,000 (78%)</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '78%' }} />
+                </div>
+              </div>
+
+              {/* Calories */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-700 flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 text-amber-500" /> Calories
+                  </span>
+                  <span className="text-slate-900">420 / 650 kcal (70%)</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-500 rounded-full" style={{ width: '70%' }} />
+                </div>
+              </div>
+
+              {/* Sleep */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-700 flex items-center gap-1.5">
+                    <Moon className="w-3.5 h-3.5 text-purple-500" /> Sleep
+                  </span>
+                  <span className="text-slate-900">7h 30m / 8h 0m (94%)</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="h-full bg-purple-500 rounded-full" style={{ width: '94%' }} />
+                </div>
+              </div>
+
+              {/* Water */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-700 flex items-center gap-1.5">
+                    <Droplets className="w-3.5 h-3.5 text-sky-500" /> Water
+                  </span>
+                  <span className="text-slate-900">2.5 L / 3.0 L (83%)</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '83%' }} />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500">
+              <span>Overall Wellness:</span>
+              <span className="text-purple-600 font-extrabold">Good (84/100)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Sub-tab pills to explore detailed health modules */}
+        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h4 className="text-sm font-black text-slate-900">Health Modules</h4>
+            <span className="text-xs text-slate-400 font-medium">Click to manage detailed logs</span>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-3">
+            {subNavItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSubTab(item.id)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all btn-press ${
+                  activeSubTab === item.id
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-100'
+                }`}
+              >
+                <span>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE VIEW (<lg) ── */}
+      <div className="block lg:hidden space-y-5">
       {/* ── SCREEN 2: WELLNESS SCORE CIRCULAR GAUGE (STAGGER 1) ── */}
       <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-rose-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden stagger-1">
         {/* Soft background ambient glow */}
@@ -594,6 +837,7 @@ export const HealthPage: React.FC<HealthPageProps> = ({ showToast }) => {
       {activeSubTab === 'reports' && (
         <HealthReportsView data={data} />
       )}
+      </div>
 
       {/* Health Notification Modal */}
       <HealthNotificationModal

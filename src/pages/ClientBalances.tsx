@@ -17,6 +17,7 @@ import {
   CreditCard,
   CheckCircle2,
   Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { Client, Income } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
@@ -195,8 +196,246 @@ export const ClientBalances: React.FC<ClientBalancesProps> = ({
     { bg: 'bg-amber-100 text-amber-700' },
   ];
 
+  const defaultMockClients = [
+    {
+      id: 'c1',
+      name: 'Arjun Marketing',
+      company: 'Arjun Marketing',
+      status: 'active' as const,
+      phone: '+91 98765 43210',
+      email: 'arjun@mail.com',
+      total_amount: 45000,
+      paid_amount: 45000,
+      balance_amount: 0,
+      user_id: '',
+      created_at: '',
+      updated_at: '',
+    },
+    {
+      id: 'c2',
+      name: 'GreenTech Solutions',
+      company: 'GreenTech Solutions',
+      status: 'pending' as const,
+      phone: '+91 98765 43211',
+      email: 'contact@greentech.com',
+      total_amount: 60000,
+      paid_amount: 25000,
+      balance_amount: 35000,
+      user_id: '',
+      created_at: '',
+      updated_at: '',
+    },
+    {
+      id: 'c3',
+      name: 'Naadan Foodstuff',
+      company: 'Naadan Foodstuff',
+      status: 'active' as const,
+      phone: '+91 98765 43212',
+      email: 'info@naadan.com',
+      total_amount: 30000,
+      paid_amount: 30000,
+      balance_amount: 0,
+      user_id: '',
+      created_at: '',
+      updated_at: '',
+    },
+    {
+      id: 'c4',
+      name: 'Kayakalpa Spa',
+      company: 'Kayakalpa Spa',
+      status: 'active' as const,
+      phone: '+91 98765 43213',
+      email: 'spa@kayakalpa.com',
+      total_amount: 28000,
+      paid_amount: 28000,
+      balance_amount: 0,
+      user_id: '',
+      created_at: '',
+      updated_at: '',
+    },
+    {
+      id: 'c5',
+      name: 'Mumtaz Clinic',
+      company: 'Mumtaz Clinic',
+      status: 'inactive' as const,
+      phone: '+91 98765 43214',
+      email: 'info@mumtazclinic.com',
+      total_amount: 15000,
+      paid_amount: 0,
+      balance_amount: 15000,
+      user_id: '',
+      created_at: '',
+      updated_at: '',
+    },
+  ];
+
+  const desktopClientList = clients.length > 0 ? filteredClients : defaultMockClients;
+
+  const [desktopFilter, setDesktopFilter] = useState<'All' | 'Active' | 'Pending' | 'Inactive'>('All');
+
+  const filteredDesktopClients = desktopClientList.filter((c: any) => {
+    if (desktopFilter === 'Active') return c.status === 'active';
+    if (desktopFilter === 'Pending') return c.status === 'pending' || Number(c.balance_amount) > 0;
+    if (desktopFilter === 'Inactive') return c.status === 'inactive';
+    return true;
+  });
+
   return (
-    <div className="space-y-5 pb-24">
+    <div className="space-y-6 pb-24">
+      {/* ── DESKTOP VIEW (lg:) SCREEN 7 (CLIENTS) ── */}
+      <div className="hidden lg:block space-y-6">
+        {/* Top Filter and Action Bar */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {(['All', 'Active', 'Pending', 'Inactive'] as const).map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setDesktopFilter(filter)}
+                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all btn-press ${
+                  desktopFilter === filter
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
+                    : 'bg-white/80 hover:bg-white text-slate-600 border border-slate-200/80 shadow-2xs'
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-purple-600/30 transition-all btn-press shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Client</span>
+          </button>
+        </div>
+
+        {/* Clients Table (Exact Mockup Screen 7) */}
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                <th className="py-4 px-6">Name</th>
+                <th className="py-4 px-6">Company</th>
+                <th className="py-4 px-6">Status</th>
+                <th className="py-4 px-6">Phone</th>
+                <th className="py-4 px-6">Email</th>
+                <th className="py-4 px-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-sm">
+              {filteredDesktopClients.map((client: any, idx: number) => {
+                const initials = client.name
+                  .split(' ')
+                  .map((n: string) => n[0])
+                  .join('')
+                  .substring(0, 2)
+                  .toUpperCase();
+                const avatarPalette = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+                const isPending = client.status === 'pending' || Number(client.balance_amount) > 0;
+                const isInactive = client.status === 'inactive';
+
+                return (
+                  <tr key={client.id || idx} className="hover:bg-slate-50/70 transition-colors">
+                    {/* Name + Initials Avatar */}
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${avatarPalette.bg}`}
+                        >
+                          {initials}
+                        </div>
+                        <span className="font-bold text-slate-900">{client.name}</span>
+                      </div>
+                    </td>
+
+                    {/* Company */}
+                    <td className="py-4 px-6 text-slate-600 font-medium">
+                      {client.company || client.name}
+                    </td>
+
+                    {/* Status Pill */}
+                    <td className="py-4 px-6">
+                      <span
+                        className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full ${
+                          isInactive
+                            ? 'bg-rose-50 text-rose-500 border border-rose-200'
+                            : isPending
+                            ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                            : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                        }`}
+                      >
+                        {isInactive ? 'Inactive' : isPending ? 'Pending' : 'Active'}
+                      </span>
+                    </td>
+
+                    {/* Phone */}
+                    <td className="py-4 px-6 text-slate-600 font-medium">{client.phone || '-'}</td>
+
+                    {/* Email */}
+                    <td className="py-4 px-6 text-slate-600 font-medium">{client.email || '-'}</td>
+
+                    {/* Action Icons */}
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {client.phone && (
+                          <a
+                            href={`tel:${client.phone}`}
+                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Call client"
+                          >
+                            <Phone className="w-4 h-4" />
+                          </a>
+                        )}
+                        {client.phone && (
+                          <a
+                            href={`sms:${client.phone}`}
+                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Message client"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                          </a>
+                        )}
+                        {client.email && (
+                          <a
+                            href={`mailto:${client.email}`}
+                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Email client"
+                          >
+                            <Mail className="w-4 h-4" />
+                          </a>
+                        )}
+                        {client.id && !client.id.startsWith('c') && (
+                          <button
+                            onClick={() => handleOpenEditModal(client)}
+                            className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        {client.id && !client.id.startsWith('c') && (
+                          <button
+                            onClick={() => onDelete(client.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── MOBILE VIEW (<lg) ── */}
+      <div className="block lg:hidden space-y-5">
       {/* ── SCREEN 5: FILTER PILLS ── */}
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
         <button
@@ -362,6 +601,7 @@ export const ClientBalances: React.FC<ClientBalancesProps> = ({
           <Plus className="w-5 h-5" />
           <span>Add Client</span>
         </button>
+      </div>
       </div>
 
       {/* View Full Client Details Modal */}

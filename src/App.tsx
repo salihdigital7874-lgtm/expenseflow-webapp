@@ -8,10 +8,15 @@ import { ConfirmModal } from './components/ConfirmModal';
 
 import { Auth } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
+import { TasksPage } from './pages/Tasks';
 import { HealthPage } from './pages/Health';
 import { Expenses } from './pages/Expenses';
 import { IncomePage } from './pages/Income';
+import { GoalsPage } from './pages/Goals';
 import { ClientBalances } from './pages/ClientBalances';
+import { CalendarPage } from './pages/Calendar';
+import { NotesPage } from './pages/Notes';
+import { AnalyticsPage } from './pages/Analytics';
 import { Budgets } from './pages/Budgets';
 import { Reports } from './pages/Reports';
 import { Settings } from './pages/Settings';
@@ -492,8 +497,8 @@ export const App: React.FC = () => {
             />
           )}
 
-          {currentTab === 'health' && (
-            <HealthPage showToast={showToast} />
+          {currentTab === 'tasks' && (
+            <TasksPage showToast={showToast} />
           )}
 
           {currentTab === 'expenses' && (
@@ -518,6 +523,14 @@ export const App: React.FC = () => {
             />
           )}
 
+          {currentTab === 'health' && (
+            <HealthPage showToast={showToast} />
+          )}
+
+          {currentTab === 'goals' && (
+            <GoalsPage showToast={showToast} />
+          )}
+
           {currentTab === 'clients' && (
             <ClientBalances
               clients={clients}
@@ -528,6 +541,18 @@ export const App: React.FC = () => {
               onDelete={handleDeleteClient}
               onAddIncome={handleAddIncome}
             />
+          )}
+
+          {currentTab === 'calendar' && (
+            <CalendarPage showToast={showToast} />
+          )}
+
+          {currentTab === 'notes' && (
+            <NotesPage showToast={showToast} />
+          )}
+
+          {currentTab === 'analytics' && (
+            <AnalyticsPage expenses={expenses} income={income} currency={currency} />
           )}
 
           {currentTab === 'budgets' && (

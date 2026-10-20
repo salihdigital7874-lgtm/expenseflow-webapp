@@ -16,10 +16,15 @@ import {
   MoreHorizontal,
   ChevronUp,
   ChevronRight,
+  ChevronDown,
   HelpCircle,
   ChevronLeft,
   Bell,
   Plus,
+  CheckSquare,
+  Target,
+  Calendar,
+  FileText,
 } from 'lucide-react';
 import { Profile } from '../types/database';
 import { useAppBrand } from '../context/BrandContext';
@@ -29,13 +34,18 @@ import { QuickAddTransactionModal } from './QuickAddTransactionModal';
 
 export type TabType =
   | 'dashboard'
-  | 'health'
+  | 'tasks'
   | 'expenses'
   | 'income'
+  | 'health'
+  | 'goals'
   | 'clients'
+  | 'calendar'
+  | 'notes'
+  | 'analytics'
+  | 'settings'
   | 'budgets'
-  | 'reports'
-  | 'settings';
+  | 'reports';
 
 interface LayoutProps {
   currentTab: TabType;
@@ -51,7 +61,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// Tab Pastel Background Themes matching the 10 mobile screens
+// Tab Pastel Background Themes matching the LifeSync design
 const TAB_THEMES: Record<
   TabType,
   {
@@ -65,13 +75,12 @@ const TAB_THEMES: Record<
   dashboard: {
     bg: 'bg-gradient-to-b from-[#ECE7FB] via-[#E8E2FA] to-[#E2DCF8]',
     textColor: 'text-slate-900',
-    headerTitle: 'LifeSync✦',
+    headerTitle: 'Home',
   },
-  health: {
-    bg: 'bg-gradient-to-b from-[#FFE4E6] via-[#FFF1F2] to-[#FFFFFF]',
+  tasks: {
+    bg: 'bg-gradient-to-b from-[#EDE9FE] via-[#F5F3FF] to-[#FFFFFF]',
     textColor: 'text-slate-900',
-    headerTitle: 'Health Suite',
-    headerIcon: <Heart className="w-6 h-6 text-rose-500 fill-rose-500" />,
+    headerTitle: 'Tasks',
   },
   expenses: {
     bg: 'bg-gradient-to-b from-[#F3E8FF] via-[#FAF5FF] to-[#FFFFFF]',
@@ -85,11 +94,43 @@ const TAB_THEMES: Record<
     headerTitle: 'Income',
     showSearchOnMobile: true,
   },
+  health: {
+    bg: 'bg-gradient-to-b from-[#FFE4E6] via-[#FFF1F2] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Health',
+    headerIcon: <Heart className="w-6 h-6 text-rose-500 fill-rose-500" />,
+  },
+  goals: {
+    bg: 'bg-gradient-to-b from-[#FEF3C7] via-[#FFFBEB] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Goals',
+  },
   clients: {
     bg: 'bg-gradient-to-b from-[#FEF3C7] via-[#FFFBEB] to-[#FFFFFF]',
     textColor: 'text-slate-900',
     headerTitle: 'Clients',
     showSearchOnMobile: true,
+  },
+  calendar: {
+    bg: 'bg-gradient-to-b from-[#E0E7FF] via-[#EEF2FF] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Calendar',
+  },
+  notes: {
+    bg: 'bg-gradient-to-b from-[#FEF9C3] via-[#FEFCE8] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Notes',
+  },
+  analytics: {
+    bg: 'bg-gradient-to-b from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Analytics',
+    headerIcon: <BarChart3 className="w-6 h-6 text-sky-600" />,
+  },
+  settings: {
+    bg: 'bg-gradient-to-b from-[#F8FAFC] via-[#FFFFFF] to-[#F1F5F9]',
+    textColor: 'text-slate-900',
+    headerTitle: 'Settings & More',
   },
   budgets: {
     bg: 'bg-gradient-to-b from-[#FFEDD5] via-[#FFF7ED] to-[#FFFFFF]',
@@ -103,22 +144,22 @@ const TAB_THEMES: Record<
     headerTitle: 'Reports',
     headerIcon: <BarChart3 className="w-6 h-6 text-sky-600" />,
   },
-  settings: {
-    bg: 'bg-gradient-to-b from-[#F8FAFC] via-[#FFFFFF] to-[#F1F5F9]',
-    textColor: 'text-slate-900',
-    headerTitle: 'Settings',
-  },
 };
 
 const TAB_ORDER: TabType[] = [
   'dashboard',
-  'health',
+  'tasks',
   'expenses',
   'income',
+  'health',
+  'goals',
   'clients',
+  'calendar',
+  'notes',
+  'analytics',
+  'settings',
   'budgets',
   'reports',
-  'settings',
 ];
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -172,28 +213,35 @@ export const Layout: React.FC<LayoutProps> = ({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [moreSheetOpen]);
 
+  // 11 Mockup Navigation items in order
   const navItems: { id: TabType; label: string; shortLabel: string; icon: React.ReactNode; color: string }[] = [
-    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <Home className="w-5 h-5 text-purple-600" />, color: '#7C3AED' },
-    { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
-    { id: 'income', label: 'Incoming Amount', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5 text-emerald-500" />, color: '#10B981' },
-    { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
-    { id: 'clients', label: 'Client Balances', shortLabel: 'Clients', icon: <Users className="w-5 h-5 text-amber-600" />, color: '#D97706' },
-    { id: 'budgets', label: 'Budgets', shortLabel: 'Budgets', icon: <PieChart className="w-5 h-5 text-orange-500" />, color: '#EA580C' },
-    { id: 'reports', label: 'Reports & Exports', shortLabel: 'Reports', icon: <BarChart3 className="w-5 h-5 text-indigo-600" />, color: '#4F46E5' },
-    { id: 'settings', label: 'Settings & Branding', shortLabel: 'Settings', icon: <SettingsIcon className="w-5 h-5 text-slate-600" />, color: '#475569' },
+    { id: 'dashboard', label: 'Home', shortLabel: 'Home', icon: <Home className="w-5 h-5" />, color: '#7C3AED' },
+    { id: 'tasks', label: 'Tasks', shortLabel: 'Tasks', icon: <CheckSquare className="w-5 h-5" />, color: '#7C3AED' },
+    { id: 'expenses', label: 'Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5" />, color: '#F43F5E' },
+    { id: 'income', label: 'Income', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5" />, color: '#10B981' },
+    { id: 'health', label: 'Health', shortLabel: 'Health', icon: <Heart className="w-5 h-5" />, color: '#F43F5E' },
+    { id: 'goals', label: 'Goals', shortLabel: 'Goals', icon: <Target className="w-5 h-5" />, color: '#D97706' },
+    { id: 'clients', label: 'Clients', shortLabel: 'Clients', icon: <Users className="w-5 h-5" />, color: '#3B82F6' },
+    { id: 'calendar', label: 'Calendar', shortLabel: 'Calendar', icon: <Calendar className="w-5 h-5" />, color: '#6366F1' },
+    { id: 'notes', label: 'Notes', shortLabel: 'Notes', icon: <FileText className="w-5 h-5" />, color: '#EAB308' },
+    { id: 'analytics', label: 'Analytics', shortLabel: 'Analytics', icon: <BarChart3 className="w-5 h-5" />, color: '#0EA5E9' },
+    { id: 'settings', label: 'More', shortLabel: 'More', icon: <MoreHorizontal className="w-5 h-5" />, color: '#64748B' },
   ];
 
-  // More Menu tabs
+  // More Menu tabs for mobile drawer
   const moreMenuTabs = [
+    navItems.find((n) => n.id === 'tasks')!,
     navItems.find((n) => n.id === 'health')!,
+    navItems.find((n) => n.id === 'goals')!,
     navItems.find((n) => n.id === 'clients')!,
-    navItems.find((n) => n.id === 'budgets')!,
-    navItems.find((n) => n.id === 'reports')!,
+    navItems.find((n) => n.id === 'calendar')!,
+    navItems.find((n) => n.id === 'notes')!,
+    navItems.find((n) => n.id === 'analytics')!,
     navItems.find((n) => n.id === 'settings')!,
   ];
 
   // Check if active tab is in "More" group
-  const isActiveInMore = ['health', 'clients', 'budgets', 'reports', 'settings'].includes(currentTab);
+  const isActiveInMore = ['tasks', 'health', 'goals', 'clients', 'calendar', 'notes', 'analytics', 'settings', 'budgets', 'reports'].includes(currentTab);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,37 +265,29 @@ export const Layout: React.FC<LayoutProps> = ({
     <div className={`min-h-screen flex ${currentTheme.bg} ${currentTheme.textColor} transition-colors duration-500`}>
 
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex w-64 flex-col fixed top-0 bottom-0 left-0 bg-white/80 backdrop-blur-2xl border-r border-slate-200/80 z-40 shadow-sm">
-        {/* Brand Header - Click to Edit */}
+      <aside className="hidden lg:flex w-64 flex-col fixed top-0 bottom-0 left-0 bg-white/90 backdrop-blur-2xl border-r border-purple-100/70 z-40 shadow-xs">
+        {/* Brand Header */}
         <div
           onClick={() => setBrandingModalOpen(true)}
-          className="p-5 border-b border-slate-100 flex items-center justify-between cursor-pointer group hover:bg-slate-50/70 transition-colors"
+          className="p-5 border-b border-purple-100/60 flex items-center justify-between cursor-pointer group hover:bg-purple-50/40 transition-colors"
           title="Click to edit App Name & Logo"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <img
-              src={branding.appLogo}
-              alt={branding.appName}
-              className="w-10 h-10 rounded-2xl object-cover border border-sky-400/40 shadow-md shadow-sky-500/20 shrink-0"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                target.src = DEFAULT_BRANDING.appLogo;
-              }}
-            />
-
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-purple-500/20 shrink-0">
+              ✦
+            </div>
             <div className="min-w-0 flex-1">
-              <h1 className="font-extrabold text-base leading-snug tracking-tight text-slate-900 truncate">
-                {branding.appName}
+              <h1 className="font-black text-base leading-snug tracking-tight text-slate-900 truncate flex items-center gap-0.5">
+                <span>{branding.appName}</span>
               </h1>
-              <span className="text-xs text-sky-600 font-semibold truncate block">
+              <span className="text-xs text-purple-600 font-bold truncate block -mt-0.5">
                 {branding.appSubtitle}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation (11 items) */}
         <nav className="flex-1 p-3.5 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = currentTab === item.id;
@@ -255,14 +295,14 @@ export const Layout: React.FC<LayoutProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectTab(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 btn-press ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-150 btn-press ${
                   isActive
-                    ? 'bg-sky-500 text-white shadow-md shadow-sky-500/30'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                    ? 'bg-purple-100 text-purple-700 shadow-2xs font-extrabold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60 font-semibold'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={isActive ? 'text-white' : ''}>{item.icon}</span>
+                  <span className={isActive ? 'text-purple-700' : 'text-slate-400'}>{item.icon}</span>
                   <span>{item.label}</span>
                 </div>
               </button>
@@ -271,22 +311,25 @@ export const Layout: React.FC<LayoutProps> = ({
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div className="p-4 border-t border-purple-100/60 bg-purple-50/20">
           <div className="flex items-center justify-between">
             <div
               className="flex items-center gap-3 min-w-0 cursor-pointer"
               onClick={() => onSelectTab('settings')}
             >
-              <img
-                src={avatarUrl}
-                alt="User"
-                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
-              />
+              <div className="relative">
+                <img
+                  src={avatarUrl}
+                  alt="User"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-xs shrink-0"
+                />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs" />
+              </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-slate-900 truncate">
-                  {profile?.full_name || 'Salih Digital'}
+                  {profile?.full_name || 'Salih'}
                 </p>
-                <p className="text-[11px] text-slate-500 truncate">{userEmail || 'active@expenseflow.app'}</p>
+                <p className="text-[11px] text-slate-500 truncate">{userEmail || 'salih@example.com'}</p>
               </div>
             </div>
             <button
@@ -302,73 +345,111 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Main Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
-        {/* Top Navbar matching the LifeSync Mobile UI Mockup */}
-        <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs">
-          {/* Left Side: Empty spacer on dashboard for perfect center alignment, back button on other tabs */}
-          <div className="flex items-center gap-2.5 min-w-[70px]">
-            {currentTab !== 'dashboard' ? (
-              <button
-                onClick={() => onSelectTab('dashboard')}
-                className="flex items-center gap-1.5 text-slate-800 hover:text-purple-600 font-bold transition-colors btn-press px-2 py-1.5 rounded-xl hover:bg-white/80"
-              >
-                <ChevronLeft className="w-5 h-5 text-slate-700" />
-                <span className="text-sm font-bold hidden sm:inline">{currentTheme.headerTitle}</span>
-              </button>
-            ) : (
-              <div className="w-[70px]" />
-            )}
-          </div>
-
-          {/* Center Brand Title (prominently LifeSync✦ by Salih) */}
-          <div className="flex flex-col items-center justify-center text-center flex-1 min-w-0">
-            <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center justify-center gap-0.5 truncate">
-              <span>{branding.appName}</span>
-            </h1>
-            <p className="text-[10px] sm:text-xs font-bold text-purple-600/90 tracking-wide -mt-0.5 truncate">
-              {branding.appSubtitle}
-            </p>
-          </div>
-
-          {/* Desktop Search bar */}
-          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xs mx-4">
-            <div className="relative w-full">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search transactions, clients..."
-                className="w-full bg-white/80 border border-purple-100 rounded-2xl pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-xs"
-              />
+        {/* Top Navbar */}
+        <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs flex items-center justify-between gap-4">
+          {/* Desktop Top Header Layout (hidden on mobile) */}
+          <div className="hidden lg:flex items-center justify-between w-full">
+            {/* Page Title */}
+            <div>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                {currentTheme.headerTitle}
+              </h2>
             </div>
-          </form>
 
-          {/* Right Side: Notification Bell + Avatar */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 min-w-[70px] justify-end">
-            {/* Bell Icon with Red Unread Dot (Mockup) */}
-            <button
-              onClick={() => {
-                if (showToast) showToast('All notifications are up to date!', 'info');
-              }}
-              className="relative w-9 h-9 rounded-full bg-white/90 border border-purple-100/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-purple-600 hover:bg-purple-50/50 transition-all btn-press"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
-            </button>
+            {/* Right Group: Search + Bell + Avatar Profile */}
+            <div className="flex items-center gap-3.5">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  placeholder="Search anything..."
+                  className="w-64 bg-slate-50/80 border border-slate-200/80 rounded-2xl pl-9 pr-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all shadow-2xs font-medium"
+                />
+              </form>
 
-            {/* User Avatar Circle with Online Green Dot */}
-            <div
-              onClick={() => onSelectTab('settings')}
-              className="relative cursor-pointer group btn-press"
-              title="Profile & Settings"
-            >
-              <img
-                src={avatarUrl}
-                alt="User Profile"
-                className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-xs ring-1 ring-purple-100 group-hover:scale-105 transition-transform"
-              />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs" />
+              {/* Notification Bell */}
+              <button
+                onClick={() => {
+                  if (showToast) showToast('All notifications are up to date!', 'info');
+                }}
+                className="relative w-9 h-9 rounded-full bg-slate-50 border border-slate-200/80 shadow-2xs flex items-center justify-center text-slate-700 hover:text-purple-600 hover:bg-white transition-all btn-press"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+              </button>
+
+              {/* User Profile Pill */}
+              <div
+                onClick={() => onSelectTab('settings')}
+                className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full bg-slate-50 hover:bg-white border border-slate-200/80 cursor-pointer shadow-2xs transition-all btn-press"
+                title="Profile & Settings"
+              >
+                <div className="relative">
+                  <img
+                    src={avatarUrl}
+                    alt="Salih"
+                    className="w-7 h-7 rounded-full object-cover border border-white shadow-xs"
+                  />
+                  <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white rounded-full" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">
+                  {profile?.full_name?.split(' ')[0] || 'Salih'}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 -ml-0.5" />
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Top Header Layout (flex on mobile, hidden on lg) */}
+          <div className="flex lg:hidden items-center justify-between w-full">
+            <div className="flex items-center gap-2.5 min-w-[70px]">
+              {currentTab !== 'dashboard' ? (
+                <button
+                  onClick={() => onSelectTab('dashboard')}
+                  className="flex items-center gap-1.5 text-slate-800 hover:text-purple-600 font-bold transition-colors btn-press px-2 py-1.5 rounded-xl hover:bg-white/80"
+                >
+                  <ChevronLeft className="w-5 h-5 text-slate-700" />
+                  <span className="text-sm font-bold hidden sm:inline">{currentTheme.headerTitle}</span>
+                </button>
+              ) : (
+                <div className="w-[70px]" />
+              )}
+            </div>
+
+            <div className="flex flex-col items-center justify-center text-center flex-1 min-w-0">
+              <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center justify-center gap-0.5 truncate">
+                <span>{branding.appName}</span>
+              </h1>
+              <p className="text-[10px] sm:text-xs font-bold text-purple-600/90 tracking-wide -mt-0.5 truncate">
+                {branding.appSubtitle}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 min-w-[70px] justify-end">
+              <button
+                onClick={() => {
+                  if (showToast) showToast('All notifications are up to date!', 'info');
+                }}
+                className="relative w-9 h-9 rounded-full bg-white/90 border border-purple-100/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-purple-600 transition-all btn-press"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+              </button>
+
+              <div
+                onClick={() => onSelectTab('settings')}
+                className="relative cursor-pointer group btn-press"
+              >
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-xs ring-1 ring-purple-100"
+                />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs" />
+              </div>
             </div>
           </div>
         </header>

@@ -1,5 +1,27 @@
 import React, { useState } from 'react';
-import { Plus, TrendingUp, Download, Edit2, Trash2, ArrowUpRight, Search, Briefcase, CheckCircle2, Clock } from 'lucide-react';
+import {
+  Plus,
+  TrendingUp,
+  Download,
+  Edit2,
+  Trash2,
+  ArrowUpRight,
+  Search,
+  Briefcase,
+  CheckCircle2,
+  Clock,
+  ChevronDown,
+  Sparkles,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+} from 'recharts';
 import { Income, Client } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { exportToExcel } from '../utils/exporter';
@@ -113,8 +135,248 @@ export const IncomePage: React.FC<IncomeProps> = ({
     exportToExcel(exportData, 'Incoming_Income_Report.xlsx');
   };
 
+  // Daily bars for Screen 4 income overview
+  const incomeOverviewData = [
+    { day: '1', amount: 3500 },
+    { day: '5', amount: 4800 },
+    { day: '10', amount: 8200 },
+    { day: '15', amount: 12000 },
+    { day: '20', amount: 7500 },
+    { day: '25', amount: 9600 },
+    { day: '30', amount: 6200 },
+  ];
+
+  // Income sources list for Screen 4
+  const incomeSources = [
+    { name: 'Client Projects', pct: 58, amount: 20000, color: '#10B981', bg: 'bg-emerald-50 text-emerald-600' },
+    { name: 'Freelance Work', pct: 25, amount: 8500, color: '#3B82F6', bg: 'bg-blue-50 text-blue-600' },
+    { name: 'Affiliate Income', pct: 9, amount: 3200, color: '#8B5CF6', bg: 'bg-purple-50 text-purple-600' },
+    { name: 'Miscellaneous', pct: 7, amount: 2500, color: '#F59E0B', bg: 'bg-amber-50 text-amber-600' },
+  ];
+
   return (
-    <div className="space-y-5 pb-24">
+    <div className="space-y-6 pb-24">
+      {/* ── DESKTOP VIEW (lg:) SCREEN 4 (INCOME) ── */}
+      <div className="hidden lg:block space-y-6">
+        {/* Top Filter and Action Bar */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {(['All', 'This Month', 'Sources', 'Recurring'] as const).map((pill) => (
+              <button
+                key={pill}
+                onClick={() => {
+                  if (pill === 'This Month') setPeriodFilter('this_month');
+                  else if (pill === 'All') setPeriodFilter('custom');
+                }}
+                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all btn-press ${
+                  (pill === 'This Month' && periodFilter === 'this_month') || (pill === 'All' && periodFilter === 'custom')
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
+                    : 'bg-white/80 hover:bg-white text-slate-600 border border-slate-200/80 shadow-2xs'
+                }`}
+              >
+                {pill}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-purple-600/30 transition-all btn-press shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Income</span>
+          </button>
+        </div>
+
+        {/* 3 Top Cards (Mockup Screen 4) */}
+        <div className="grid grid-cols-3 gap-5">
+          {/* Card 1: Total Income */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Income</span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1">
+                <ArrowUpRight className="w-3.5 h-3.5" /> +8% vs last month
+              </span>
+            </div>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+              {formatCurrency(displayTotal, currency)}
+            </p>
+            {/* Sparkline watermark */}
+            <div className="absolute right-4 bottom-3 opacity-20 flex items-end gap-1 pointer-events-none">
+              <span className="w-1.5 h-5 bg-emerald-500 rounded-t" />
+              <span className="w-1.5 h-8 bg-emerald-500 rounded-t" />
+              <span className="w-1.5 h-11 bg-emerald-500 rounded-t" />
+              <span className="w-1.5 h-14 bg-emerald-500 rounded-t" />
+            </div>
+          </div>
+
+          {/* Card 2: Average Income */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Income</span>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+              {formatCurrency(8550, currency)}
+            </p>
+            <p className="text-xs text-slate-400 font-semibold mt-1">per week</p>
+          </div>
+
+          {/* Card 3: Top Source */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Source</span>
+              <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2">Client Projects</p>
+              <p className="text-xs text-emerald-600 font-bold mt-1">58% of total earnings</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <Briefcase className="w-6 h-6 stroke-[2]" />
+            </div>
+          </div>
+        </div>
+
+        {/* 2-Column Section: Income Overview + Income Sources */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Income Overview Bar Chart (7 cols) */}
+          <div className="col-span-7 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div>
+                <h4 className="text-base font-black text-slate-900">Income Overview</h4>
+                <p className="text-xs text-slate-400 font-medium">Daily revenue accumulation</p>
+              </div>
+              <div className="relative">
+                <span className="text-xs font-bold text-slate-600 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-1.5 cursor-pointer">
+                  This Month <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </span>
+              </div>
+            </div>
+
+            <div className="h-64 mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={incomeOverviewData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    formatter={(val: number) => [formatCurrency(val, currency), 'Income']}
+                    labelFormatter={(day) => `${day} Nov`}
+                    contentStyle={{ borderRadius: 16, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="amount" fill="#10B981" radius={[6, 6, 0, 0]} barSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Income Sources (5 cols) */}
+          <div className="col-span-5 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex flex-col justify-between">
+            <div className="pb-4 border-b border-slate-100">
+              <h4 className="text-base font-black text-slate-900">Income Sources</h4>
+              <p className="text-xs text-slate-400 font-medium">Revenue streams contribution</p>
+            </div>
+
+            <div className="space-y-4 my-auto py-2">
+              {incomeSources.map((source) => (
+                <div key={source.name} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-800 flex items-center gap-2">
+                      <span className={`w-6 h-6 rounded-lg ${source.bg} flex items-center justify-center text-[10px]`}>
+                        ●
+                      </span>
+                      <span>{source.name}</span>
+                    </span>
+                    <span className="text-slate-900">
+                      {source.pct}% • {formatCurrency(source.amount, currency)}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${source.pct}%`, backgroundColor: source.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500">
+              <span>Primary Engine:</span>
+              <span className="text-emerald-600">Client Projects (58%)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Income Records Table */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <h4 className="text-base font-black text-slate-900">Income Records</h4>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Filter records..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs w-48 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="divide-y divide-slate-100 mt-2">
+            {filteredIncome.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 text-xs font-semibold">
+                No income transactions recorded yet
+              </div>
+            ) : (
+              filteredIncome.slice(0, 8).map((inc) => (
+                <div key={inc.id} className="py-3.5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                      <TrendingUp className="w-5 h-5 stroke-[2]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-900 truncate">
+                        {inc.client?.name || inc.description || 'Income Receipt'}
+                      </p>
+                      <p className="text-xs text-slate-400 font-medium">
+                        {formatDate(inc.date)} • {inc.description || 'General Income'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-sm font-black text-emerald-600 tracking-tight">
+                      +{formatCurrency(inc.amount, currency)}
+                    </span>
+                    <button
+                      onClick={() => handleOpenEditModal(inc)}
+                      className="p-1.5 text-slate-400 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(inc.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE VIEW (<lg) ── */}
+      <div className="block lg:hidden space-y-5">
       {/* ── SCREEN 4: FILTER PILLS ── */}
       <div className="flex items-center gap-2">
         <button
@@ -314,6 +576,7 @@ export const IncomePage: React.FC<IncomeProps> = ({
             </div>
           </div>
         )}
+      </div>
       </div>
 
       {/* Add / Edit Income Modal */}

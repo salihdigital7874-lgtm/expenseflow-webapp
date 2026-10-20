@@ -1,5 +1,29 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Trash2, Edit2, Download, Receipt } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Filter,
+  Trash2,
+  Edit2,
+  Download,
+  Receipt,
+  ArrowDownRight,
+  TrendingDown,
+  ChevronDown,
+  Calendar,
+  Sparkles,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 import { Expense } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { exportToExcel } from '../utils/exporter';
@@ -152,8 +176,254 @@ export const Expenses: React.FC<ExpensesProps> = ({
     exportToExcel(exportData, 'Expenses_Report.xlsx');
   };
 
+  // Daily bars for Screen 3 overview
+  const expenseOverviewData = [
+    { day: '1', amount: 800 },
+    { day: '5', amount: 1400 },
+    { day: '10', amount: 2100 },
+    { day: '15', amount: 3200 },
+    { day: '20', amount: 1800 },
+    { day: '22', amount: 1350 },
+    { day: '25', amount: 2400 },
+    { day: '30', amount: 1900 },
+  ];
+
+  // Donut chart data for Screen 3
+  const categoryWiseData = [
+    { name: 'Food & Dining', value: 28, color: '#8B5CF6' },
+    { name: 'Transport', value: 17, color: '#06B6D4' },
+    { name: 'Shopping', value: 15, color: '#3B82F6' },
+    { name: 'Subscriptions', value: 12, color: '#EC4899' },
+    { name: 'Bills & Utilities', value: 10, color: '#F59E0B' },
+    { name: 'Others', value: 18, color: '#94A3B8' },
+  ];
+
   return (
-    <div className="space-y-5 pb-24">
+    <div className="space-y-6 pb-24">
+      {/* ── DESKTOP VIEW (lg:) SCREEN 3 (EXPENSES) ── */}
+      <div className="hidden lg:block space-y-6">
+        {/* Top Filter and Action Bar */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {(['All', 'This Month', 'Categories', 'Recurring'] as const).map((pill) => (
+              <button
+                key={pill}
+                onClick={() => {
+                  if (pill === 'This Month') setPeriodFilter('this_month');
+                  else if (pill === 'All') setPeriodFilter('all' as any);
+                }}
+                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all btn-press ${
+                  (pill === 'This Month' && periodFilter === 'this_month') || (pill === 'All' && (periodFilter as any) === 'all')
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
+                    : 'bg-white/80 hover:bg-white text-slate-600 border border-slate-200/80 shadow-2xs'
+                }`}
+              >
+                {pill}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-purple-600/30 transition-all btn-press shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Expense</span>
+          </button>
+        </div>
+
+        {/* 3 Top Cards (Mockup Screen 3) */}
+        <div className="grid grid-cols-3 gap-5">
+          {/* Card 1: Total Expenses */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Expenses</span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-500 border border-rose-100 flex items-center gap-1">
+                <ArrowDownRight className="w-3.5 h-3.5" /> -4% vs last month
+              </span>
+            </div>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+              {formatCurrency(displayTotal, currency)}
+            </p>
+            <div className="absolute right-4 bottom-3 opacity-20 flex items-end gap-1 pointer-events-none">
+              <span className="w-1.5 h-4 bg-rose-500 rounded-t" />
+              <span className="w-1.5 h-7 bg-rose-500 rounded-t" />
+              <span className="w-1.5 h-5 bg-rose-500 rounded-t" />
+              <span className="w-1.5 h-9 bg-rose-500 rounded-t" />
+            </div>
+          </div>
+
+          {/* Card 2: Average Spending */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Spending</span>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+              {formatCurrency(1780, currency)}
+            </p>
+            <p className="text-xs text-slate-400 font-semibold mt-1">per week</p>
+          </div>
+
+          {/* Card 3: Top Category */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Category</span>
+              <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2">Food & Dining</p>
+              <p className="text-xs text-purple-600 font-bold mt-1">28% of total spending</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <Receipt className="w-6 h-6 stroke-[2]" />
+            </div>
+          </div>
+        </div>
+
+        {/* 2-Column Section: Expenses Overview + Category Wise */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Expenses Overview Bar Chart (7 cols) */}
+          <div className="col-span-7 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div>
+                <h4 className="text-base font-black text-slate-900">Expenses Overview</h4>
+                <p className="text-xs text-slate-400 font-medium">Daily spending distribution</p>
+              </div>
+              <div className="relative">
+                <span className="text-xs font-bold text-slate-600 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-1.5 cursor-pointer">
+                  This Month <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </span>
+              </div>
+            </div>
+
+            <div className="h-64 mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={expenseOverviewData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    formatter={(val: number) => [formatCurrency(val, currency), 'Expense']}
+                    labelFormatter={(day) => `${day} Nov`}
+                    contentStyle={{ borderRadius: 16, border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="amount" fill="#8B5CF6" radius={[6, 6, 0, 0]} barSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Category Wise Donut Chart (5 cols) */}
+          <div className="col-span-5 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex flex-col justify-between">
+            <div className="pb-4 border-b border-slate-100">
+              <h4 className="text-base font-black text-slate-900">Category Wise</h4>
+              <p className="text-xs text-slate-400 font-medium">Monthly expenditure breakdown</p>
+            </div>
+
+            <div className="h-48 relative flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryWiseData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={75}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {categoryWiseData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(val: number) => [`${val}%`, '']} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-slate-600 mt-2">
+              {categoryWiseData.map((item) => (
+                <div key={item.name} className="flex items-center justify-between gap-1 p-1">
+                  <span className="flex items-center gap-1.5 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                    <span className="truncate">{item.name}</span>
+                  </span>
+                  <span className="font-bold text-slate-900">{item.value}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Transactions List / Table */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <h4 className="text-base font-black text-slate-900">Expense Records</h4>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Filter records..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs w-48 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="divide-y divide-slate-100 mt-2">
+            {filteredExpenses.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 text-xs font-semibold">
+                No expense transactions recorded yet
+              </div>
+            ) : (
+              filteredExpenses.slice(0, 8).map((exp) => (
+                <div key={exp.id} className="py-3.5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                      <Receipt className="w-5 h-5 stroke-[2]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-900 truncate">
+                        {exp.description || exp.category}
+                      </p>
+                      <p className="text-xs text-slate-400 font-medium">
+                        {formatDate(exp.date)} • {exp.payment_method}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-sm font-black text-rose-600 tracking-tight">
+                      -{formatCurrency(exp.amount, currency)}
+                    </span>
+                    <button
+                      onClick={() => handleOpenEditModal(exp)}
+                      className="p-1.5 text-slate-400 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onDelete(exp.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE VIEW (<lg) ── */}
+      <div className="block lg:hidden space-y-5">
       {/* ── SCREEN 3: FILTER PILLS ── */}
       <div className="flex items-center gap-2">
         <button
@@ -330,6 +600,7 @@ export const Expenses: React.FC<ExpensesProps> = ({
             ))}
           </div>
         )}
+      </div>
       </div>
 
       {/* Add / Edit Expense Modal */}

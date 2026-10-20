@@ -11,6 +11,9 @@ import {
   CreditCard,
   Building2,
   CheckCircle2,
+  CheckSquare,
+  Target,
+  Activity,
   X,
   Calendar as CalendarIcon,
   Filter,
@@ -23,6 +26,7 @@ import {
   ChevronRight,
   Briefcase,
   Home,
+  Sparkles,
 } from 'lucide-react';
 import { Expense, Income, Client, Budget } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
@@ -46,7 +50,7 @@ interface DashboardProps {
   clients: Client[];
   budgets: Budget[];
   currency: string;
-  onNavigate: (tab: 'expenses' | 'income' | 'clients' | 'budgets') => void;
+  onNavigate: (tab: any) => void;
   onAddExpense?: (expense: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<void>;
 }
 
@@ -321,7 +325,279 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const animatedBalance = useAnimatedCounter(rawBalance, 850);
 
   return (
-    <div className="space-y-5 pb-8">
+    <div className="space-y-6 pb-8">
+      {/* ── DESKTOP VIEW (lg:) SCREEN 1 (HOME DASHBOARD) ── */}
+      <div className="hidden lg:block space-y-6">
+        {/* Row 1: 3 Hero Stat Cards */}
+        <div className="grid grid-cols-3 gap-5">
+          {/* Total Balance */}
+          <div
+            onClick={() => onNavigate('expenses')}
+            className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-xs">
+                <Wallet className="w-6 h-6 stroke-[2]" />
+              </div>
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1">
+                <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                +12% vs last month
+              </span>
+            </div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4">Total Balance</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-1">
+              {formatCurrency(rawBalance, currency)}
+            </p>
+          </div>
+
+          {/* Income */}
+          <div
+            onClick={() => onNavigate('income')}
+            className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs">
+                <TrendingUp className="w-6 h-6 stroke-[2]" />
+              </div>
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1">
+                <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                +8%
+              </span>
+            </div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4">Income</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-1">
+              {formatCurrency(totalIncoming > 0 ? totalIncoming : 34200, currency)}
+            </p>
+          </div>
+
+          {/* Expenses */}
+          <div
+            onClick={() => onNavigate('expenses')}
+            className="bg-white rounded-3xl p-6 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center shadow-xs">
+                <Receipt className="w-6 h-6 stroke-[2]" />
+              </div>
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-rose-50 text-rose-500 border border-rose-100 flex items-center gap-1">
+                <ArrowDownRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                -4%
+              </span>
+            </div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4">Expenses</p>
+            <p className="text-3xl font-black text-slate-900 tracking-tight mt-1">
+              {formatCurrency(totalExpenses > 0 ? totalExpenses : 12450, currency)}
+            </p>
+          </div>
+        </div>
+
+        {/* Row 2: 4 Mini Stat Cards */}
+        <div className="grid grid-cols-4 gap-4">
+          {/* Tasks */}
+          <div
+            onClick={() => onNavigate('tasks')}
+            className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <CheckSquare className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-base font-black text-slate-900">3/6</p>
+              <p className="text-xs font-semibold text-slate-500">Tasks</p>
+            </div>
+          </div>
+
+          {/* Goals */}
+          <div
+            onClick={() => onNavigate('goals')}
+            className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <Target className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-base font-black text-slate-900">2/4</p>
+              <p className="text-xs font-semibold text-slate-500">Goals</p>
+            </div>
+          </div>
+
+          {/* Clients */}
+          <div
+            onClick={() => onNavigate('clients')}
+            className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-base font-black text-slate-900">6 pending</p>
+              <p className="text-xs font-semibold text-slate-500">Clients</p>
+            </div>
+          </div>
+
+          {/* Health */}
+          <div
+            onClick={() => onNavigate('health')}
+            className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+              <Activity className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div>
+              <p className="text-base font-black text-slate-900">7,850 steps</p>
+              <p className="text-xs font-semibold text-slate-500">Health</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: 2 Columns - Recent Transactions (7 cols) + Today's Schedule (5 cols) */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Recent Transactions */}
+          <div className="col-span-7 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h4 className="text-base font-black text-slate-900">Recent Transactions</h4>
+                <button
+                  onClick={() => onNavigate('expenses')}
+                  className="text-xs font-bold text-purple-600 hover:text-purple-700"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="divide-y divide-slate-100 mt-2">
+                {[
+                  {
+                    title: 'Netflix Subscription',
+                    date: 'Today, 5:20 PM',
+                    amount: -499,
+                    category: 'Entertainment',
+                    isInc: false,
+                  },
+                  {
+                    title: 'Client Payment',
+                    date: 'Today, 11:10 AM',
+                    amount: 5000,
+                    category: 'Freelance',
+                    isInc: true,
+                  },
+                  {
+                    title: 'Office Rent',
+                    date: 'Yesterday, 3:15 PM',
+                    amount: -4500,
+                    category: 'Rent',
+                    isInc: false,
+                  },
+                  {
+                    title: 'Freelance Work',
+                    date: 'Yesterday, 2:15 PM',
+                    amount: 12000,
+                    category: 'Development',
+                    isInc: true,
+                  },
+                  {
+                    title: 'Grocery & Coffee',
+                    date: '22 Nov, 1:40 PM',
+                    amount: -320,
+                    category: 'Food',
+                    isInc: false,
+                  },
+                ].map((tx, idx) => (
+                  <div key={idx} className="py-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
+                          tx.isInc ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500'
+                        }`}
+                      >
+                        {tx.isInc ? (
+                          <ArrowUpRight className="w-5 h-5 stroke-[2.2]" />
+                        ) : (
+                          <Receipt className="w-5 h-5 stroke-[2.2]" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">{tx.title}</p>
+                        <p className="text-xs text-slate-400 font-medium">{tx.date}</p>
+                      </div>
+                    </div>
+                    <span
+                      className={`text-sm font-black tracking-tight ${
+                        tx.isInc ? 'text-emerald-600' : 'text-rose-500'
+                      }`}
+                    >
+                      {tx.isInc ? '+' : '-'}
+                      {formatCurrency(Math.abs(tx.amount), currency)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Today's Schedule */}
+          <div className="col-span-5 bg-white rounded-3xl p-6 border border-slate-100 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h4 className="text-base font-black text-slate-900">Today's Schedule</h4>
+                <button
+                  onClick={() => onNavigate('calendar')}
+                  className="text-xs font-bold text-purple-600 hover:text-purple-700"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="space-y-3.5 mt-4">
+                {[
+                  {
+                    time: '10:00 AM',
+                    title: 'Client meeting with Arjun',
+                    tag: 'Work',
+                    badge: 'bg-blue-50 text-blue-600 border border-blue-200',
+                  },
+                  {
+                    time: '11:30 AM',
+                    title: 'Create instagram post',
+                    tag: 'Marketing',
+                    badge: 'bg-pink-50 text-pink-600 border border-pink-200',
+                  },
+                  {
+                    time: '2:00 PM',
+                    title: 'Work on website design',
+                    tag: 'Work',
+                    badge: 'bg-blue-50 text-blue-600 border border-blue-200',
+                  },
+                  {
+                    time: '6:00 PM',
+                    title: 'Gym workout',
+                    tag: 'Health',
+                    badge: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100 flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[11px] font-bold text-purple-600 block">{item.time}</span>
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate mt-0.5">
+                        {item.title}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${item.badge}`}>
+                      {item.tag}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE VIEW (<lg) ── */}
+      <div className="block lg:hidden space-y-5">
       {/* ── SCREEN 1: TOTAL BALANCE HERO CARD (EXACT MOCKUP) ── */}
       <div
         className="relative rounded-[32px] p-6 overflow-hidden stagger-1 border border-white/80"
@@ -963,6 +1239,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </BarChart>
           </ResponsiveContainer>
         </div>
+      </div>
       </div>
       </div>
 
