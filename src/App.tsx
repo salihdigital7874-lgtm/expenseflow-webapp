@@ -469,6 +469,9 @@ export const App: React.FC = () => {
       profile={profile}
       onLogout={handleLogout}
       showToast={showToast}
+      currency={currency}
+      onAddExpense={handleAddExpense}
+      onAddIncome={handleAddIncome}
     >
       {dataLoading ? (
         <div className="py-20 flex flex-col items-center justify-center text-zinc-400">

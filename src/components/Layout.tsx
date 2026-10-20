@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard,
+  Home,
   Receipt,
   TrendingUp,
   Users,
@@ -17,11 +18,14 @@ import {
   ChevronRight,
   HelpCircle,
   ChevronLeft,
+  Bell,
+  Plus,
 } from 'lucide-react';
 import { Profile } from '../types/database';
 import { useAppBrand } from '../context/BrandContext';
 import { EditBrandingModal } from './EditBrandingModal';
 import { DEFAULT_BRANDING } from '../types/branding';
+import { QuickAddTransactionModal } from './QuickAddTransactionModal';
 
 export type TabType =
   | 'dashboard'
@@ -41,6 +45,9 @@ interface LayoutProps {
   profile?: Profile | null;
   onLogout: () => void;
   showToast?: (msg: string, type: 'success' | 'error' | 'warning' | 'info') => void;
+  currency?: string;
+  onAddExpense?: (data: any) => Promise<void>;
+  onAddIncome?: (data: any) => Promise<void>;
   children: React.ReactNode;
 }
 
@@ -56,9 +63,9 @@ const TAB_THEMES: Record<
   }
 > = {
   dashboard: {
-    bg: 'bg-gradient-to-b from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF]',
+    bg: 'bg-gradient-to-b from-[#F2EDFF] via-[#F6F3FF] to-[#FAF8FF]',
     textColor: 'text-slate-900',
-    headerTitle: 'ExpenseFlow',
+    headerTitle: 'LifeSync✦',
   },
   health: {
     bg: 'bg-gradient-to-b from-[#FFE4E6] via-[#FFF1F2] to-[#FFFFFF]',
@@ -122,9 +129,13 @@ export const Layout: React.FC<LayoutProps> = ({
   profile,
   onLogout,
   showToast,
+  currency = '₹',
+  onAddExpense,
+  onAddIncome,
   children,
 }) => {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [brandingModalOpen, setBrandingModalOpen] = useState(false);
   const moreSheetRef = useRef<HTMLDivElement>(null);
@@ -182,34 +193,27 @@ export const Layout: React.FC<LayoutProps> = ({
   }, [moreSheetOpen]);
 
   const navItems: { id: TabType; label: string; shortLabel: string; icon: React.ReactNode; color: string }[] = [
-    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <LayoutDashboard className="w-5 h-5 text-sky-600" />, color: '#0284C7' },
-    { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
-    { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-amber-500" />, color: '#F59E0B' },
+    { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: <Home className="w-5 h-5 text-purple-600" />, color: '#7C3AED' },
+    { id: 'expenses', label: 'My Expenses', shortLabel: 'Expenses', icon: <Receipt className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
     { id: 'income', label: 'Incoming Amount', shortLabel: 'Income', icon: <TrendingUp className="w-5 h-5 text-emerald-500" />, color: '#10B981' },
-    { id: 'clients', label: 'Client Balances', shortLabel: 'Clients', icon: <Users className="w-5 h-5 text-emerald-600" />, color: '#059669' },
+    { id: 'health', label: 'Health Suite', shortLabel: 'Health', icon: <Heart className="w-5 h-5 text-rose-500" />, color: '#F43F5E' },
+    { id: 'clients', label: 'Client Balances', shortLabel: 'Clients', icon: <Users className="w-5 h-5 text-amber-600" />, color: '#D97706' },
     { id: 'budgets', label: 'Budgets', shortLabel: 'Budgets', icon: <PieChart className="w-5 h-5 text-orange-500" />, color: '#EA580C' },
     { id: 'reports', label: 'Reports & Exports', shortLabel: 'Reports', icon: <BarChart3 className="w-5 h-5 text-indigo-600" />, color: '#4F46E5' },
     { id: 'settings', label: 'Settings & Branding', shortLabel: 'Settings', icon: <SettingsIcon className="w-5 h-5 text-slate-600" />, color: '#475569' },
   ];
 
-  // Mobile bottom bar: show first 4 tabs + "More"
-  const mobileBottomTabs = navItems.slice(0, 4);
-  const moreMenuTabs = navItems.slice(4);
+  // More Menu tabs
+  const moreMenuTabs = [
+    navItems.find((n) => n.id === 'health')!,
+    navItems.find((n) => n.id === 'clients')!,
+    navItems.find((n) => n.id === 'budgets')!,
+    navItems.find((n) => n.id === 'reports')!,
+    navItems.find((n) => n.id === 'settings')!,
+  ];
 
   // Check if active tab is in "More" group
-  const isActiveInMore = moreMenuTabs.some((item) => item.id === currentTab);
-
-  // Active Bottom Index for Sliding Indicator Pill (0 to 4)
-  const activeBottomIndex =
-    currentTab === 'dashboard'
-      ? 0
-      : currentTab === 'health'
-      ? 1
-      : currentTab === 'expenses'
-      ? 2
-      : currentTab === 'income'
-      ? 3
-      : 4;
+  const isActiveInMore = ['health', 'clients', 'budgets', 'reports', 'settings'].includes(currentTab);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -345,49 +349,50 @@ export const Layout: React.FC<LayoutProps> = ({
 
       {/* Main Content Wrapper */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
-        {/* Top Navbar matching the 10 Mobile Screens */}
-        <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white/70 backdrop-blur-xl border-b border-slate-100/80 shadow-xs">
-          {/* Left Side: Brand Logo or Page Title */}
-          <div className="flex items-center gap-2.5 min-w-0">
-            {currentTab === 'settings' ? (
+        {/* Top Navbar matching the LifeSync Mobile UI Mockup */}
+        <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs">
+          {/* Left Side: Brand Logo or Page Title / Back */}
+          <div className="flex items-center gap-2.5 min-w-[70px]">
+            {currentTab !== 'dashboard' ? (
               <button
                 onClick={() => onSelectTab('dashboard')}
-                className="flex items-center gap-2 text-slate-900 font-bold hover:text-sky-600 transition-colors btn-press"
+                className="flex items-center gap-1.5 text-slate-800 hover:text-purple-600 font-bold transition-colors btn-press px-2 py-1.5 rounded-xl hover:bg-white/80"
               >
-                <ChevronLeft className="w-6 h-6 text-slate-700" />
-                <span className="text-lg font-bold">Settings</span>
+                <ChevronLeft className="w-5 h-5 text-slate-700" />
+                <span className="text-sm font-bold hidden sm:inline">{currentTheme.headerTitle}</span>
               </button>
-            ) : currentTab === 'dashboard' ? (
+            ) : (
               <div
-                className="flex items-center gap-2.5 cursor-pointer btn-press"
+                className="flex items-center gap-2 cursor-pointer btn-press group"
                 onClick={() => setBrandingModalOpen(true)}
+                title="Edit App Name & Logo"
               >
                 <img
                   src={branding.appLogo}
                   alt={branding.appName}
-                  className="w-8 h-8 rounded-xl object-cover border border-sky-400/40 shadow-sm"
+                  className="w-8 h-8 rounded-xl object-cover border border-purple-200/80 shadow-xs group-hover:scale-105 transition-transform"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;
                     target.src = DEFAULT_BRANDING.appLogo;
                   }}
                 />
-                <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                  {branding.appName}
-                </h1>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                {currentTheme.headerIcon}
-                <h1 className="text-lg font-bold tracking-tight text-slate-900">
-                  {currentTheme.headerTitle}
-                </h1>
               </div>
             )}
           </div>
 
+          {/* Center Brand Title (prominently LifeSync✦ by Salih) */}
+          <div className="flex flex-col items-center justify-center text-center flex-1 min-w-0">
+            <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center justify-center gap-0.5 truncate">
+              <span>{branding.appName}</span>
+            </h1>
+            <p className="text-[10px] sm:text-xs font-bold text-purple-600/90 tracking-wide -mt-0.5 truncate">
+              {branding.appSubtitle}
+            </p>
+          </div>
+
           {/* Desktop Search bar */}
-          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-sm mx-4">
+          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xs mx-4">
             <div className="relative w-full">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -395,28 +400,26 @@ export const Layout: React.FC<LayoutProps> = ({
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="Search transactions, clients..."
-                className="w-full bg-white/80 border border-slate-200/80 rounded-2xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-xs"
+                className="w-full bg-white/80 border border-purple-100 rounded-2xl pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-xs"
               />
             </div>
           </form>
 
-          {/* Right Side: Quick Action & Avatar */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            {/* Search Icon on mobile for searchable tabs */}
-            {currentTheme.showSearchOnMobile && (
-              <button
-                onClick={() => {
-                  const query = prompt('Search records:');
-                  if (query && onSearch) onSearch(query);
-                }}
-                className="w-9 h-9 rounded-full bg-white/90 border border-slate-200/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-slate-900 transition-all btn-press"
-                title="Search"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-            )}
+          {/* Right Side: Notification Bell + Avatar */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 min-w-[70px] justify-end">
+            {/* Bell Icon with Red Unread Dot (Mockup) */}
+            <button
+              onClick={() => {
+                if (showToast) showToast('All notifications are up to date!', 'info');
+              }}
+              className="relative w-9 h-9 rounded-full bg-white/90 border border-purple-100/80 shadow-xs flex items-center justify-center text-slate-700 hover:text-purple-600 hover:bg-purple-50/50 transition-all btn-press"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+            </button>
 
-            {/* User Avatar Circle */}
+            {/* User Avatar Circle with Online Green Dot */}
             <div
               onClick={() => onSelectTab('settings')}
               className="relative cursor-pointer group btn-press"
@@ -425,9 +428,9 @@ export const Layout: React.FC<LayoutProps> = ({
               <img
                 src={avatarUrl}
                 alt="User Profile"
-                className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm ring-1 ring-slate-200/80 group-hover:scale-105 transition-transform"
+                className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-xs ring-1 ring-purple-100 group-hover:scale-105 transition-transform"
               />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs" />
             </div>
           </div>
         </header>
@@ -538,70 +541,66 @@ export const Layout: React.FC<LayoutProps> = ({
           </nav>
         </div>
 
-        {/* Floating Frosted Glass Bottom Navigation Bar with Sliding Indicator */}
-        <div className="mobile-tab-bar pointer-events-auto">
-          <div className="mobile-tab-glass-shimmer" />
+        {/* Floating Frosted Glass Bottom Navigation Bar with 5 slots matching Mockup */}
+        <div className="mobile-tab-bar pointer-events-auto shadow-2xl shadow-purple-950/15 border border-white/80 bg-white/95 backdrop-blur-2xl rounded-[32px] max-w-[420px] mx-auto">
+          <div className="flex items-center justify-between px-2 py-1.5 relative">
+            {/* 1. Home */}
+            <button
+              onClick={() => handleMobileTabSelect('dashboard')}
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
+                currentTab === 'dashboard' ? 'text-purple-600 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
+              }`}
+            >
+              <Home className={`w-5 h-5 transition-transform ${currentTab === 'dashboard' ? 'scale-110 text-purple-600 stroke-[2.5]' : ''}`} />
+              <span className="text-[11px] mt-0.5">Home</span>
+              {currentTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-0.5 shadow-sm shadow-purple-500/50" />}
+            </button>
 
-          <div className="mobile-tab-bar-inner">
-            {/* Sliding Pill Indicator that morphs across tabs */}
-            <div
-              className="mobile-tab-sliding-pill"
-              style={{
-                transform: `translateX(${activeBottomIndex * 100}%)`,
-              }}
-            />
+            {/* 2. Expenses */}
+            <button
+              onClick={() => handleMobileTabSelect('expenses')}
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
+                currentTab === 'expenses' ? 'text-rose-500 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
+              }`}
+            >
+              <Receipt className={`w-5 h-5 transition-transform ${currentTab === 'expenses' ? 'scale-110 text-rose-500 stroke-[2.5]' : ''}`} />
+              <span className="text-[11px] mt-0.5">Expenses</span>
+              {currentTab === 'expenses' && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-0.5 shadow-sm shadow-rose-500/50" />}
+            </button>
 
-            {mobileBottomTabs.map((item) => {
-              const isActive = currentTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleMobileTabSelect(item.id)}
-                  className={`mobile-tab-item btn-press`}
-                >
-                  <span
-                    className={`mobile-tab-icon ${
-                      isActive ? 'mobile-tab-icon--active' : ''
-                    }`}
-                  >
-                    {item.icon}
-                  </span>
-                  <span
-                    className={`mobile-tab-label ${
-                      isActive ? 'mobile-tab-label--active' : ''
-                    }`}
-                  >
-                    {item.shortLabel}
-                  </span>
-                  {isActive && <span className="mobile-tab-dot" />}
-                </button>
-              );
-            })}
+            {/* 3. Center Elevated Floating Quick Add (+) Button */}
+            <div className="flex-1 flex items-center justify-center -mt-6">
+              <button
+                onClick={() => setQuickAddOpen(true)}
+                className="w-13 h-13 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-violet-500 text-white shadow-xl shadow-purple-600/40 border-[3px] border-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all btn-press group"
+                title="Quick Add Transaction"
+              >
+                <Plus className="w-6 h-6 stroke-[2.5] group-hover:rotate-90 transition-transform duration-300" />
+              </button>
+            </div>
 
-            {/* More Button */}
+            {/* 4. Income */}
+            <button
+              onClick={() => handleMobileTabSelect('income')}
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
+                currentTab === 'income' ? 'text-emerald-500 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
+              }`}
+            >
+              <TrendingUp className={`w-5 h-5 transition-transform ${currentTab === 'income' ? 'scale-110 text-emerald-500 stroke-[2.5]' : ''}`} />
+              <span className="text-[11px] mt-0.5">Income</span>
+              {currentTab === 'income' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-0.5 shadow-sm shadow-emerald-500/50" />}
+            </button>
+
+            {/* 5. More */}
             <button
               onClick={() => setMoreSheetOpen(!moreSheetOpen)}
-              className={`mobile-tab-item btn-press`}
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
+                isActiveInMore || moreSheetOpen ? 'text-purple-600 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
+              }`}
             >
-              <span
-                className={`mobile-tab-icon ${
-                  isActiveInMore || moreSheetOpen ? 'mobile-tab-icon--active' : ''
-                }`}
-              >
-                {moreSheetOpen ? (
-                  <ChevronUp className="w-5 h-5 text-slate-700" />
-                ) : (
-                  <MoreHorizontal className="w-5 h-5 text-slate-500" />
-                )}
-              </span>
-              <span
-                className={`mobile-tab-label ${
-                  isActiveInMore || moreSheetOpen ? 'mobile-tab-label--active' : ''
-                }`}
-              >
-                More
-              </span>
-              {isActiveInMore && <span className="mobile-tab-dot" />}
+              <MoreHorizontal className={`w-5 h-5 transition-transform ${isActiveInMore || moreSheetOpen ? 'scale-110 text-purple-600 stroke-[2.5]' : ''}`} />
+              <span className="text-[11px] mt-0.5">More</span>
+              {isActiveInMore && <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-0.5 shadow-sm shadow-purple-500/50" />}
             </button>
           </div>
         </div>
@@ -612,6 +611,15 @@ export const Layout: React.FC<LayoutProps> = ({
         isOpen={brandingModalOpen}
         onClose={() => setBrandingModalOpen(false)}
         showToast={showToast}
+      />
+
+      {/* Quick Add Transaction Modal */}
+      <QuickAddTransactionModal
+        isOpen={quickAddOpen}
+        onClose={() => setQuickAddOpen(false)}
+        onAddExpense={onAddExpense || (async () => {})}
+        onAddIncome={onAddIncome || (async () => {})}
+        currency={currency}
       />
     </div>
   );

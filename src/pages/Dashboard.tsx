@@ -22,10 +22,12 @@ import {
   ChevronDown,
   ChevronRight,
   Briefcase,
+  Home,
 } from 'lucide-react';
 import { Expense, Income, Client, Budget } from '../types/database';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { useAnimatedCounter } from '../hooks/useAnimatedCounter';
+import { Wallet3DArtwork } from '../components/Wallet3DArtwork';
 import {
   BarChart,
   Bar,
@@ -320,218 +322,370 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="space-y-5 pb-8">
-      {/* ── SCREEN 1: TOTAL BALANCE CARD (STAGGER 1) ── */}
-      <div className="bg-white rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden stagger-1">
-        <div className="flex items-start justify-between">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Total Balance
+      {/* ── SCREEN 1: TOTAL BALANCE HERO CARD (EXACT MOCKUP) ── */}
+      <div
+        className="relative rounded-[32px] p-6 overflow-hidden stagger-1 border border-white/80"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(244, 239, 255, 0.88) 55%, rgba(233, 222, 255, 0.92) 100%)',
+          boxShadow: '0 20px 45px -10px rgba(124, 58, 237, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.9) inset',
+        }}
+      >
+        <div className="flex items-start justify-between relative z-10">
+          <div className="space-y-1 max-w-[65%] sm:max-w-none">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+              TOTAL BALANCE
             </span>
-            <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">
+            <div className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
               {formatCurrency(animatedBalance, currency)}
             </div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
-                <ArrowUpRight className="w-3.5 h-3.5" />
-                <span>+12% vs last mo</span>
+            <div className="pt-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 shadow-xs border border-emerald-200/60">
+                <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>+12% vs last month</span>
               </span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-sm">
-            <Wallet className="w-6 h-6" />
+
+          {/* Top-Right Frosted White Wallet Icon */}
+          <div className="w-11 h-11 rounded-2xl bg-white/95 text-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/10 border border-white/90">
+            <Wallet className="w-5 h-5 stroke-[2.2]" />
           </div>
         </div>
 
-        {/* Sparkline curve */}
-        <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span>Real-time balance across accounts</span>
-          </div>
-          <svg className="w-24 h-6 text-blue-500 stroke-current fill-none stroke-[2.5]" viewBox="0 0 100 24">
-            <path d="M0,18 Q20,10 40,15 T80,4 T100,10" strokeLinecap="round" />
+        {/* 3D Wallet with Floating Coins Artwork */}
+        <div className="absolute right-0 bottom-4 pointer-events-none select-none z-10 translate-x-2 translate-y-1 sm:translate-x-0 sm:translate-y-0">
+          <Wallet3DArtwork className="w-40 h-36 sm:w-44 sm:h-38 drop-shadow-md" />
+        </div>
+
+        {/* Glowing Violet Wavy Line Chart along the bottom */}
+        <div className="relative mt-3 -mx-6 -mb-6 h-16 pointer-events-none z-0">
+          <svg className="w-full h-full" viewBox="0 0 400 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="wave-chart-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.32" />
+                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0,45 C40,45 60,30 100,34 C140,38 160,18 200,18 C240,18 260,38 300,30 C340,22 365,8 400,8 L400,60 L0,60 Z"
+              fill="url(#wave-chart-grad)"
+            />
+            <path
+              d="M0,45 C40,45 60,30 100,34 C140,38 160,18 200,18 C240,18 260,38 300,30 C340,22 365,8 400,8"
+              fill="none"
+              stroke="#8B5CF6"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
           </svg>
         </div>
       </div>
 
-      {/* ── SCREEN 1: 4 GRID CARDS (STAGGERS 2-5) ── */}
-      <div className="grid grid-cols-2 gap-3.5">
-        {/* Income Card */}
-        <div 
+      {/* ── SCREEN 1: 4 COLORFUL BENTO GRADIENT CARDS (EXACT MOCKUP) ── */}
+      <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+        {/* Income Card (Mint to Emerald) */}
+        <div
           onClick={() => onNavigate('income')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-emerald-200 transition-all cursor-pointer group btn-press stagger-2"
+          className="relative overflow-hidden rounded-[26px] p-4 sm:p-5 text-white transition-all cursor-pointer group btn-press stagger-2 border border-white/20"
+          style={{
+            background: 'linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%)',
+            boxShadow: '0 12px 28px -6px rgba(16, 185, 129, 0.38)',
+          }}
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <ArrowDownRight className="w-5 h-5" />
+          {/* Subtle Mini Bar Chart Graphic Watermark */}
+          <div className="absolute right-2 bottom-2 pointer-events-none opacity-20 flex items-end gap-1">
+            <span className="w-1.5 h-6 bg-white rounded-t-sm" />
+            <span className="w-1.5 h-10 bg-white rounded-t-sm" />
+            <span className="w-1.5 h-14 bg-white rounded-t-sm" />
+            <span className="w-1.5 h-8 bg-white rounded-t-sm" />
+          </div>
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white/95 text-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600">
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/25 backdrop-blur-md text-white border border-white/20">
               +8%
             </span>
           </div>
-          <p className="text-xs font-medium text-slate-500 mt-3">Income</p>
-          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
-            {formatCurrency(totalIncoming > 0 ? totalIncoming : 34200, currency)}
-          </p>
+
+          <p className="text-xs font-semibold text-white/90 mt-4 relative z-10">Income</p>
+          <div className="flex items-center justify-between mt-0.5 relative z-10">
+            <p className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+              {formatCurrency(totalIncoming > 0 ? totalIncoming : 34200, currency)}
+            </p>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-emerald-600 shrink-0 group-hover:translate-x-0.5 transition-transform">
+              <ChevronRight className="w-4 h-4 stroke-[3]" />
+            </div>
+          </div>
         </div>
 
-        {/* Expenses Card */}
-        <div 
+        {/* Expenses Card (Coral to Rose) */}
+        <div
           onClick={() => onNavigate('expenses')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-rose-200 transition-all cursor-pointer group btn-press stagger-3"
+          className="relative overflow-hidden rounded-[26px] p-4 sm:p-5 text-white transition-all cursor-pointer group btn-press stagger-3 border border-white/20"
+          style={{
+            background: 'linear-gradient(135deg, #FB7185 0%, #F43F5E 50%, #E11D48 100%)',
+            boxShadow: '0 12px 28px -6px rgba(244, 63, 94, 0.38)',
+          }}
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Receipt className="w-5 h-5" />
+          {/* Subtle Mini Bar Chart Graphic Watermark */}
+          <div className="absolute right-2 bottom-2 pointer-events-none opacity-20 flex items-end gap-1">
+            <span className="w-1.5 h-10 bg-white rounded-t-sm" />
+            <span className="w-1.5 h-14 bg-white rounded-t-sm" />
+            <span className="w-1.5 h-8 bg-white rounded-t-sm" />
+            <span className="w-1.5 h-5 bg-white rounded-t-sm" />
+          </div>
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white/95 text-rose-500 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <Receipt className="w-5 h-5 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-500">
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/25 backdrop-blur-md text-white border border-white/20">
               -4%
             </span>
           </div>
-          <p className="text-xs font-medium text-slate-500 mt-3">Expenses</p>
-          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
-            {formatCurrency(totalExpenses > 0 ? totalExpenses : 12450, currency)}
-          </p>
+
+          <p className="text-xs font-semibold text-white/90 mt-4 relative z-10">Expenses</p>
+          <div className="flex items-center justify-between mt-0.5 relative z-10">
+            <p className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+              {formatCurrency(totalExpenses > 0 ? totalExpenses : 12450, currency)}
+            </p>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-rose-500 shrink-0 group-hover:translate-x-0.5 transition-transform">
+              <ChevronRight className="w-4 h-4 stroke-[3]" />
+            </div>
+          </div>
         </div>
 
-        {/* Clients Due Card */}
-        <div 
+        {/* Clients Due Card (Sunny Amber) */}
+        <div
           onClick={() => onNavigate('clients')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-amber-200 transition-all cursor-pointer group btn-press stagger-4"
+          className="relative overflow-hidden rounded-[26px] p-4 sm:p-5 text-white transition-all cursor-pointer group btn-press stagger-4 border border-white/20"
+          style={{
+            background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%)',
+            boxShadow: '0 12px 28px -6px rgba(245, 158, 11, 0.38)',
+          }}
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Users className="w-5 h-5" />
+          {/* Subtle Document Illustration Watermark */}
+          <div className="absolute right-2 bottom-1 pointer-events-none opacity-20">
+            <div className="w-12 h-14 bg-white rounded-lg p-1.5 flex flex-col gap-1.5">
+              <span className="w-6 h-1 bg-amber-500 rounded-full" />
+              <span className="w-9 h-1 bg-amber-500 rounded-full" />
+              <span className="w-7 h-1 bg-amber-500 rounded-full" />
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600">
-              {clients.filter(c => Number(c.balance_amount) > 0).length || 6} pending
+          </div>
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white/95 text-amber-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <Users className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/25 backdrop-blur-md text-white border border-white/20">
+              {clients.filter((c) => Number(c.balance_amount) > 0).length || 6} pending
             </span>
           </div>
-          <p className="text-xs font-medium text-slate-500 mt-3">Clients Due</p>
-          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
-            {formatCurrency(totalClientBalance > 0 ? totalClientBalance : 8600, currency)}
-          </p>
+
+          <p className="text-xs font-semibold text-white/90 mt-4 relative z-10">Clients Due</p>
+          <div className="flex items-center justify-between mt-0.5 relative z-10">
+            <p className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+              {formatCurrency(totalClientBalance > 0 ? totalClientBalance : 8600, currency)}
+            </p>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-amber-600 shrink-0 group-hover:translate-x-0.5 transition-transform">
+              <ChevronRight className="w-4 h-4 stroke-[3]" />
+            </div>
+          </div>
         </div>
 
-        {/* Savings Card */}
-        <div 
+        {/* Savings Card (Blue to Royal Purple) */}
+        <div
           onClick={() => onNavigate('budgets')}
-          className="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-purple-200 transition-all cursor-pointer group btn-press stagger-5"
+          className="relative overflow-hidden rounded-[26px] p-4 sm:p-5 text-white transition-all cursor-pointer group btn-press stagger-5 border border-white/20"
+          style={{
+            background: 'linear-gradient(135deg, #60A5FA 0%, #6366F1 50%, #8B5CF6 100%)',
+            boxShadow: '0 12px 28px -6px rgba(99, 102, 241, 0.38)',
+          }}
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <PieChartIcon className="w-5 h-5" />
+          {/* Subtle Coin Stack Graphic Watermark */}
+          <div className="absolute right-2 bottom-1 pointer-events-none opacity-20 flex flex-col items-center">
+            <div className="w-10 h-3 bg-white rounded-full mb-0.5" />
+            <div className="w-10 h-3 bg-white rounded-full mb-0.5" />
+            <div className="w-10 h-3 bg-white rounded-full" />
+          </div>
+
+          <div className="flex items-center justify-between relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white/95 text-indigo-600 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+              <PieChartIcon className="w-5 h-5 stroke-[2.2]" />
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-600">
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/25 backdrop-blur-md text-white border border-white/20">
               {budgetPercentage > 0 ? `${100 - budgetPercentage}% left` : '64% goal'}
             </span>
           </div>
-          <p className="text-xs font-medium text-slate-500 mt-3">Savings</p>
-          <p className="text-base sm:text-xl font-bold text-slate-900 mt-0.5 truncate">
-            {formatCurrency(totalBudget > 0 ? remainingBudget : 21750, currency)}
-          </p>
+
+          <p className="text-xs font-semibold text-white/90 mt-4 relative z-10">Savings</p>
+          <div className="flex items-center justify-between mt-0.5 relative z-10">
+            <p className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+              {formatCurrency(totalBudget > 0 ? remainingBudget : 21750, currency)}
+            </p>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-indigo-600 shrink-0 group-hover:translate-x-0.5 transition-transform">
+              <ChevronRight className="w-4 h-4 stroke-[3]" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ── SCREEN 1: RECENT TRANSACTIONS (STAGGER 6) ── */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-slate-100 stagger-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-slate-900 tracking-tight">Recent Transactions</h3>
+      {/* ── SCREEN 1: RECENT TRANSACTIONS (EXACT MOCKUP) ── */}
+      <div className="bg-white/95 backdrop-blur-xl rounded-[32px] p-5 sm:p-6 shadow-[0_16px_40px_-10px_rgba(124,58,237,0.08)] border border-slate-100 stagger-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">Recent Transactions</h3>
           <button
             onClick={() => onNavigate('expenses')}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors btn-press"
+            className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors btn-press"
           >
             <span>See All</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
           </button>
         </div>
 
         {recentTransactions.length > 0 ? (
-          <div className="divide-y divide-slate-100">
-            {recentTransactions.map((tx) => (
-              <div key={tx.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0">
-                <div className="flex items-center gap-3.5">
-                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
-                    tx.type === 'income' 
-                      ? 'bg-emerald-50 text-emerald-600'
-                      : tx.category === 'Food'
-                      ? 'bg-orange-50 text-orange-500'
-                      : tx.category === 'Software'
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'bg-rose-50 text-rose-500'
-                  }`}>
-                    {tx.type === 'income' ? (
-                      <TrendingUp className="w-5 h-5" />
-                    ) : tx.category === 'Food' ? (
-                      <Utensils className="w-5 h-5" />
-                    ) : tx.category === 'Software' ? (
-                      <Layers className="w-5 h-5" />
-                    ) : (
-                      <Receipt className="w-5 h-5" />
-                    )}
+          <div className="divide-y divide-slate-100/80">
+            {recentTransactions.map((tx) => {
+              const isIncome = tx.type === 'income';
+              const isFood = tx.category === 'Food';
+              const isOffice = tx.category === 'Office';
+              const isSubscription = tx.category === 'Software' || tx.description?.toLowerCase().includes('netflix');
+
+              return (
+                <div key={tx.id} className="py-3.5 flex items-center justify-between first:pt-1 last:pb-1 group">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
+                        isSubscription
+                          ? 'bg-black text-[#E50914] font-black text-lg'
+                          : isIncome
+                          ? 'bg-emerald-100 text-emerald-600'
+                          : isOffice
+                          ? 'bg-amber-100 text-amber-600'
+                          : isFood
+                          ? 'bg-rose-100 text-rose-500'
+                          : 'bg-indigo-100 text-indigo-600'
+                      }`}
+                    >
+                      {isSubscription ? (
+                        'N'
+                      ) : isIncome ? (
+                        <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
+                      ) : isOffice ? (
+                        <Home className="w-5 h-5 stroke-[2.2]" />
+                      ) : isFood ? (
+                        <Utensils className="w-5 h-5" />
+                      ) : (
+                        <Briefcase className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-900 leading-snug truncate">
+                        {tx.description || tx.category || 'Transaction'}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {formatDate(tx.date)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 leading-snug">
-                      {tx.description || tx.category || 'Transaction'}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {tx.category || (tx.type === 'income' ? 'Income' : 'Expense')} · {formatDate(tx.date)}
-                    </p>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-sm font-extrabold ${isIncome ? 'text-emerald-600' : 'text-rose-500'}`}>
+                      {isIncome ? '+' : '-'}{formatCurrency(tx.amount, currency)}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </div>
                 </div>
-                <div className={`text-sm font-bold ${
-                  tx.type === 'income' ? 'text-emerald-600' : 'text-slate-900'
-                }`}>
-                  {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
-          /* Exact Screen 1 Sample Transactions Preview */
-          <div className="divide-y divide-slate-100">
-            <div className="py-3 flex items-center justify-between first:pt-0">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+          /* Exact Screen 1 Sample Transactions Preview matching screenshot */
+          <div className="divide-y divide-slate-100/80">
+            {/* 1. Netflix Subscription */}
+            <div className="py-3.5 flex items-center justify-between first:pt-1 group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-full bg-black text-[#E50914] font-black text-lg flex items-center justify-center shrink-0 shadow-sm">
+                  N
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900 leading-snug">Netflix Subscription</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Today, 5:20 PM</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm font-extrabold text-rose-500">-₹499.00</span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </div>
+            </div>
+
+            {/* 2. Client Payment */}
+            <div className="py-3.5 flex items-center justify-between group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
+                  <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900 leading-snug">Client Payment</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Today, 11:10 AM</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm font-extrabold text-emerald-600">+₹5,000.00</span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </div>
+            </div>
+
+            {/* 3. Office Rent */}
+            <div className="py-3.5 flex items-center justify-between group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-sm">
+                  <Home className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900 leading-snug">Office Rent</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Yesterday, 8:30 PM</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm font-extrabold text-rose-500">-₹4,500.00</span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </div>
+            </div>
+
+            {/* 4. Freelance Work */}
+            <div className="py-3.5 flex items-center justify-between group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center shrink-0 shadow-sm">
+                  <Briefcase className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900 leading-snug">Freelance Work</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Yesterday, 2:15 PM</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm font-extrabold text-emerald-600">+₹12,000.00</span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </div>
+            </div>
+
+            {/* 5. Food & Dining */}
+            <div className="py-3.5 flex items-center justify-between last:pb-1 group">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center shrink-0 shadow-sm">
                   <Utensils className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900 leading-snug">Zomato</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Food & Dining · Today</p>
+                  <p className="text-sm font-bold text-slate-900 leading-snug">Food & Dining</p>
+                  <p className="text-xs text-slate-400 mt-0.5">12 Oct 2026, 7:40 PM</p>
                 </div>
               </div>
-              <div className="text-sm font-bold text-slate-900">
-                -{currency === 'INR' ? '₹' : '$'}42.50
-              </div>
-            </div>
-
-            <div className="py-3 flex items-center justify-between">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                  <Briefcase className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 leading-snug">Client Payment</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Acme Corp · Yesterday</p>
-                </div>
-              </div>
-              <div className="text-sm font-bold text-emerald-600">
-                +{currency === 'INR' ? '₹' : '$'}2,400.00
-              </div>
-            </div>
-
-            <div className="py-3 flex items-center justify-between last:pb-0">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 leading-snug">Adobe Creative Cloud</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Subscription · Oct 12</p>
-                </div>
-              </div>
-              <div className="text-sm font-bold text-slate-900">
-                -{currency === 'INR' ? '₹' : '$'}54.99
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm font-extrabold text-rose-500">-₹320.00</span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
               </div>
             </div>
           </div>

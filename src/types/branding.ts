@@ -8,8 +8,8 @@ export interface AppBranding {
 }
 
 export const DEFAULT_BRANDING: AppBranding = {
-  appName: 'Salih Expense',
-  appSubtitle: 'Business Portal',
+  appName: 'LifeSync✦',
+  appSubtitle: 'by Salih',
   appLogo: defaultLogo,
   accentColor: 'indigo',
 };
