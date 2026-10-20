@@ -63,7 +63,7 @@ const TAB_THEMES: Record<
   }
 > = {
   dashboard: {
-    bg: 'bg-gradient-to-b from-[#F2EDFF] via-[#F6F3FF] to-[#FAF8FF]',
+    bg: 'bg-gradient-to-b from-[#ECE7FB] via-[#E8E2FA] to-[#E2DCF8]',
     textColor: 'text-slate-900',
     headerTitle: 'LifeSync✦',
   },
@@ -140,26 +140,6 @@ export const Layout: React.FC<LayoutProps> = ({
   const [brandingModalOpen, setBrandingModalOpen] = useState(false);
   const moreSheetRef = useRef<HTMLDivElement>(null);
 
-  // App Launch Splash Screen
-  const [showLaunchScreen, setShowLaunchScreen] = useState(() => {
-    return !sessionStorage.getItem('expenseflow_launched_session');
-  });
-  const [launchExiting, setLaunchExiting] = useState(false);
-
-  useEffect(() => {
-    if (showLaunchScreen) {
-      const exitTimer = setTimeout(() => {
-        setLaunchExiting(true);
-        const closeTimer = setTimeout(() => {
-          setShowLaunchScreen(false);
-          sessionStorage.setItem('expenseflow_launched_session', 'true');
-        }, 450);
-        return () => clearTimeout(closeTimer);
-      }, 1000);
-      return () => clearTimeout(exitTimer);
-    }
-  }, [showLaunchScreen]);
-
   // Tab Transition Direction Handling
   const [prevTab, setPrevTab] = useState<TabType>(currentTab);
   const [transitionClass, setTransitionClass] = useState<string>('screen-transition-fade');
@@ -235,33 +215,6 @@ export const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className={`min-h-screen flex ${currentTheme.bg} ${currentTheme.textColor} transition-colors duration-500`}>
-      {/* ====== APP LAUNCH / SPLASH OVERLAY ====== */}
-      {showLaunchScreen && (
-        <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-3xl transition-all ${
-            launchExiting ? 'animate-launch-exit' : ''
-          }`}
-        >
-          <div className="flex flex-col items-center gap-4 animate-launch-logo">
-            <img
-              src={branding.appLogo}
-              alt={branding.appName}
-              className="w-20 h-20 rounded-3xl object-cover shadow-2xl shadow-sky-500/25 border border-slate-100"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = DEFAULT_BRANDING.appLogo;
-              }}
-            />
-            <div className="text-center">
-              <h1 className="text-xl font-black text-slate-900 tracking-tight">{branding.appName}</h1>
-              <p className="text-xs text-sky-600 font-bold mt-0.5">{branding.appSubtitle}</p>
-            </div>
-            <div className="flex items-center gap-1.5 mt-2">
-              <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
-              <span className="text-[11px] font-semibold text-slate-400">Loading Executive Suite...</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex w-64 flex-col fixed top-0 bottom-0 left-0 bg-white/80 backdrop-blur-2xl border-r border-slate-200/80 z-40 shadow-sm">
@@ -351,7 +304,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
         {/* Top Navbar matching the LifeSync Mobile UI Mockup */}
         <header className="h-16 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between gap-3 bg-white/75 backdrop-blur-xl border-b border-purple-100/60 shadow-xs">
-          {/* Left Side: Brand Logo or Page Title / Back */}
+          {/* Left Side: Empty spacer on dashboard for perfect center alignment, back button on other tabs */}
           <div className="flex items-center gap-2.5 min-w-[70px]">
             {currentTab !== 'dashboard' ? (
               <button
@@ -362,22 +315,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 <span className="text-sm font-bold hidden sm:inline">{currentTheme.headerTitle}</span>
               </button>
             ) : (
-              <div
-                className="flex items-center gap-2 cursor-pointer btn-press group"
-                onClick={() => setBrandingModalOpen(true)}
-                title="Edit App Name & Logo"
-              >
-                <img
-                  src={branding.appLogo}
-                  alt={branding.appName}
-                  className="w-8 h-8 rounded-xl object-cover border border-purple-200/80 shadow-xs group-hover:scale-105 transition-transform"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.onerror = null;
-                    target.src = DEFAULT_BRANDING.appLogo;
-                  }}
-                />
-              </div>
+              <div className="w-[70px]" />
             )}
           </div>
 
@@ -542,65 +480,133 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
 
         {/* Floating Frosted Glass Bottom Navigation Bar with 5 slots matching Mockup */}
-        <div className="mobile-tab-bar pointer-events-auto shadow-2xl shadow-purple-950/15 border border-white/80 bg-white/95 backdrop-blur-2xl rounded-[32px] max-w-[420px] mx-auto">
-          <div className="flex items-center justify-between px-2 py-1.5 relative">
+        <div className="mobile-tab-bar pointer-events-auto shadow-2xl shadow-purple-950/15 border border-white/90 bg-white/95 backdrop-blur-2xl rounded-[36px] max-w-[420px] mx-auto px-3 py-2">
+          <div className="flex items-center justify-between relative">
             {/* 1. Home */}
             <button
               onClick={() => handleMobileTabSelect('dashboard')}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
-                currentTab === 'dashboard' ? 'text-purple-600 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
-              }`}
+              className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
-              <Home className={`w-5 h-5 transition-transform ${currentTab === 'dashboard' ? 'scale-110 text-purple-600 stroke-[2.5]' : ''}`} />
-              <span className="text-[11px] mt-0.5">Home</span>
-              {currentTab === 'dashboard' && <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-0.5 shadow-sm shadow-purple-500/50" />}
+              <div
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                  currentTab === 'dashboard'
+                    ? 'bg-[#7C3AED] text-white shadow-md shadow-purple-500/30'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <Home
+                  className={`w-5 h-5 ${
+                    currentTab === 'dashboard' ? 'fill-white text-white' : 'stroke-[1.8]'
+                  }`}
+                />
+              </div>
+              <span
+                className={`text-[11px] mt-0.5 ${
+                  currentTab === 'dashboard'
+                    ? 'font-bold text-purple-700'
+                    : 'font-medium text-slate-400'
+                }`}
+              >
+                Home
+              </span>
             </button>
 
             {/* 2. Expenses */}
             <button
               onClick={() => handleMobileTabSelect('expenses')}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
-                currentTab === 'expenses' ? 'text-rose-500 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
-              }`}
+              className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
-              <Receipt className={`w-5 h-5 transition-transform ${currentTab === 'expenses' ? 'scale-110 text-rose-500 stroke-[2.5]' : ''}`} />
-              <span className="text-[11px] mt-0.5">Expenses</span>
-              {currentTab === 'expenses' && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-0.5 shadow-sm shadow-rose-500/50" />}
+              <div
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                  currentTab === 'expenses'
+                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <Receipt
+                  className={`w-5 h-5 ${
+                    currentTab === 'expenses' ? 'stroke-[2.2]' : 'stroke-[1.8]'
+                  }`}
+                />
+              </div>
+              <span
+                className={`text-[11px] mt-0.5 ${
+                  currentTab === 'expenses'
+                    ? 'font-bold text-rose-600'
+                    : 'font-medium text-slate-400'
+                }`}
+              >
+                Expenses
+              </span>
             </button>
 
             {/* 3. Center Elevated Floating Quick Add (+) Button */}
             <div className="flex-1 flex items-center justify-center -mt-6">
               <button
                 onClick={() => setQuickAddOpen(true)}
-                className="w-13 h-13 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-violet-500 text-white shadow-xl shadow-purple-600/40 border-[3px] border-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all btn-press group"
+                className="w-13 h-13 rounded-full bg-gradient-to-tr from-[#7C3AED] via-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-600/40 border-[3.5px] border-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all btn-press group"
                 title="Quick Add Transaction"
               >
-                <Plus className="w-6 h-6 stroke-[2.5] group-hover:rotate-90 transition-transform duration-300" />
+                <Plus className="w-6 h-6 stroke-[2.8]" />
               </button>
             </div>
 
             {/* 4. Income */}
             <button
               onClick={() => handleMobileTabSelect('income')}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
-                currentTab === 'income' ? 'text-emerald-500 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
-              }`}
+              className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
-              <TrendingUp className={`w-5 h-5 transition-transform ${currentTab === 'income' ? 'scale-110 text-emerald-500 stroke-[2.5]' : ''}`} />
-              <span className="text-[11px] mt-0.5">Income</span>
-              {currentTab === 'income' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-0.5 shadow-sm shadow-emerald-500/50" />}
+              <div
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                  currentTab === 'income'
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <BarChart3
+                  className={`w-5 h-5 ${
+                    currentTab === 'income' ? 'stroke-[2.2]' : 'stroke-[1.8]'
+                  }`}
+                />
+              </div>
+              <span
+                className={`text-[11px] mt-0.5 ${
+                  currentTab === 'income'
+                    ? 'font-bold text-emerald-600'
+                    : 'font-medium text-slate-400'
+                }`}
+              >
+                Income
+              </span>
             </button>
 
             {/* 5. More */}
             <button
               onClick={() => setMoreSheetOpen(!moreSheetOpen)}
-              className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all btn-press ${
-                isActiveInMore || moreSheetOpen ? 'text-purple-600 font-bold' : 'text-slate-400 font-medium hover:text-slate-700'
-              }`}
+              className="flex-1 flex flex-col items-center justify-center py-1 transition-all btn-press"
             >
-              <MoreHorizontal className={`w-5 h-5 transition-transform ${isActiveInMore || moreSheetOpen ? 'scale-110 text-purple-600 stroke-[2.5]' : ''}`} />
-              <span className="text-[11px] mt-0.5">More</span>
-              {isActiveInMore && <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-0.5 shadow-sm shadow-purple-500/50" />}
+              <div
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                  isActiveInMore || moreSheetOpen
+                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <MoreHorizontal
+                  className={`w-5 h-5 ${
+                    isActiveInMore || moreSheetOpen ? 'stroke-[2.2]' : 'stroke-[1.8]'
+                  }`}
+                />
+              </div>
+              <span
+                className={`text-[11px] mt-0.5 ${
+                  isActiveInMore || moreSheetOpen
+                    ? 'font-bold text-purple-700'
+                    : 'font-medium text-slate-400'
+                }`}
+              >
+                More
+              </span>
             </button>
           </div>
         </div>

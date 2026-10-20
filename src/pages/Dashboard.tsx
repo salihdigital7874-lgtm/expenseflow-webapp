@@ -545,153 +545,97 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </button>
         </div>
 
-        {recentTransactions.length > 0 ? (
-          <div className="divide-y divide-slate-100/80">
-            {recentTransactions.map((tx) => {
-              const isIncome = tx.type === 'income';
-              const isFood = tx.category === 'Food';
-              const isOffice = tx.category === 'Office';
-              const isSubscription = tx.category === 'Software' || tx.description?.toLowerCase().includes('netflix');
-
-              return (
-                <div key={tx.id} className="py-3.5 flex items-center justify-between first:pt-1 last:pb-1 group">
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div
-                      className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-xs ${
-                        isSubscription
-                          ? 'bg-black text-[#E50914] font-black text-lg'
-                          : isIncome
-                          ? 'bg-emerald-100 text-emerald-600'
-                          : isOffice
-                          ? 'bg-amber-100 text-amber-600'
-                          : isFood
-                          ? 'bg-rose-100 text-rose-500'
-                          : 'bg-indigo-100 text-indigo-600'
-                      }`}
-                    >
-                      {isSubscription ? (
-                        'N'
-                      ) : isIncome ? (
-                        <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
-                      ) : isOffice ? (
-                        <Home className="w-5 h-5 stroke-[2.2]" />
-                      ) : isFood ? (
-                        <Utensils className="w-5 h-5" />
-                      ) : (
-                        <Briefcase className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 leading-snug truncate">
-                        {tx.description || tx.category || 'Transaction'}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {formatDate(tx.date)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-sm font-extrabold ${isIncome ? 'text-emerald-600' : 'text-rose-500'}`}>
-                      {isIncome ? '+' : '-'}{formatCurrency(tx.amount, currency)}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* Exact Screen 1 Sample Transactions Preview matching screenshot */
-          <div className="divide-y divide-slate-100/80">
-            {/* 1. Netflix Subscription */}
-            <div className="py-3.5 flex items-center justify-between first:pt-1 group">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-black text-[#E50914] font-black text-lg flex items-center justify-center shrink-0 shadow-sm">
-                  N
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 leading-snug">Netflix Subscription</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Today, 5:20 PM</p>
-                </div>
+        {/* Exact Screen 1 Sample Transactions Preview matching screenshot */}
+        <div className="divide-y divide-slate-100/80">
+          {/* 1. Netflix Subscription */}
+          <div className="py-3.5 flex items-center justify-between first:pt-1 group">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-full bg-black text-[#E50914] font-black text-lg flex items-center justify-center shrink-0 shadow-sm">
+                N
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-extrabold text-rose-500">-₹499.00</span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-900 leading-snug">Netflix Subscription</p>
+                <p className="text-xs text-slate-400 mt-0.5">Today, 5:20 PM</p>
               </div>
             </div>
-
-            {/* 2. Client Payment */}
-            <div className="py-3.5 flex items-center justify-between group">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
-                  <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 leading-snug">Client Payment</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Today, 11:10 AM</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-extrabold text-emerald-600">+₹5,000.00</span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </div>
-            </div>
-
-            {/* 3. Office Rent */}
-            <div className="py-3.5 flex items-center justify-between group">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-sm">
-                  <Home className="w-5 h-5 stroke-[2.2]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 leading-snug">Office Rent</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Yesterday, 8:30 PM</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-extrabold text-rose-500">-₹4,500.00</span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </div>
-            </div>
-
-            {/* 4. Freelance Work */}
-            <div className="py-3.5 flex items-center justify-between group">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center shrink-0 shadow-sm">
-                  <Briefcase className="w-5 h-5 stroke-[2.2]" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 leading-snug">Freelance Work</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Yesterday, 2:15 PM</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-extrabold text-emerald-600">+₹12,000.00</span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </div>
-            </div>
-
-            {/* 5. Food & Dining */}
-            <div className="py-3.5 flex items-center justify-between last:pb-1 group">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-11 h-11 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center shrink-0 shadow-sm">
-                  <Utensils className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 leading-snug">Food & Dining</p>
-                  <p className="text-xs text-slate-400 mt-0.5">12 Oct 2026, 7:40 PM</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-extrabold text-rose-500">-₹320.00</span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-extrabold text-rose-500">-₹499.00</span>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
             </div>
           </div>
-        )}
+
+          {/* 2. Client Payment */}
+          <div className="py-3.5 flex items-center justify-between group">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm">
+                <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-900 leading-snug">Client Payment</p>
+                <p className="text-xs text-slate-400 mt-0.5">Today, 11:10 AM</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-extrabold text-emerald-600">+₹5,000.00</span>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+
+          {/* 3. Office Rent */}
+          <div className="py-3.5 flex items-center justify-between group">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-full bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center shrink-0 shadow-sm">
+                <Home className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-900 leading-snug">Office Rent</p>
+                <p className="text-xs text-slate-400 mt-0.5">Yesterday, 8:30 PM</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-extrabold text-rose-500">-₹4,500.00</span>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+
+          {/* 4. Freelance Work */}
+          <div className="py-3.5 flex items-center justify-between group">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-full bg-sky-50 text-sky-500 border border-sky-100 flex items-center justify-center shrink-0 shadow-sm">
+                <Briefcase className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-900 leading-snug">Freelance Work</p>
+                <p className="text-xs text-slate-400 mt-0.5">Yesterday, 2:15 PM</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-extrabold text-emerald-600">+₹12,000.00</span>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+
+          {/* 5. Food & Dining */}
+          <div className="py-3.5 flex items-center justify-between last:pb-1 group">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-full bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center shrink-0 shadow-sm">
+                <Utensils className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-slate-900 leading-snug">Food & Dining</p>
+                <p className="text-xs text-slate-400 mt-0.5">12 Oct 2026, 7:40 PM</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-extrabold text-rose-500">-₹320.00</span>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+        </div>
       </div>
 
+      {/* ── DESKTOP ONLY: Period Filter & Advanced Analytics ── */}
+      <div className="hidden lg:block space-y-6 pt-2">
       {/* Interactive Month & Date Filter Control Hub */}
       <div className="bg-white border border-slate-100 rounded-3xl p-5 space-y-4 shadow-[0_4px_25px_rgba(0,0,0,0.03)] relative overflow-hidden">
         {/* Top Header & Presets Bar */}
@@ -1019,6 +963,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </BarChart>
           </ResponsiveContainer>
         </div>
+      </div>
       </div>
 
       {/* Pay Credit Card Bill Modal */}
