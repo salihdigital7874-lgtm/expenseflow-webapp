@@ -115,48 +115,37 @@ export const IncomePage: React.FC<IncomeProps> = ({
 
   return (
     <div className="space-y-5 pb-24">
-      {/* ── TOP ACTION BAR: FILTER PILLS + ADD INCOME BUTTON ── */}
-      <div className="flex items-center justify-between gap-2.5 flex-wrap">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPeriodFilter('this_month')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
-              periodFilter === 'this_month'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
-            }`}
-          >
-            This Month
-          </button>
-          <button
-            onClick={() => setPeriodFilter('last_month')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
-              periodFilter === 'last_month'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
-            }`}
-          >
-            Last Month
-          </button>
-          <button
-            onClick={() => setPeriodFilter('custom')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
-              periodFilter === 'custom'
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
-            }`}
-          >
-            Custom
-          </button>
-        </div>
-
-        {/* Top Add Income Button */}
+      {/* ── SCREEN 4: FILTER PILLS ── */}
+      <div className="flex items-center gap-2">
         <button
-          onClick={handleOpenAddModal}
-          className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs shadow-md shadow-emerald-600/25 flex items-center gap-1.5 btn-press hover:opacity-95 transition-all ml-auto"
+          onClick={() => setPeriodFilter('this_month')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
+            periodFilter === 'this_month'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
+          }`}
         >
-          <Plus className="w-4 h-4 stroke-[2.8]" />
-          <span>Add Income</span>
+          This Month
+        </button>
+        <button
+          onClick={() => setPeriodFilter('last_month')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
+            periodFilter === 'last_month'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
+          }`}
+        >
+          Last Month
+        </button>
+        <button
+          onClick={() => setPeriodFilter('custom')}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all btn-press ${
+            periodFilter === 'custom'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-white/80 text-slate-600 border border-emerald-100 hover:bg-white'
+          }`}
+        >
+          Custom
         </button>
       </div>
 
